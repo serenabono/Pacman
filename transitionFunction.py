@@ -23,7 +23,7 @@ class TransitionFunctionTree():
             current, agentIdx = current_element["state"], current_element["id"]
 
             if current not in self.probabilities:
-                self.probabilities[str(current)] = {} 
+                self.probabilities[str(current)] = {} # CHLOE thought: save space by making state id the index here?
 
             if agentIdx not in self.visited:
                 self.visited[agentIdx] = {}
@@ -31,7 +31,7 @@ class TransitionFunctionTree():
             actions = current.getLegalActions(agentIdx)
 
             for action in actions:
-                successor = current.generateSuccessor(agentIdx, action)
+                successor = current.generateSuccessor(agentIdx, action) # CHLOE Question: we may want to force ghosts to be deterministic here, right?
                 if str(successor) not in self.visited[agentIdx]:
                     if str(successor) not in self.probabilities[str(current)]:
                         self.probabilities[str(current)][str(successor)] = {}
