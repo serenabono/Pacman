@@ -21,7 +21,6 @@ class TransitionFunctionTree():
         while self.queue:
             current_element = self.queue.pop()
             current, agentIdx = current_element["state"], current_element["id"]
-
             if current not in self.probabilities:
                 self.probabilities[str(current)] = {} # CHLOE thought: save space by making state id the index here?
 

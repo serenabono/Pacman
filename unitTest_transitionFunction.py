@@ -1,4 +1,4 @@
-from transitionFunction import *
+from transitionFunctionC import *
 from pacman import *
 import pprint
 
@@ -23,7 +23,7 @@ def runTransitionTest( layout, pacman, ghosts, display, numGames, record, numTra
         game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
         
         #define transition function
-        tree = TransitionFunctionTree(game)
+        tree = TransitionFunctionCTree(game)
         tree.computeProbabilities()
         print(tree.probabilities)
 
@@ -65,7 +65,7 @@ def constructTransition( layout, pacman, ghosts, display, numGames, record, numT
         game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
         
         #define transition function
-        tree = TransitionFunctionTree(game)
+        tree = TransitionFunctionCTree(game)
         tree.computeProbabilities()
 
         # confirm the size of the probability tree
