@@ -1,4 +1,4 @@
-from transitionFunction import *
+from transitionFunction_scratch import *
 from pacman import *
 
 def runTransitionTest( layout, pacman, ghosts, display, numGames, record, numTraining = 0, catchExceptions=False, timeout=30 ):
