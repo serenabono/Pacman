@@ -33,9 +33,8 @@ class TransitionFunctionTree():
                         prob = dist[action]
                     
                     if (current_element["id"] + 1) % self.numAgents:
-                        if not current_element["actions"]:
-                            current_element["actions"] = [] 
-                        self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": current_element["prob"]*prob, "lastpacmanstate": current_element["lastpacmanstate"], "actions" : current_element["actions"].append(action)})
+                        current_element["actions"].append(action)  
+                        self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": current_element["prob"]*prob, "lastpacmanstate": current_element["lastpacmanstate"], "actions" : current_element["actions"]})
                     else:
                         self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashState(current_element["state"])] = current_element["prob"]*prob
                         self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": self.getHashState(successor), "actions" : list()})
