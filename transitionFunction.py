@@ -44,33 +44,32 @@ class TransitionFunctionTree():
         pacman = state.data.agentStates[0]
         ghosts = state.data.agentStates[1:]
 
-        pacmanpos = str(self.game.state.data.layout.width*pacman.configuration.pos[1] + pacman.configuration.pos[0])
+        pacmanpos = self.game.state.data.layout.width*pacman.configuration.pos[1] + pacman.configuration.pos[0]
 
         ghostspos = []
         for ghost in ghosts:
-            ghostspos.append(str(self.game.state.data.layout.width*ghost.configuration.pos[1] + ghost.configuration.pos[0]))
+            ghostspos.append(self.game.state.data.layout.width*ghost.configuration.pos[1] + ghost.configuration.pos[0])
         
-        print(pacmanpos, " ", ghostspos)
-        rawnum = int("".join([pacmanpos] + ghostspos))
+        digits = [pacmanpos] + ghostspos
 
-        return self.numberToBase(rawnum, self.game.state.data.layout.width*self.game.state.data.layout.height)
+        return self.toBaseTen(digits, self.game.state.data.layout.width*self.game.state.data.layout.height)
 
     def getHashKeys(self, keys):
         actions = {"NORTH": 0, "SOUTH": 1, "EAST": 2, "WEST":3, "STOP": 4}
 
-        digit = ""
-        for key in keys:
-            digit += actions[key]
-        
-        return self.numberToBase(int(digit), 5)
-
-    def numberToBase(self, n, b):
-        if n == 0:
-            return [0]
         digits = []
-        while n:
-            digits.append(str(int(n % b)))
-            n //= b
+        for key in keys:
+            digits.append(actions[key])
         
-        print(digits[::-1])
-        return int("".join(digits[::-1]))
+        return self.toBaseTen(digits,5)
+
+    def toBaseTen(self, digits, b):
+        
+        num = 0
+        for idx in range(len(digits)):
+            num += digits[idx]*(b**idx)
+
+        return int(num)
+
+        
+        
