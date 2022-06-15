@@ -10,43 +10,67 @@ class TransitionFunctionTree():
         self.graph = {}
         self.queue_states = []
         self.numAgents = len(game.agents)
-        self.probabilities = {}
-        #self.nStates = (self.game.state.layout.width* self.game.state.layout.haight) ^ self.numAgents
-        #self.probabilities = np.zeros((self.nStates,self.nStates, 5))
+        self.nStates = (self.game.state.data.layout.width*self.game.state.data.layout.height)**self.numAgents
+        self.transitionMatrix = np.zeros((self.nStates, self.nStates, 5^self.numAgents))
 
     def computeProbabilities(self):
+
         self.queue.append(
-            {"state": self.game.state, "id": self.game.startingIndex})
+            {"state": self.game.state, "id": self.game.startingIndex, "prob": 1, "lastpacmanstate": self.getHashState(self.game.state), "actions" : list()})
 
         while self.queue:
             current_element = self.queue.pop()
-            current, agentIdx = current_element["state"], current_element["id"]
+            print(current_element)
+            legal_acitons = current_element["state"].getLegalActions(current_element["id"])
+            for action in legal_acitons:
+                successor = current_element["state"].generateSuccessor(current_element["id"], action)
+                if str(successor) not in self.visited:
+                    self.visited[str(successor)] = True
+                    if current_element["id"] == 0:
+                        prob = 1/float(len(legal_acitons))
+                    else:
+                        dist = self.currentAgents[current_element["id"]].getDistribution(current_element["state"])
+                        prob = dist[action]
+                    
+                    if (current_element["id"] + 1) % self.numAgents:
+                        if not current_element["actions"]:
+                            current_element["actions"] = [] 
+                        self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": current_element["prob"]*prob, "lastpacmanstate": current_element["lastpacmanstate"], "actions" : current_element["actions"].append(action)})
+                    else:
+                        self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashState(current_element["state"])] = current_element["prob"]*prob
+                        self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": self.getHashState(successor), "actions" : list()})
 
-            if current not in self.probabilities:
-                self.probabilities[str(current)] = {} # CHLOE thought: save space by making state id the index here?
+    def getHashState(self,state):
+        pacman = state.data.agentStates[0]
+        ghosts = state.data.agentStates[1:]
 
-            if agentIdx not in self.visited:
-                self.visited[agentIdx] = {}
+        pacmanpos = str(self.game.state.data.layout.width*pacman.configuration.pos[1] + pacman.configuration.pos[0])
 
-            actions = current.getLegalActions(agentIdx)
+        ghostspos = []
+        for ghost in ghosts:
+            ghostspos.append(str(self.game.state.data.layout.width*ghost.configuration.pos[1] + ghost.configuration.pos[0]))
+        
+        print(pacmanpos, " ", ghostspos)
+        rawnum = int("".join([pacmanpos] + ghostspos))
 
-            for action in actions:
-                successor = current.generateSuccessor(agentIdx, action) # CHLOE Question: we may want to force ghosts to be deterministic here, right?
-                if str(successor) not in self.visited[agentIdx]:
-                    if str(successor) not in self.probabilities[str(current)]:
-                        self.probabilities[str(current)][str(successor)] = {}
-                        if action not in self.probabilities[str(current)][str(successor)]:
-                            #if PACMAN the prob is 1/len(actions)
-                            if agentIdx == 0:
-                                self.probabilities[str(current)][str(successor)][action] = 1 / len(actions)
-                            #if GHOST it depends on ghost distribution
-                            else:
-                                dist = self.currentAgents[agentIdx].getDistribution(current)
-                                self.probabilities[str(current)][str(successor)][action] = dist[action]
-                    self.visited[agentIdx][str(successor)] = True
-                    self.queue.append(
-                        {"state": successor, "id": (agentIdx + 1) % self.numAgents})
-                    if str(current) not in self.graph:
-                        self.graph[str(current)] = []
-                    self.graph[str(current)].append({str(successor), action})
-            
+        return self.numberToBase(rawnum, self.game.state.data.layout.width*self.game.state.data.layout.height)
+
+    def getHashKeys(self, keys):
+        actions = {"NORTH": 0, "SOUTH": 1, "EAST": 2, "WEST":3, "STOP": 4}
+
+        digit = ""
+        for key in keys:
+            digit += actions[key]
+        
+        return self.numberToBase(int(digit), 5)
+
+    def numberToBase(self, n, b):
+        if n == 0:
+            return [0]
+        digits = []
+        while n:
+            digits.append(str(int(n % b)))
+            n //= b
+        
+        print(digits[::-1])
+        return int("".join(digits[::-1]))
