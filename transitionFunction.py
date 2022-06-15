@@ -20,24 +20,25 @@ class TransitionFunctionTree():
 
         while self.queue:
             current_element = self.queue.pop()
-            print(current_element)
             legal_acitons = current_element["state"].getLegalActions(current_element["id"])
             for action in legal_acitons:
                 successor = current_element["state"].generateSuccessor(current_element["id"], action)
                 if str(successor) not in self.visited:
                     self.visited[str(successor)] = True
                     if current_element["id"] == 0:
-                        prob = 1/float(len(legal_acitons))
+                        prob = current_element["prob"]*(1/float(len(legal_acitons)))
                     else:
                         dist = self.currentAgents[current_element["id"]].getDistribution(current_element["state"])
-                        prob = dist[action]
+                        prob = current_element["prob"]*dist[action]
                     
-                    if (current_element["id"] + 1) % self.numAgents:
+                    if  current_element["id"]:
                         current_element["actions"].append(action)  
-                        self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": current_element["prob"]*prob, "lastpacmanstate": current_element["lastpacmanstate"], "actions" : current_element["actions"]})
+                        self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": current_element["lastpacmanstate"], "actions" : current_element["actions"]})
                     else:
-                        self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashState(current_element["state"])] = current_element["prob"]*prob
-                        self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": self.getHashState(successor), "actions" : list()})
+                        self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashState(current_element["state"])] = prob
+                        self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": 1, "lastpacmanstate": self.getHashState(successor), "actions" : list()})
+
+                print({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": current_element["lastpacmanstate"], "actions" : current_element["actions"]})
 
     def getHashState(self,state):
         pacman = state.data.agentStates[0]
