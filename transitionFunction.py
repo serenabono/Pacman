@@ -26,19 +26,16 @@ class TransitionFunctionTree():
                 if str(successor) not in self.visited:
                     self.visited[str(successor)] = True
                     if current_element["id"] == 0:
-                        prob = current_element["prob"]*(1/float(len(legal_acitons)))
+                        self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashState(current_element["state"])] = current_element["prob"]
+                        prob = (1/float(len(legal_acitons)))
+                        self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": self.getHashState(successor), "actions" : list()})
+                        print({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": self.getHashState(successor), "actions" : list()})
                     else:
                         dist = self.currentAgents[current_element["id"]].getDistribution(current_element["state"])
                         prob = current_element["prob"]*dist[action]
-                    
-                    if  current_element["id"]:
                         current_element["actions"].append(action)  
                         self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": current_element["lastpacmanstate"], "actions" : current_element["actions"]})
-                    else:
-                        self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashState(current_element["state"])] = prob
-                        self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": 1, "lastpacmanstate": self.getHashState(successor), "actions" : list()})
-
-                print({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": current_element["lastpacmanstate"], "actions" : current_element["actions"]})
+                        print({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": current_element["lastpacmanstate"], "actions" : current_element["actions"]})
 
     def getHashState(self,state):
         pacman = state.data.agentStates[0]
