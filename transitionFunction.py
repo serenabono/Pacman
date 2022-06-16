@@ -23,25 +23,25 @@ class TransitionFunctionTree():
             legal_acitons = current_element["state"].getLegalActions(current_element["id"])
             for action in legal_acitons:
                 successor = current_element["state"].generateSuccessor(current_element["id"], action)
-                flag = False
-                if str(successor) not in self.visited:
-                    flag = True
-                    self.visited[str(successor)] = True      
+                successor_element = {}
+                successor_element["state"] = successor   
                 
                 if current_element["id"] == 0:
-                    
-                    current_element["prob"] = (1/float(len(legal_acitons)))
-                    current_element["actions"] = [action]
-                    current_element["lastpacmanstate"] = self.getHashState(current_element["state"])
+                    successor_element["prob"] = (1/float(len(legal_acitons)))
+                    successor_element["actions"] = [action]
+                    successor_element["lastpacmanstate"] = self.getHashState(current_element["state"])
 
-                    if flag: self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": current_element["prob"], "lastpacmanstate": current_element["lastpacmanstate"] , "actions" : [action]})
                 else:
-                    dist = self.currentAgents[current_element["id"]].getDistribution(current_element["state"])
-                    
-                    current_element["prob"] *= dist[action]
-                    current_element["actions"].append(action)
-
-                    if flag: self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": current_element["prob"], "lastpacmanstate": current_element["lastpacmanstate"],  "actions" : current_element["actions"]})
+                    dist = self.currentAgents[current_element["id"]].getDistribution(current_element["state"])                    
+                    successor_element["prob"] = current_element["prob"]*dist[action]
+                    successor_element["actions"] = current_element["actions"] + [action]
+                    successor_element["lastpacmanstate"] = current_element["lastpacmanstate"]
+                
+                successor_element["id"] = (current_element["id"] + 1) % self.numAgents
+                
+                if str(successor) not in self.visited:   
+                    self.queue.append(successor_element)
+                    self.visited[str(successor)] = True
 
                 if (current_element["id"] + 1) % self.numAgents == 0:
                     self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashState(successor)][self.getHashKeys(current_element["actions"])] = current_element["prob"]
