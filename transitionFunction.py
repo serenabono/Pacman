@@ -23,7 +23,6 @@ class TransitionFunctionTree():
             legal_acitons = current_element["state"].getLegalActions(current_element["id"])
             for action in legal_acitons:
                 successor = current_element["state"].generateSuccessor(current_element["id"], action)
-                print(str(successor))
                 flag = False
                 if str(successor) not in self.visited:
                     flag = True
