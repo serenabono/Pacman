@@ -71,11 +71,13 @@ def constructTransition( layout, pacman, ghosts, display, numGames, record, numT
 
         # confirm the size of the probability tree
         # manual check: there are 
-        print "Length of probability tree: %d" % (len(tree.probabilities))
-        print "The tree of probabilities: "
-        pprint.pprint(tree.probabilities)
+        print "Length of probability tree: %d" % (len(tree.transitionMatrix))
+        print "The transition matrix: "
+        pprint.pprint(tree.transitionMatrix)
         print "The Tree Graph: "
         print(tree.graph)
+        print "the sum of the transition matrix: "
+        print (sum(sum(tree.transitionMatrix)))
 
 
 if __name__ == "__main__":
