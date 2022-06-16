@@ -96,16 +96,15 @@ class TransitionFunctionTree():
 
     def generateLayout(self, pacmanpos, ghostspos):
         map = Grid(self.game.state.data.layout.width, self.game.state.data.layout.height)
+        for w in range(self.game.state.data.layout.width):
+            for h in range(self.game.state.data.layout.height):
+                map[w][h] = self.game.state.data._foodWallStr(False, self.game.state.data.layout.walls[w][h])
+        
         row, col = pacmanpos
         map[col][row] = 'P'
         for ghostpos in ghostspos:
             grow, gcol = ghostpos
             map[gcol][grow] = 'G'
-        
-        for w in range(self.game.state.data.layout.width):
-            for h in range(self.game.state.data.layout.height):
-                map[w][h] = self.game.state.data.layout.walls[w][h]
-        
         return map
 
     def getHashKeys(self, keys):
