@@ -57,15 +57,16 @@ class TransitionFunctionTree():
 
     
     def printSlicesOfTransitionMatrix(self):
-        for fromstate in range(self.nStates):  
-            if fromstate not in self.transitionMatrixDic:
-                state = self.getStatefromHash(fromstate) 
-                self.transitionMatrixDic[state] = {}
+        for fromstate in range(self.nStates):
+            matrix = np.zeros((self.nStates, self.nActions))   
+            hashfromstate = self.getStatefromHash(fromstate)               
             for tostate in range(self.nStates):
-                if tostate not in self.transitionMatrixDic[state]:
-                    self.transitionMatrixDic[state][self.getStatefromHash(tostate)] = np.zeros(self.nActions)
+                hashtostate = self.getStatefromHash(tostate)
+                if hashfromstate in self.transitionMatrixDic:
+                    if hashtostate in self.transitionMatrixDic[hashfromstate]:
+                        matrix[hashfromstate] = self.transitionMatrixDic[hashfromstate][hashtostate]
                 name = "TransitionMatrixStaetingAtState"+str(fromstate)+"-"+str(tostate)+".csv"
-                np.savetxt(name, self.transitionMatrixDic[state], delimiter=",")
+                np.savetxt(name, matrix, delimiter=",")
 
     def getHashfromState(self,state):
         pacman = state.data.agentStates[0]
@@ -85,12 +86,15 @@ class TransitionFunctionTree():
 
         list = self.fromBaseTen(hash, self.game.state.data.layout.width*self.game.state.data.layout.height)
         #   PACMAN position
+        print("-----------")
         print(list)
-        pacmanpos = (list[0]-(list[0] % self.game.state.data.layout.width)) // self.game.state.data.layout.height, list[0] % self.game.state.data.layout.width
+        pacmanpos = ((list[0] % self.game.state.data.layout.width, (list[0]-(list[0] % self.game.state.data.layout.width)) // self.game.state.data.layout.height))
+        print(pacmanpos)
+        print("-----------")
         ghostspos = []
 
         for ghost in list[1:]:
-            ghostspos.append(((ghost-(ghost % self.game.state.data.layout.width)) // self.game.state.data.layout.height, ghost % self.game.state.data.layout.width))
+            ghostspos.append(ghost % self.game.state.data.layout.width, (ghost-(ghost % self.game.state.data.layout.width) // self.game.state.data.layout.height))
         
         return self.generateLayout(pacmanpos, ghostspos)
 
