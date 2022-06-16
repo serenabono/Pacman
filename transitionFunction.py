@@ -52,8 +52,8 @@ class TransitionFunctionTree():
                 if (current_element["id"] + 1) % self.numAgents == 0:
                     # toobig!!!
                     # self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashfromState(successor)][self.getHashKeys(current_element["actions"])] = current_element["prob"]
-                    self.transitionMatrixDic[self.getHashfromState(successor_element["lastpacmanstate"])][self.getHashfromState(successor_element["state"])] = {}
-                    self.transitionMatrixDic[self.getHashfromState(successor_element["lastpacmanstate"])][self.getHashfromState(successor_element["state"])][self.getHashKeys(successor_element["actions"])] = successor_element["prob"]
+                    self.transitionMatrixDic[successor_element["lastpacmanstate"]][self.getHashfromState(successor_element["state"])] = {}
+                    self.transitionMatrixDic[successor_element["lastpacmanstate"]][self.getHashfromState(successor_element["state"])][self.getHashKeys(successor_element["actions"])] = successor_element["prob"]
 
     
     def printSlicesOfTransitionMatrix(self):
@@ -86,25 +86,21 @@ class TransitionFunctionTree():
 
         list = self.fromBaseTen(hash, self.game.state.data.layout.width*self.game.state.data.layout.height)
         #   PACMAN position
-        print("-----------")
-        print(list)
-        pacmanpos = ((list[0] % self.game.state.data.layout.width, (list[0]-(list[0] % self.game.state.data.layout.width)) // self.game.state.data.layout.height))
-        print(pacmanpos)
-        print("-----------")
+        pacmanpos = ((((list[0]-(list[0] % self.game.state.data.layout.width)) // self.game.state.data.layout.height), list[0] % self.game.state.data.layout.width))
         ghostspos = []
 
         for ghost in list[1:]:
-            ghostspos.append(ghost % self.game.state.data.layout.width, (ghost-(ghost % self.game.state.data.layout.width) // self.game.state.data.layout.height))
+            ghostspos.append((((ghost-(ghost % self.game.state.data.layout.width))// self.game.state.data.layout.height), ghost % self.game.state.data.layout.width))
         
         return self.generateLayout(pacmanpos, ghostspos)
 
     def generateLayout(self, pacmanpos, ghostspos):
         map = Grid(self.game.state.data.layout.width, self.game.state.data.layout.height)
-        x, y = pacmanpos
-        map[x][y] = 'P'
+        row, col = pacmanpos
+        map[col][row] = 'P'
         for ghostpos in ghostspos:
-            xg, yg = ghostpos
-            map[xg][yg] = 'G'
+            grow, gcol = ghostpos
+            map[gcol][grow] = 'G'
         
         for w in range(self.game.state.data.layout.width):
             for h in range(self.game.state.data.layout.height):
