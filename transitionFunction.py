@@ -63,9 +63,9 @@ class TransitionFunctionTree():
                 self.transitionMatrixDic[state] = {}
             for tostate in range(self.nStates):
                 if tostate not in self.transitionMatrixDic[state]:
-                    self.transitionMatrixDic[state][self.getHashfromState(tostate)] = np.zeros(self.nActions)
+                    self.transitionMatrixDic[state][self.getStatefromHash(tostate)] = np.zeros(self.nActions)
                 name = "TransitionMatrixStaetingAtState"+str(fromstate)+"-"+str(tostate)+".csv"
-                np.savetxt(name, self.transitionMatrix[state], delimiter=",")
+                np.savetxt(name, self.transitionMatrixDic[state], delimiter=",")
 
     def getHashfromState(self,state):
         pacman = state.data.agentStates[0]
@@ -96,12 +96,14 @@ class TransitionFunctionTree():
 
     def generateLayout(self, pacmanpos, ghostspos):
         map = Grid(self.game.state.data.layout.width, self.game.state.data.layout.height)
-        map[pacmanpos] = 'P'
+        x, y = pacmanpos
+        map[x][y] = 'P'
         for ghostpos in ghostspos:
-            map[ghostpos] = 'G'
+            xg, yg = ghostpos
+            map[xg][yg] = 'G'
         
-        for w in self.game.state.data.layout.width:
-            for h in self.game.state.data.layout.height:
+        for w in range(self.game.state.data.layout.width):
+            for h in range(self.game.state.data.layout.height):
                 map[w][h] = self.game.state.data.layout.walls[w][h]
         
         return map
