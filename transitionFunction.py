@@ -52,8 +52,8 @@ class TransitionFunctionTree():
                 if (current_element["id"] + 1) % self.numAgents == 0:
                     # toobig!!!
                     # self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashfromState(successor)][self.getHashKeys(current_element["actions"])] = current_element["prob"]
-                    self.transitionMatrixDic[self.getHashfromState(current_element["state"])][self.getHashfromState(successor_element["state"])] = {}
-                    self.transitionMatrixDic[self.getHashfromState(current_element["state"])][self.getHashfromState(successor_element["state"])][self.getHashKeys(current_element["actions"])] = current_element["prob"]
+                    self.transitionMatrixDic[self.getHashfromState(successor_element["lastpacmanstate"])][self.getHashfromState(successor_element["state"])] = {}
+                    self.transitionMatrixDic[self.getHashfromState(successor_element["lastpacmanstate"])][self.getHashfromState(successor_element["state"])][self.getHashKeys(successor_element["actions"])] = successor_element["prob"]
 
     
     def printSlicesOfTransitionMatrix(self):
