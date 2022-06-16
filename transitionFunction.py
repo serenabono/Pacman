@@ -56,17 +56,16 @@ class TransitionFunctionTree():
                     self.transitionMatrixDic[successor_element["lastpacmanstate"]][self.getHashfromState(successor_element["state"])][self.getHashKeys(successor_element["actions"])] = successor_element["prob"]
 
     
-    def printSlicesOfTransitionMatrix(self):
-        for fromstate in range(self.nStates):
-            matrix = np.zeros((self.nStates, self.nActions))   
-            hashfromstate = self.getStatefromHash(fromstate)               
-            for tostate in range(self.nStates):
-                hashtostate = self.getStatefromHash(tostate)
-                if hashfromstate in self.transitionMatrixDic:
-                    if hashtostate in self.transitionMatrixDic[hashfromstate]:
-                        matrix[hashfromstate] = self.transitionMatrixDic[hashfromstate][hashtostate]
-                name = "TransitionMatrixStaetingAtState"+str(fromstate)+"-"+str(tostate)+".csv"
-                np.savetxt(name, matrix, delimiter=",")
+    def printSlicesOfTransitionMatrix(self, fromstate):
+        matrix = np.zeros((self.nStates, self.nActions))   
+        hashfromstate = self.getStatefromHash(fromstate)               
+        for tostate in range(self.nStates):
+            hashtostate = self.getStatefromHash(tostate)
+            if hashfromstate in self.transitionMatrixDic:
+                if hashtostate in self.transitionMatrixDic[hashfromstate]:
+                    matrix[hashfromstate] = self.transitionMatrixDic[hashfromstate][hashtostate]
+            name = "TransitionMatrixStaetingAtState"+str(fromstate)+"-"+str(tostate)+".csv"
+            np.savetxt(name, matrix, delimiter=",")
 
     def getHashfromState(self,state):
         pacman = state.data.agentStates[0]
@@ -105,6 +104,7 @@ class TransitionFunctionTree():
         for ghostpos in ghostspos:
             grow, gcol = ghostpos
             map[gcol][grow] = 'G'
+
         return map
 
     def getHashKeys(self, keys):
