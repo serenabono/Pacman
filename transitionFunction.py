@@ -11,32 +11,50 @@ class TransitionFunctionTree():
         self.queue_states = []
         self.numAgents = len(game.agents)
         self.nStates = (self.game.state.data.layout.width*self.game.state.data.layout.height)**self.numAgents
-        self.transitionMatrix = np.zeros((self.nStates, self.nStates, 5^self.numAgents))
+        self.transitionMatrix = np.zeros((self.nStates, self.nStates, 5**self.numAgents))
 
     def computeProbabilities(self):
 
         self.queue.append(
-            {"state": self.game.state, "id": self.game.startingIndex, "prob": 1, "lastpacmanstate": self.getHashState(self.game.state), "actions" : list()})
+            {"state": self.game.state, "id": self.game.startingIndex, "prob": None, "lastpacmanstate": self.getHashState(self.game.state), "actions" : None})
 
         while self.queue:
             current_element = self.queue.pop()
             legal_acitons = current_element["state"].getLegalActions(current_element["id"])
             for action in legal_acitons:
                 successor = current_element["state"].generateSuccessor(current_element["id"], action)
+                print(str(successor))
+                flag = False
                 if str(successor) not in self.visited:
-                    self.visited[str(successor)] = True
-                    if current_element["id"] == 0:
-                        self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashState(current_element["state"])] = current_element["prob"]
-                        prob = (1/float(len(legal_acitons)))
-                        self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": self.getHashState(successor), "actions" : list()})
-                        print({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": self.getHashState(successor), "actions" : list()})
-                    else:
-                        dist = self.currentAgents[current_element["id"]].getDistribution(current_element["state"])
-                        prob = current_element["prob"]*dist[action]
-                        current_element["actions"].append(action)  
-                        self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": current_element["lastpacmanstate"], "actions" : current_element["actions"]})
-                        print({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": prob, "lastpacmanstate": current_element["lastpacmanstate"], "actions" : current_element["actions"]})
+                    flag = True
+                    self.visited[str(successor)] = True      
+                
+                if current_element["id"] == 0:
+                    
+                    current_element["prob"] = (1/float(len(legal_acitons)))
+                    current_element["actions"] = [action]
+                    current_element["lastpacmanstate"] = self.getHashState(current_element["state"])
 
+                    if flag: self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": current_element["prob"], "lastpacmanstate": current_element["lastpacmanstate"] , "actions" : [action]})
+                else:
+                    dist = self.currentAgents[current_element["id"]].getDistribution(current_element["state"])
+                    
+                    current_element["prob"] *= dist[action]
+                    current_element["actions"].append(action)
+
+                    if flag: self.queue.append({"state": successor, "id": (current_element["id"] + 1) % self.numAgents, "prob": current_element["prob"], "lastpacmanstate": current_element["lastpacmanstate"],  "actions" : current_element["actions"]})
+
+                if (current_element["id"] + 1) % self.numAgents == 0:
+                    self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashState(successor)][self.getHashKeys(current_element["actions"])] = current_element["prob"]
+        
+    
+    def printSlicesOfTransitionMatrix(self):
+        for fromstate in range(len(self.transitionMatrix)):   
+            stateId = (fromstate)
+            name = "TransitionMatrixStaetingAtState"+str(stateId)+".csv"
+            np.savetxt(name, self.transitionMatrix[fromstate], delimiter=",")
+        
+    
     def getHashState(self,state):
         pacman = state.data.agentStates[0]
         ghosts = state.data.agentStates[1:]
@@ -52,7 +70,7 @@ class TransitionFunctionTree():
         return self.toBaseTen(digits, self.game.state.data.layout.width*self.game.state.data.layout.height)
 
     def getHashKeys(self, keys):
-        actions = {"NORTH": 0, "SOUTH": 1, "EAST": 2, "WEST":3, "STOP": 4}
+        actions = {"North": 0, "South": 1, "East": 2, "West":3, "Stop": 4}
 
         digits = []
         for key in keys:
@@ -67,21 +85,6 @@ class TransitionFunctionTree():
             num += digits[idx]*(b**idx)
 
         return int(num)
-    
-    def getTransitionMatrix(self):
-        '''
-        Converts the probabilities dictionary into a proper transition matrix.
-        '''
-        self.transitionMatrix = np.zeros((self.numStates, self.numStates, self.numActions))
-        self.statetoid = list(self.probabilities.keys())
-        for fromstate in self.probabilities.keys():
-            for tostate in self.probabilities[fromstate].keys():
-                for taction in self.probabilities[fromstate][tostate].keys():
-                    fromstateid, tostateid, tactionid = self.statetoid.index(fromstate), self.statetoid.index(tostate), \
-                        self.actions.index(taction)
-                    self.transitionMatrix[fromstateid][tostateid][tactionid] = \
-                        self.probabilities[fromstate][tostate][taction]
-        return self.transitionMatrix
 
         
         

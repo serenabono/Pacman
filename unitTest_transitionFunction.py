@@ -1,5 +1,4 @@
 from transitionFunction import *
-#from transitionFunction_scratch import *
 from pacman import *
 import pprint
 
@@ -48,7 +47,7 @@ def runTransitionTest( layout, pacman, ghosts, display, numGames, record, numTra
         print 'Win Rate:      %d/%d (%.2f)' % (wins.count(True), len(wins), winRate)
         print 'Record:       ', ', '.join([ ['Loss', 'Win'][int(w)] for w in wins])
 
-def constructTransition( layout, pacman, ghosts, display, numGames, record, numTraining = 0, catchExceptions=False, timeout=30 ):
+def constructTransitionTest( layout, pacman, ghosts, display, numGames, record, numTraining = 0, catchExceptions=False, timeout=30 ):
     import __main__
     __main__.__dict__['_display'] = display
 
@@ -56,7 +55,7 @@ def constructTransition( layout, pacman, ghosts, display, numGames, record, numT
     games = []
 
     for i in range( 1 ):
-        print(i)
+        # print(i)
         # Suppress output and graphics
         beQuiet = True
         import textDisplay
@@ -67,20 +66,33 @@ def constructTransition( layout, pacman, ghosts, display, numGames, record, numT
         
         #define transition function
         tree = TransitionFunctionTree(game)
-        tree.computeProbabilities()
+        #tree.computeProbabilities()
+        tmat = tree.transitionMatrix
 
         # confirm the size of the probability tree
         # manual check: there are 
-        print "Length of probability tree: %d" % (len(tree.transitionMatrix))
-        print "The transition matrix: "
-        pprint.pprint(tree.transitionMatrix)
-        print "The Tree Graph: "
-        print(tree.graph)
-        print "the sum of the transition matrix: "
-        print (sum(sum(tree.transitionMatrix)))
+        print "the transition matrix size is:"
+        print(tmat.shape)
+        print "the transition matrix: "
+        for a in tree.actions:
+            print("slice for action " + a + ":")
+            slicemat = tmat[:, :, tree.actions.index(a)]
+            print(slicemat)
+            print("spot checking the %s transition matrix: " % a)
+            fromind = np.random.choice(np.arange(tree.numStates))
+            #import pdb; pdb.set_trace();
+            probs = slicemat[fromind]
+            toind = np.argmax(probs)
+            #import pdb; pdb.set_trace();
+            print("going from this state: ")
+            print(tree.statetoid[fromind])
+            print ("to this state: ")
+            print(tree.statetoid[toind])
+            print ("with probability: ")
+            print (probs[toind])
 
 
 if __name__ == "__main__":
     args = readCommand( sys.argv[1:] )
-    constructTransition( **args )
+    constructTransitionTest( **args )
     pass
