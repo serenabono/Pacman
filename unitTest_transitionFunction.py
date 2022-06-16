@@ -1,4 +1,5 @@
 from transitionFunction import *
+#from transitionFunction_scratch import *
 from pacman import *
 import pprint
 
