@@ -66,30 +66,31 @@ def constructTransitionTest( layout, pacman, ghosts, display, numGames, record, 
         
         #define transition function
         tree = TransitionFunctionTree(game)
-        #tree.computeProbabilities()
+        tree.computeProbabilities()
         tmat = tree.transitionMatrix
+        #tree.printSlicesOfTransitionMatrix()
 
         # confirm the size of the probability tree
         # manual check: there are 
         print "the transition matrix size is:"
         print(tmat.shape)
-        print "the transition matrix: "
-        for a in tree.actions:
-            print("slice for action " + a + ":")
-            slicemat = tmat[:, :, tree.actions.index(a)]
-            print(slicemat)
-            print("spot checking the %s transition matrix: " % a)
-            fromind = np.random.choice(np.arange(tree.numStates))
-            #import pdb; pdb.set_trace();
-            probs = slicemat[fromind]
-            toind = np.argmax(probs)
-            #import pdb; pdb.set_trace();
-            print("going from this state: ")
-            print(tree.statetoid[fromind])
-            print ("to this state: ")
-            print(tree.statetoid[toind])
-            print ("with probability: ")
-            print (probs[toind])
+        # print "the transition matrix: "
+        # for a in tree.actions:
+        #     print("slice for action " + a + ":")
+        #     slicemat = tmat[:, :, tree.actions.index(a)]
+        #     print(slicemat)
+        #     print("spot checking the %s transition matrix: " % a)
+        #     fromind = np.random.choice(np.arange(tree.numStates))
+        #     #import pdb; pdb.set_trace();
+        #     probs = slicemat[fromind]
+        #     toind = np.argmax(probs)
+        #     #import pdb; pdb.set_trace();
+        #     print("going from this state: ")
+        #     print(tree.statetoid[fromind])
+        #     print ("to this state: ")
+        #     print(tree.statetoid[toind])
+        #     print ("with probability: ")
+        #     print (probs[toind])
 
 
 if __name__ == "__main__":
