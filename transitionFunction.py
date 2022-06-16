@@ -67,6 +67,21 @@ class TransitionFunctionTree():
             num += digits[idx]*(b**idx)
 
         return int(num)
+    
+    def getTransitionMatrix(self):
+        '''
+        Converts the probabilities dictionary into a proper transition matrix.
+        '''
+        self.transitionMatrix = np.zeros((self.numStates, self.numStates, self.numActions))
+        self.statetoid = list(self.probabilities.keys())
+        for fromstate in self.probabilities.keys():
+            for tostate in self.probabilities[fromstate].keys():
+                for taction in self.probabilities[fromstate][tostate].keys():
+                    fromstateid, tostateid, tactionid = self.statetoid.index(fromstate), self.statetoid.index(tostate), \
+                        self.actions.index(taction)
+                    self.transitionMatrix[fromstateid][tostateid][tactionid] = \
+                        self.probabilities[fromstate][tostate][taction]
+        return self.transitionMatrix
 
         
         
