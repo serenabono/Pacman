@@ -43,9 +43,9 @@ class TransitionFunctionTree():
 
     def computeProbabilities(self):
         """
-        Function to compute probabilities P(s'|s,a). Most transitions are illegal and the matrix is extremely big, 
-        therefore it is compressed in a dictionary containing as key the hash value of the states and the acitons 
-        for all non zero probability transitions.   
+        Function to compute probabilities P(s'|s,a). Most transitions are illegal and the matrix is extremely big,
+        therefore it is compressed in a dictionary containing as key the hash value of the states and the actions
+        for all non zero probability transitions.
         """
 
         self.queue.append(
@@ -96,7 +96,7 @@ class TransitionFunctionTree():
     def printSlicesOfTransitionMatrix(self, fromstate):
         """
         Saves to disk csv files containing slices of the transition matrix, given an initial state hash.
-        Each output is a matrix with dimentions nStates x nActions.
+        Each output is a matrix with dimensions nStates x nActions.
         """
         matrix = np.zeros((self.nStates, self.nActions))
         fromstatestr = self.getStatefromHash(fromstate)
@@ -111,14 +111,14 @@ class TransitionFunctionTree():
 
     def getHashfromState(self, state):
         """
-        Returns the hash encoding of each state. It amis at returning a 1-to-1 mapping between states and naturals. 
-        It defines an ordering among states and enables a meaningful matrix representation. 
+        Returns the hash encoding of each state. It aims at returning a 1-to-1 mapping between states and naturals.
+        It defines an ordering among states and enables a meaningful matrix representation.
         It works by leveraging the position of the agents and encoding it in a base [grid height x grid width] number
 
         Example:
         
         %%%%%%%%%%%
-        % %  P.  G%     [10 x 3]
+        % %  P   G%     [10 x 3]
         %%%%%%%%%%%
 
         pacman  ghost
@@ -178,7 +178,7 @@ class TransitionFunctionTree():
 
     def getHashKeys(self, keys):
         """
-        Encodes the actions in a similarly to the getHashfromState function
+        Encodes the actions similarly to the getHashfromState function
         """
         actions = {"North": 0, "South": 1, "East": 2, "West": 3, "Stop": 4}
 
