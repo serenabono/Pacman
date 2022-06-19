@@ -655,7 +655,7 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
         #define transition function
         tree = TransitionFunctionTree(game)
         tree.computeProbabilities()
-        tree.printSlicesOfTransitionMatrix(12)
+        tree.printSlicesOfTransitionMatrix(game.state)
 
         game.run(i, numGames)
         if not beQuiet: games.append(game)

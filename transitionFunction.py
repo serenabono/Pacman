@@ -14,7 +14,7 @@
 from mimetypes import init
 from os import stat
 import numpy as np
-from game import Grid
+from game import Directions, Grid, Actions
 
 
 ##############################
@@ -34,17 +34,21 @@ class TransitionFunctionTree():
         self.visited = {}
         self.graph = {}
         self.queue_states = []
-        self.numAgents = len(game.agents)
+        self.numAgents = len(game.agents)  # adding food and capsules
         self.nStates = (self.game.state.data.layout.width *
                         self.game.state.data.layout.height)**self.numAgents
         self.nActions = 5**self.numAgents
         # self.transitionMatrix = np.zeros((self.nStates, self.nStates, 5**self.numAgents))
         self.transitionMatrixDic = {}
+        self.actions = {Directions.NORTH: 0, Directions.SOUTH: 1,
+                        Directions.EAST: 2, Directions.WEST: 3, Directions.STOP: 4}
+        self.toactions = {0: Directions.NORTH, 1: Directions.SOUTH,
+                          2: Directions.EAST, 3: Directions.WEST, 4: Directions.STOP}
 
     def computeProbabilities(self):
         """
         Function to compute probabilities P(s'|s,a). Most transitions are illegal and the matrix is extremely big,
-        therefore it is compressed in a dictionary containing as key the hash value of the states and the actions
+        therefore it is compressed in a dictionary containing as key the tostate value of the states and the actions
         for all non zero probability transitions.
         """
 
@@ -87,46 +91,48 @@ class TransitionFunctionTree():
 
                 if (current_element["id"] + 1) % self.numAgents == 0:
                     # toobig!!!
-                    # self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashfromState(successor)][self.getHashKeys(current_element["actions"])] = current_element["prob"]
+                    # self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashfromState(successor)][self.getHashfromKeys(current_element["actions"])] = current_element["prob"]
                     self.transitionMatrixDic[successor_element["lastpacmanstate"]][self.getHashfromState(
                         successor_element["state"])] = {}
                     self.transitionMatrixDic[successor_element["lastpacmanstate"]][self.getHashfromState(
-                        successor_element["state"])][self.getHashKeys(successor_element["actions"])] = successor_element["prob"]
+                        successor_element["state"])][self.getHashfromKeys(successor_element["actions"])] = successor_element["prob"]
 
     def printSlicesOfTransitionMatrix(self, fromstate):
         """
-        Saves to disk csv files containing slices of the transition matrix, given an initial state hash.
+        Saves to disk csv files containing slices of the transition matrix, given an initial state tostate.
         Each output is a matrix with dimensions nStates x nActions.
         """
+        fromstatehash = self.getHashfromState(fromstate)
         matrix = np.zeros((self.nStates, self.nActions))
-        fromstatestr = self.getStatefromHash(fromstate)
-        for tostate in range(self.nStates):
-            hashtostatestr = self.getStatefromHash(tostate)
-            if fromstatestr in self.transitionMatrixDic:
-                if hashtostatestr in self.transitionMatrixDic[fromstatestr]:
-                    matrix[fromstatestr] = self.transitionMatrixDic[fromstatestr][hashtostatestr]
-            name = "TransitionMatrixStaetingAtState" + \
-                str(fromstate)+"-"+str(tostate)+".csv"
-            np.savetxt(name, matrix, delimiter=",")
+
+        for throughaction in range(self.nActions):
+            for tostatehash in range(self.nStates):
+                if fromstatehash in self.transitionMatrixDic:
+                    if tostatehash in self.transitionMatrixDic[fromstatehash]:
+                        if throughaction in self.transitionMatrixDic[fromstatehash][tostatehash]:
+                            matrix[fromstatehash,
+                                   throughaction] = self.transitionMatrixDic[fromstatehash][tostatehash][throughaction]
+                name = "TransitionMatrixStaetingAtState" + \
+                    str(fromstatehash)+"-"+str(tostatehash)+".csv"
+                #np.savetxt(name, matrix, delimiter=",")
 
     def getHashfromState(self, state):
         """
-        Returns the hash encoding of each state. It aims at returning a 1-to-1 mapping between states and naturals.
+        Returns the tostate encoding of each state. It aims at returning a 1-to-1 mapping between states and naturals.
         It defines an ordering among states and enables a meaningful matrix representation.
         It works by leveraging the position of the agents and encoding it in a base [grid height x grid width] number
 
         Example:
-        
+
         %%%%%%%%%%%
         % %  P   G%     [10 x 3]
         %%%%%%%%%%%
 
         pacman  ghost
         16      20
-        
-        (16 20) bases 30 = 180 base 10
-        """
 
+        [16 20] base 30 = 180 base 10
+        """
         pacman = state.data.agentStates[0]
         ghosts = state.data.agentStates[1:]
 
@@ -142,14 +148,14 @@ class TransitionFunctionTree():
 
         return self.toBaseTen(digits, self.game.state.data.layout.width*self.game.state.data.layout.height)
 
-    def getStatefromHash(self, hash):
+    def getStatefromHash(self, fromstate, tostate):
         """
-        Reverts hash and generates the string of the corresponding state
+        Reverts tostate and generates the string of the corresponding state
         """
 
         list = self.fromBaseTen(
-            hash, self.game.state.data.layout.width*self.game.state.data.layout.height)
-
+            tostate, self.game.state.data.layout.width*self.game.state.data.layout.height, digits=np.zeros((self.numAgents),dtype=int))
+        
         pacmanpos = ((((list[0]-(list[0] % self.game.state.data.layout.width)) //
                      self.game.state.data.layout.height), list[0] % self.game.state.data.layout.width))
         ghostspos = []
@@ -158,15 +164,15 @@ class TransitionFunctionTree():
             ghostspos.append((((ghost-(ghost % self.game.state.data.layout.width)) //
                              self.game.state.data.layout.height), ghost % self.game.state.data.layout.width))
 
-        return self.generateLayout(pacmanpos, ghostspos)
+        return self.generateLayout(pacmanpos, ghostspos, fromstate)
 
-    def generateLayout(self, pacmanpos, ghostspos):
+    def generateLayout(self, pacmanpos, ghostspos, fromstate):
         map = Grid(self.game.state.data.layout.width,
                    self.game.state.data.layout.height)
         for w in range(self.game.state.data.layout.width):
             for h in range(self.game.state.data.layout.height):
-                map[w][h] = self.game.state.data._foodWallStr(
-                    False, self.game.state.data.layout.walls[w][h])
+                map[w][h] = fromstate.data._foodWallStr(
+                    fromstate.data.layout.food[w][h], fromstate.data.layout.walls[w][h])
 
         row, col = pacmanpos
         map[col][row] = 'P'
@@ -176,15 +182,20 @@ class TransitionFunctionTree():
 
         return map
 
-    def getHashKeys(self, keys):
+    def getKeysfromHash(self, action):
+
+        list = self.fromBaseTen(
+            action, self.numAgents, digits=np.zeros((5),dtype=int))
+
+        return list
+
+    def getHashfromKeys(self, keys):
         """
         Encodes the actions similarly to the getHashfromState function
         """
-        actions = {"North": 0, "South": 1, "East": 2, "West": 3, "Stop": 4}
-
         digits = []
         for key in keys:
-            digits.append(actions[key])
+            digits.append(self.actions[key])
 
         return self.toBaseTen(digits, 5)
 
@@ -196,13 +207,12 @@ class TransitionFunctionTree():
 
         return int(num)
 
-    def fromBaseTen(self, n, b):
+    def fromBaseTen(self, n, b, digits):
 
-        if n == 0:
-            return [0]
-        digits = []
+        idx = 0
         while n:
-            digits.append(int(n % b))
+            digits[idx] = int(n % b)
             n //= b
+            idx += 1
 
         return digits[::-1]
