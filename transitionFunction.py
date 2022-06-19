@@ -103,10 +103,10 @@ class TransitionFunctionTree():
         Each output is a matrix with dimensions nStates x nActions.
         """
         fromstatehash = self.getHashfromState(fromstate)
-        matrix = np.zeros((self.nStates, self.nActions))
-
-        for throughaction in range(self.nActions):
-            for tostatehash in range(self.nStates):
+        
+        for tostatehash in range(self.nStates):
+            matrix = np.zeros((self.nStates, self.nActions))
+            for throughaction in range(self.nActions):
                 if fromstatehash in self.transitionMatrixDic:
                     if tostatehash in self.transitionMatrixDic[fromstatehash]:
                         if throughaction in self.transitionMatrixDic[fromstatehash][tostatehash]:
@@ -116,6 +116,7 @@ class TransitionFunctionTree():
                     str(fromstatehash)+"-"+str(tostatehash)+".csv"
                 
                 print("-----------")
+                print("["+str(fromstatehash)+"-"+str(tostatehash)+ "]")
                 print(str(fromstate))
                 print("to")
                 print(self.getStatefromHash(
