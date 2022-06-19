@@ -143,8 +143,6 @@ class TransitionFunctionTree():
         pacman = state.data.agentStates[0]
         ghosts = state.data.agentStates[1:]
 
-        # TODO: somehow introduce food int the state representation
-
         pacmanpos = self.game.state.data.layout.width * \
             pacman.configuration.pos[1] + pacman.configuration.pos[0]
         ghostspos = []
@@ -162,15 +160,16 @@ class TransitionFunctionTree():
 
         list = self.fromBaseTen(
             tostate, self.game.state.data.layout.width*self.game.state.data.layout.height, digits=np.zeros((self.numAgents),dtype=int))
-        
-        pacmanpos = ((((list[0]-(list[0] % self.game.state.data.layout.width)) //
-                     self.game.state.data.layout.height), list[0] % self.game.state.data.layout.width))
+        print(list)
+        pacmanpos = ((list[0] /
+                     self.game.state.data.layout.width, list[0] % self.game.state.data.layout.width))
         ghostspos = []
 
         for ghost in list[1:]:
-            ghostspos.append((((ghost-(ghost % self.game.state.data.layout.width)) //
-                             self.game.state.data.layout.height), ghost % self.game.state.data.layout.width))
-
+            ghostspos.append((ghost /
+                             self.game.state.data.layout.width, ghost % self.game.state.data.layout.width))
+        
+        print(pacmanpos, ghostspos)
         return self.generateLayout(pacmanpos, ghostspos, fromstate)
 
     def generateLayout(self, pacmanpos, ghostspos, fromstate):
