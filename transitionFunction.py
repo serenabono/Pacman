@@ -114,7 +114,14 @@ class TransitionFunctionTree():
                                    throughaction] = self.transitionMatrixDic[fromstatehash][tostatehash][throughaction]
                 name = "TransitionMatrixStaetingAtState" + \
                     str(fromstatehash)+"-"+str(tostatehash)+".csv"
-                #np.savetxt(name, matrix, delimiter=",")
+                
+                print("-----------")
+                print(str(fromstate))
+                print("to")
+                print(self.getStatefromHash(
+                    fromstate, tostatehash))
+                print("-----------")
+                np.savetxt(name, matrix, delimiter=",")
 
     def getHashfromState(self, state):
         """
@@ -125,7 +132,7 @@ class TransitionFunctionTree():
         Example:
 
         %%%%%%%%%%%
-        % %  P   G%     [10 x 3]
+        %o%  P.. G%     [10 x 3]
         %%%%%%%%%%%
 
         pacman  ghost
