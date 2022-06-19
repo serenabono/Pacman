@@ -103,10 +103,10 @@ class TransitionFunctionTree():
         Each output is a matrix with dimensions nStates x nActions.
         """
         fromstatehash = self.getHashfromState(fromstate)
-        matrix = np.zeros((self.nStates, self.nActions))
 
-        for throughaction in range(self.nActions):
-            for tostatehash in range(self.nStates):
+        for tostatehash in range(self.nStates):
+            matrix = np.zeros((self.nStates, self.nActions))
+            for throughaction in range(self.nActions):
                 if fromstatehash in self.transitionMatrixDic:
                     if tostatehash in self.transitionMatrixDic[fromstatehash]:
                         if throughaction in self.transitionMatrixDic[fromstatehash][tostatehash]:
@@ -114,8 +114,9 @@ class TransitionFunctionTree():
                                    throughaction] = self.transitionMatrixDic[fromstatehash][tostatehash][throughaction]
                 name = "TransitionMatrixStaetingAtState" + \
                     str(fromstatehash)+"-"+str(tostatehash)+".csv"
-                
+
                 print("-----------")
+                print("["+str(fromstatehash)+","+str(tostatehash)+"]")
                 print(str(fromstate))
                 print("to")
                 print(self.getStatefromHash(
@@ -159,8 +160,8 @@ class TransitionFunctionTree():
         """
 
         list = self.fromBaseTen(
-            tostate, self.game.state.data.layout.width*self.game.state.data.layout.height, digits=np.zeros((self.numAgents),dtype=int))
-        print(list)
+            tostate, self.game.state.data.layout.width*self.game.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
+
         pacmanpos = ((list[0] /
                      self.game.state.data.layout.width, list[0] % self.game.state.data.layout.width))
         ghostspos = []
@@ -168,8 +169,7 @@ class TransitionFunctionTree():
         for ghost in list[1:]:
             ghostspos.append((ghost /
                              self.game.state.data.layout.width, ghost % self.game.state.data.layout.width))
-        
-        print(pacmanpos, ghostspos)
+
         return self.generateLayout(pacmanpos, ghostspos, fromstate)
 
     def generateLayout(self, pacmanpos, ghostspos, fromstate):
@@ -191,7 +191,7 @@ class TransitionFunctionTree():
     def getKeysfromHash(self, action):
 
         list = self.fromBaseTen(
-            action, self.numAgents, digits=np.zeros((5),dtype=int))
+            action, self.numAgents, digits=np.zeros((5), dtype=int))
 
         return list
 
