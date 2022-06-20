@@ -11,6 +11,7 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
+from audioop import tostereo
 from mimetypes import init
 from os import stat
 import numpy as np
@@ -53,14 +54,17 @@ class TransitionFunctionTree():
         """
 
         self.queue.append(
-            {"state": self.game.state, "id": self.game.startingIndex, "prob": None, "lastpacmanstate": self.getHashfromState(self.game.state), "actions": None})
+            {"state": self.game.state, "id": self.game.startingIndex, "prob": None, "lastpacmanstate": self.getHashfromState(self.game.state), "actions": None, "ls": None})
 
         while self.queue:
             current_element = self.queue.pop()
             legal_acitons = current_element["state"].getLegalActions(
                 current_element["id"])
-            self.transitionMatrixDic[self.getHashfromState(
-                current_element["state"])] = {}
+
+            if self.getHashfromState(
+                    current_element["state"]) not in self.transitionMatrixDic:
+                self.transitionMatrixDic[self.getHashfromState(
+                    current_element["state"])] = {}
 
             for action in legal_acitons:
                 successor = current_element["state"].generateSuccessor(
@@ -73,6 +77,7 @@ class TransitionFunctionTree():
                     successor_element["actions"] = [action]
                     successor_element["lastpacmanstate"] = self.getHashfromState(
                         current_element["state"])
+                    successor_element["ls"] = current_element["state"]
 
                 else:
                     dist = self.currentAgents[current_element["id"]].getDistribution(
@@ -81,6 +86,7 @@ class TransitionFunctionTree():
                         dist[action]
                     successor_element["actions"] = current_element["actions"] + [action]
                     successor_element["lastpacmanstate"] = current_element["lastpacmanstate"]
+                    successor_element["ls"] = current_element["state"]
 
                 successor_element["id"] = (
                     current_element["id"] + 1) % self.numAgents
@@ -89,13 +95,16 @@ class TransitionFunctionTree():
                     self.queue.append(successor_element)
                     self.visited[str(successor)] = True
 
-                if (current_element["id"] + 1) % self.numAgents == 0:
+                if (successor_element["id"] % self.numAgents) == 0:
                     # toobig!!!
                     # self.transitionMatrix[current_element["lastpacmanstate"]][self.getHashfromState(successor)][self.getHashfromKeys(current_element["actions"])] = current_element["prob"]
-                    self.transitionMatrixDic[successor_element["lastpacmanstate"]][self.getHashfromState(
-                        successor_element["state"])] = {}
+                    if self.getHashfromState(
+                            successor_element["state"]) not in self.transitionMatrixDic[successor_element["lastpacmanstate"]]:
+                        self.transitionMatrixDic[successor_element["lastpacmanstate"]][self.getHashfromState(
+                            successor_element["state"])] = {}
                     self.transitionMatrixDic[successor_element["lastpacmanstate"]][self.getHashfromState(
                         successor_element["state"])][self.getHashfromKeys(successor_element["actions"])] = successor_element["prob"]
+
 
     def printSlicesOfTransitionMatrix(self, fromstate):
         """
@@ -112,17 +121,10 @@ class TransitionFunctionTree():
                         if throughaction in self.transitionMatrixDic[fromstatehash][tostatehash]:
                             matrix[fromstatehash,
                                    throughaction] = self.transitionMatrixDic[fromstatehash][tostatehash][throughaction]
-                name = "TransitionMatrixStaetingAtState" + \
-                    str(fromstatehash)+"-"+str(tostatehash)+".csv"
 
-                print("-----------")
-                print("["+str(fromstatehash)+","+str(tostatehash)+"]")
-                print(str(fromstate))
-                print("to")
-                print(self.getStatefromHash(
-                    fromstate, tostatehash))
-                print("-----------")
-                np.savetxt(name, matrix, delimiter=",")
+            name = "TransitionMatrixStaetingAtState" + \
+                str(fromstatehash)+"-"+str(tostatehash)+".csv"
+            np.savetxt(name, matrix, delimiter=",")
 
     def getHashfromState(self, state):
         """
@@ -141,6 +143,7 @@ class TransitionFunctionTree():
 
         [16 20] base 30 = 180 base 10
         """
+
         pacman = state.data.agentStates[0]
         ghosts = state.data.agentStates[1:]
 
@@ -191,7 +194,7 @@ class TransitionFunctionTree():
     def getKeysfromHash(self, action):
 
         list = self.fromBaseTen(
-            action, self.numAgents, digits=np.zeros((5), dtype=int))
+            action, 5, digits=np.zeros((self.numAgents), dtype=int))
 
         return list
 
@@ -221,4 +224,4 @@ class TransitionFunctionTree():
             n //= b
             idx += 1
 
-        return digits[::-1]
+        return digits

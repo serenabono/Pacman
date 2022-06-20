@@ -15,7 +15,7 @@ S'terminal'
 p6
 sS'current_state'
 p7
-S'%%%%\n% P%\n%%%%'
+S'%%%%\n% P%\n% G%\n%%%%'
 p8
 sS'previous_state'
 p9
@@ -36,24 +36,27 @@ I00
 sS'q_values'
 p16
 (dp17
-S'%%%%\n% P%\n%%%%'
+S'%%%%\n%P.%\n% G%\n%%%%'
 p18
 (dp19
-sS'%%%%\n%P.%\n%%%%'
-p20
-(dp21
 g3
 F204.24289792766515
-sssS'INITIALIZE_VALUE'
-p22
+sS'South'
+p20
+I0
+ssS'%%%%\n% P%\n% G%\n%%%%'
+p21
+(dp22
+ssS'INITIALIZE_VALUE'
+p23
 I0
 sS'ALPHA'
-p23
+p24
 F0.05
 sS'GAMMA'
-p24
+p25
 F0.9
 sS'T'
-p25
+p26
 F1.5
 sb.
