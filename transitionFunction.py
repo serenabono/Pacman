@@ -74,7 +74,7 @@ class TransitionFunctionTree():
 
                 if current_element["id"] == 0:
                     successor_element["prob"] = (1/float(len(legal_acitons)))
-                    successor_element["actions"] = [action]
+                    successor_element["actions"] = [self.actions[action]]
                     successor_element["lastpacmanstate"] = self.getHashfromState(
                         current_element["state"])
                     successor_element["ls"] = current_element["state"]
@@ -84,7 +84,7 @@ class TransitionFunctionTree():
                         current_element["state"])
                     successor_element["prob"] = current_element["prob"] * \
                         dist[action]
-                    successor_element["actions"] = current_element["actions"] + [action]
+                    successor_element["actions"] = current_element["actions"] + [self.actions[action]]
                     successor_element["lastpacmanstate"] = current_element["lastpacmanstate"]
                     successor_element["ls"] = current_element["state"]
 
@@ -108,7 +108,7 @@ class TransitionFunctionTree():
 
     def printSlicesOfTransitionMatrix(self, fromstate):
         """
-        Saves to disk csv files containing slices of the transition matrix, given an initial state tostate.
+        Saves to disk csv files containing slices of the transition matrix, given an initial state fromstate.
         Each output is a matrix with dimensions nStates x nActions.
         """
         fromstatehash = self.getHashfromState(fromstate)
@@ -203,7 +203,7 @@ class TransitionFunctionTree():
         """
         digits = []
         for key in keys:
-            digits.append(self.actions[key])
+            digits.append(key)
 
         return self.toBaseTen(digits, 5)
 
