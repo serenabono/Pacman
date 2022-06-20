@@ -129,16 +129,18 @@ class TransitionFunctionTree():
         It defines an ordering among states and enables a meaningful matrix representation.
         It works by leveraging the position of the agents and encoding it in a base [grid height x grid width] number
 
+        The origin of the grid is the lower left corner with coordinates (0,0)
+
         Example:
 
-        %%%%%%%%%%%
-        %o%  P.. G%     [10 x 3]
-        %%%%%%%%%%%
+        %%%%%%%%%%
+        %o%  P..G%     [10 x 3]
+        %%%%%%%%%%
 
         pacman  ghost
-        16      20
+        16      18
 
-        [16 20] base 30 = 180 base 10
+        [16 18] base 30 = 178 base 10
         """
 
         pacman = state.data.agentStates[0]
