@@ -11,9 +11,6 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
-from audioop import tostereo
-from mimetypes import init
-from os import stat
 import numpy as np
 from game import Directions, Grid, Actions
 
