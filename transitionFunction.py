@@ -68,7 +68,7 @@ class TransitionFunctionTree():
                 successor_element["state"] = successor
 
                 if current_element["id"] == 0:
-                    successor_element["prob"] = (1/float(len(legal_acitons)))
+                    successor_element["prob"] = 1 #changed because pacman has no slip yet. previously: (1/float(len(legal_acitons)))
                     successor_element["actions"] = [self.actions[action]]
                     successor_element["lastpacmanstate"] = self.getHashfromState(
                         current_element["state"])
