@@ -99,6 +99,8 @@ class TransitionFunctionTree():
                             successor_element["state"])] = {}
                     self.transitionMatrixDic[successor_element["lastpacmanstate"]][self.getHashfromState(
                         successor_element["state"])][self.getHashfromKeys(successor_element["actions"])] = successor_element["prob"]
+                    print("from "+ str(successor_element["lastpacmanstate"])+ " to "+ str(self.getHashfromState(
+                        successor_element["state"])) + " through "+str(self.getHashfromKeys(successor_element["actions"])) + " = " + str(successor_element["prob"]))
 
 
     def printSlicesOfTransitionMatrix(self, fromstate):
@@ -108,13 +110,13 @@ class TransitionFunctionTree():
         """
         fromstatehash = self.getHashfromState(fromstate)
         for tostatehash in range(self.nStates):
-            matrix = np.zeros((self.nStates, self.nActions))
+            matrix = np.zeros((self.nActions))
             for throughaction in range(self.nActions):
                 if fromstatehash in self.transitionMatrixDic:
                     if tostatehash in self.transitionMatrixDic[fromstatehash]:
                         if throughaction in self.transitionMatrixDic[fromstatehash][tostatehash]:
-                            matrix[fromstatehash,
-                                   throughaction] = self.transitionMatrixDic[fromstatehash][tostatehash][throughaction]
+                            matrix[throughaction] = self.transitionMatrixDic[fromstatehash][tostatehash][throughaction]
+                            print(">>from "+ str(fromstatehash) + " to "+ str(tostatehash)+ " through "+str(throughaction)+ " = "+str(matrix[throughaction]))
 
             name = "TransitionMatrixStaetingAtState" + \
                 str(fromstatehash)+"-"+str(tostatehash)+".csv"

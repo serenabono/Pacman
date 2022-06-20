@@ -4,7 +4,7 @@ p0
 (dp1
 S'previous_action'
 p2
-S'East'
+S'South'
 p3
 sS'current_recommended_action'
 p4
@@ -15,7 +15,7 @@ S'terminal'
 p6
 sS'current_state'
 p7
-S'%%%%\n% P%\n%GG%\n%%%%'
+S'%%%%\n%G %\n% P%\n%%%%'
 p8
 sS'previous_state'
 p9
@@ -36,30 +36,58 @@ I00
 sS'q_values'
 p16
 (dp17
-S'%%%%\n% P%\n%GG%\n%%%%'
+S'%%%%\n%GP%\n% .%\n%%%%'
 p18
 (dp19
-sS'%%%%\n%P.%\n%GG%\n%%%%'
+S'West'
 p20
-(dp21
-g3
-F188.20305045017383
-sS'South'
-p22
-F-25.05
-ssS'%%%%\n% .%\n%GG%\n%%%%'
+I0
+sg3
+F134.838227671875
+ssS'%%%%\n%G %\n% P%\n%%%%'
+p21
+(dp22
+sS'%%%%\n% .%\n%G.%\n%%%%'
 p23
 (dp24
-ssS'INITIALIZE_VALUE'
+sS'%%%%\n% G%\n% .%\n%%%%'
 p25
+(dp26
+sS'%%%%\n% P%\n% G%\n%%%%'
+p27
+(dp28
+g20
+F-0.05
+sg3
+F49.627500000000005
+ssS'%%%%\n%P.%\n%G.%\n%%%%'
+p29
+(dp30
+S'East'
+p31
+F18.662523667646486
+sg3
+F-25.05
+ssS'%%%%\n%  %\n% G%\n%%%%'
+p32
+(dp33
+sS'%%%%\n%PG%\n% .%\n%%%%'
+p34
+(dp35
+g31
+F-25.05
+sg3
+I0
+sssS'INITIALIZE_VALUE'
+p36
 I0
 sS'ALPHA'
-p26
+p37
 F0.05
 sS'GAMMA'
-p27
+p38
 F0.9
 sS'T'
-p28
+p39
 F1.5
 sb.
