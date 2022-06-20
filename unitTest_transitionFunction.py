@@ -107,13 +107,11 @@ if __name__ == "__main__":
     args = readCommand(sys.argv[1:])
     tree, game = constructTransitionTest(**args)
 
-    #   check that the State and Action HashFunction are completely invertible
+    # check that the State and Action HashFunction are completely invertible
     legal_acitons = game.state.getLegalActions(0)
     for action in legal_acitons:
         successor = game.state.generateSuccessor(
             0, action)
         testCoherenceHashFunctionTest(tree, successor)
-    
-
 
     pass

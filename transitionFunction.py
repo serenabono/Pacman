@@ -43,8 +43,6 @@ class TransitionFunctionTree():
         self.transitionMatrixDic = {}
         self.actions = {Directions.NORTH: 0, Directions.SOUTH: 1,
                         Directions.EAST: 2, Directions.WEST: 3, Directions.STOP: 4}
-        self.toactions = {0: Directions.NORTH, 1: Directions.SOUTH,
-                          2: Directions.EAST, 3: Directions.WEST, 4: Directions.STOP}
 
     def computeProbabilities(self):
         """
