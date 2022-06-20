@@ -118,8 +118,24 @@ class TransitionFunctionTree():
                             matrix[throughaction] = self.transitionMatrixDic[fromstatehash][tostatehash][throughaction]
                             print(">>from "+ str(fromstatehash) + " to "+ str(tostatehash)+ " through "+str(throughaction)+ " = "+str(matrix[throughaction]))
 
-            name = "TransitionMatrixStaetingAtState" + \
+            name = "TransitionMatrixStartingAtState" + \
                 str(fromstatehash)+"-"+str(tostatehash)+".csv"
+            np.savetxt(name, matrix, delimiter=",")
+
+    def printStateSlicesOfTransitionMatrix(self):
+        """
+        Same as above, but each slice saved has size nStates x nStates.
+        """
+        for throughaction in range(self.nActions):
+            matrix = np.zeros((self.nStates, self.nStates))
+            for fromstatehash in range(self.nStates):
+                for tostatehash in range(self.nStates):
+                    if fromstatehash in self.transitionMatrixDic:
+                        if tostatehash in self.transitionMatrixDic[fromstatehash]:
+                            if throughaction in self.transitionMatrixDic[fromstatehash][tostatehash]:
+                                matrix[fromstatehash][tostatehash] = self.transitionMatrixDic[fromstatehash][tostatehash][throughaction]
+            name = "TransitionMatrixForAction" + \
+                str(throughaction)+".csv"
             np.savetxt(name, matrix, delimiter=",")
 
     def getHashfromState(self, state):
@@ -158,6 +174,8 @@ class TransitionFunctionTree():
     def getStatefromHash(self, fromstate, tostate):
         """
         Reverts tostate and generates the string of the corresponding state
+        CHLOE QUESTION: what is fromstate and why do we need it?? are we passing state hashes here or states themselves?
+                        seems most intuitive to just have one argument for this function, right?
         """
 
         list = self.fromBaseTen(
