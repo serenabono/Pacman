@@ -68,7 +68,7 @@ class TransitionFunctionTree():
                 successor_element["state"] = successor
 
                 if current_element["id"] == 0:
-                    successor_element["prob"] = 1 #changed because pacman has no slip yet. previously: (1/float(len(legal_acitons)))
+                    successor_element["prob"] = 1
                     successor_element["actions"] = [self.actions[action]]
                     successor_element["lastpacmanstate"] = self.getHashfromState(
                         current_element["state"])
@@ -81,7 +81,7 @@ class TransitionFunctionTree():
                         dist[action]
                     successor_element["actions"] = current_element["actions"] + [self.actions[action]]
                     successor_element["lastpacmanstate"] = current_element["lastpacmanstate"]
-                    successor_element["ls"] = current_element["state"]
+                    successor_element["ls"] = current_element["ls"]
 
                 successor_element["id"] = (
                     current_element["id"] + 1) % self.numAgents
@@ -101,6 +101,13 @@ class TransitionFunctionTree():
                         successor_element["state"])][self.getHashfromKeys(successor_element["actions"])] = successor_element["prob"]
                     print("from "+ str(successor_element["lastpacmanstate"])+ " to "+ str(self.getHashfromState(
                         successor_element["state"])) + " through "+str(self.getHashfromKeys(successor_element["actions"])) + " = " + str(successor_element["prob"]))
+                    
+                    print("from")
+                    print(successor_element["ls"])
+                    print("to")
+                    print(successor_element["state"])
+                    print("trough actions")
+                    print(successor_element["actions"])
 
 
     def printSlicesOfTransitionMatrix(self, fromstate):
