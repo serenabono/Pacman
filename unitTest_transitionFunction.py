@@ -78,7 +78,7 @@ def constructTransitionTest(layout, pacman, ghosts, display, numGames, record, n
     tree = TransitionFunctionTree(game)
     tree.computeProbabilities()
     tree.printSlicesOfTransitionMatrix(game.state)
-    tree.printStateSlicesOfTransitionMatrix()
+    #tree.printStateSlicesOfTransitionMatrix()
     pprint.pprint(tree.transitionMatrixDic)
 
     return tree, game

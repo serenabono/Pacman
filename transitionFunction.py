@@ -106,7 +106,7 @@ class TransitionFunctionTree():
                     print(successor_element["ls"])
                     print("to")
                     print(successor_element["state"])
-                    print("trough actions")
+                    print("through action")
                     print(successor_element["actions"])
 
 
