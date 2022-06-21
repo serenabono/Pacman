@@ -81,7 +81,7 @@ class TransitionFunctionTree():
                         dist[action]
                     successor_element["actions"] = current_element["actions"] + [self.actions[action]]
                     successor_element["lastpacmanstate"] = current_element["lastpacmanstate"]
-                    successor_element["ls"] = current_element["state"]
+                    successor_element["ls"] = current_element["ls"]
 
                 successor_element["id"] = (
                     current_element["id"] + 1) % self.numAgents
