@@ -181,8 +181,6 @@ class TransitionFunctionTree():
     def getStatefromHash(self, fromstate, tostate):
         """
         Reverts tostate and generates the string of the corresponding state
-        CHLOE QUESTION: what is fromstate and why do we need it?? are we passing state hashes here or states themselves?
-                        seems most intuitive to just have one argument for this function, right?
         """
 
         list = self.fromBaseTen(
