@@ -11,10 +11,8 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
-from email.utils import parseaddr
-import queue
 import numpy as np
-from game import Directions, Grid, Actions
+from game import Directions, Grid
 from layout import Layout
 from pacman import GameState, PacmanRules, GhostRules
 
