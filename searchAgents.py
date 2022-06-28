@@ -44,7 +44,7 @@ from QLearningAgent import *
 import pickle
 
 
-class GoWestAgent(Agent):
+class BoltzmannAgent(Agent):
     "An agent that goes West until it can't."
 
     def __init__(self):

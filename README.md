@@ -9,7 +9,7 @@ Welcome to the QlearningAgent codebase. This library primarily contains implemen
 
 QLearningAgent.py contains all of the implementation. However, if you don't want to look at the implementation of the algorithms themselves and would directly like to learn how to use the library, you can completely ignore this file. 
 
-SearchAgents.py contains the code where the QLearning agent is defined and function calls to the library are made. You only need to look at GoWestAgent (I was in a hurry to implement this fast, so I didn't create a new agent name. I just completely modified the code of an agent that always took the action of going west. Later, at some point, I'll change the name. At this point GoWestAgent is actually a smart QLearner).
+SearchAgents.py contains the code where the QLearning agent is defined and function calls to the library are made. You only need to look at BoltzmannAgent (I was in a hurry to implement this fast, so I didn't create a new agent name. I just completely modified the code of an agent that always took the action of going west. Later, at some point, I'll change the name. At this point BoltzmannAgent is actually a smart QLearner).
 
 ## A little bit about pacman domain (and the codebase)
 
@@ -22,11 +22,11 @@ You can define any map you’d like for this codebase. The maps are given in /la
 you can run the game using the following command:
 
 ```
-python pacman.py -p GoWestAgent -l v2 -n 1000 -q
+python pacman.py -p BoltzmannAgent -l v2 -n 1000 -q
 ```
 
 Flags:
-* -p: Name of the agent. In our case, it is GoWestAgent (which is actually the QLearner)
+* -p: Name of the agent. In our case, it is BoltzmannAgent (which is actually the QLearner)
 * -l: Name of the layout. In our case, it is v2
 * -n: Number of training/evaluation episodes
 * -q: Quiet mode
@@ -34,7 +34,7 @@ Flags:
 
 ## Back to QLearningAgent
 
-If you look at the class GoWestAgent inside searchAgents.py, you’ll see that there is a constructor and a function getAction(). This function is responsible for returning the action that pacman should take in any given state. It has access to the current state, reward and legal actions that can be taken in the current state. 
+If you look at the class BoltzmannAgent inside searchAgents.py, you’ll see that there is a constructor and a function getAction(). This function is responsible for returning the action that pacman should take in any given state. It has access to the current state, reward and legal actions that can be taken in the current state. 
 
 ### Constructor
 
@@ -98,7 +98,7 @@ First train the agent. So,
 set is_train=True in the constructor and run.
 
 ```
-python pacman.py -p GoWestAgent -l v2 -n 1000 -q
+python pacman.py -p BoltzmannAgent -l v2 -n 1000 -q
 ```
 
 If you’re doing Boltzmann exploration off-policy with the default parameters, you see the agent win about 92% of the time. You should also have a file called "agent.pkl" at this point. 
@@ -110,7 +110,7 @@ If you wish to see the policy in action,
 **set is_train=False** in the constructor and run:
 
 ```
-python pacman.py -p GoWestAgent -l v2 -n 10
+python pacman.py -p BoltzmannAgent -l v2 -n 10
 ```
 
 Pacman will play 10 games and since the -q flag isn’t present, you’ll be able to see pacman execute the policy with graphics. 
