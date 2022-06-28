@@ -45,7 +45,6 @@ import pickle
 
 
 class BoltzmannAgent(Agent):
-    "An agent that goes West until it can't."
 
     def __init__(self):
         self.agent = QLearningAgent(exploration_strategy="BOLTZMANN", T=1.5, epsilon=None, 
@@ -68,7 +67,7 @@ class BoltzmannAgent(Agent):
             state_type = "initial"
             self.prevState = None
 
-        elif len(state.getLegalPacmanActions()) == 0:
+        elif state.isWin() or state.isLose():
             state_type = "terminal"
 
 
@@ -84,8 +83,6 @@ class BoltzmannAgent(Agent):
             actions_rep.remove(Directions.STOP)
         except:
             pass
-
-
 
         # CODEBASE SPECIFIC STUFF. VERY IMPORTANT TO MAKE THE CALLS IN THE SAME ORDER
         self.agent.set_current_state(state_rep)
