@@ -47,9 +47,6 @@ from util import nearestPoint
 from util import manhattanDistance
 import util, layout
 import sys, types, time, random, os
-from QLearningAgent import *
-from search import *
-from transitionFunction import *
 
 ###################################################
 # YOUR INTERFACE TO THE PACMAN WORLD: A GameState #
@@ -623,7 +620,7 @@ def replayGame( layout, actions, display ):
     display.initialize(state.data)
 
     for action in actions:
-        # Execute the action
+            # Execute the action
         state = state.generateSuccessor( *action )
         # Change the display
         display.update( state.data )
@@ -651,12 +648,6 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
             gameDisplay = display
             rules.quiet = False
         game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
-        
-        #define transition function
-        tree  = TransitionFunctionTree(game)
-        tree.computeProbabilities()
-        tree.printSlicesOfTransitionMatrix(game.state)
-
         game.run(i, numGames)
         if not beQuiet: games.append(game)
 
