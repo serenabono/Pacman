@@ -47,6 +47,9 @@ from util import nearestPoint
 from util import manhattanDistance
 import util, layout
 import sys, types, time, random, os
+from QLearningAgent import *
+from search import *
+from transitionFunction import *
 
 ###################################################
 # YOUR INTERFACE TO THE PACMAN WORLD: A GameState #
@@ -93,6 +96,7 @@ class GameState:
 
     def generateSuccessor( self, agentIndex, action):
         """
+        SHOULD NOT BE USED ANYMORE!
         Returns the successor state after the specified agent takes the action.
         """
         # Check that successors exist
@@ -123,12 +127,47 @@ class GameState:
         GameState.explored.add(self)
         GameState.explored.add(state)
         return state
+    
+    def movetoAnyState( self, agentIndex, nxtstatepos):
+        """
+        SHOULD BE USED IN PLACE of generateSuccessor!
+        Returns the successor state after the specified agent takes the action.
+        """
+        # Check that successors exist
+        if self.isWin() or self.isLose(): raise Exception('Can\'t generate a successor of a terminal state.')
+
+        # Copy current state
+        state = GameState(self)
+
+        # Let agent's logic deal with its action's effects on the board
+        if agentIndex == 0:  # Pacman is moving
+            state.data._eaten = [False for i in range(state.getNumAgents())]
+            PacmanRules.movetoAnyState( state, nxtstatepos )
+        else:                # A ghost is moving
+            GhostRules.movetoAnyState( state, nxtstatepos, agentIndex )
+
+        # Time passes
+        if agentIndex == 0:
+            state.data.scoreChange += -TIME_PENALTY # Penalty for waiting around
+        else:
+            GhostRules.decrementTimer( state.data.agentStates[agentIndex] )
+
+        # Resolve multi-agent effects
+        GhostRules.checkDeath( state, agentIndex )
+
+        # Book keeping
+        state.data._agentMoved = agentIndex
+        state.data.score += state.data.scoreChange
+        GameState.explored.add(self)
+        GameState.explored.add(state)
+        return state
 
     def getLegalPacmanActions( self ):
         return self.getLegalActions( 0 )
 
     def generatePacmanSuccessor( self, action ):
         """
+        SHOULD NOT BE USED ANYMORE
         Generates the successor state after the specified pacman move
         """
         return self.generateSuccessor( 0, action )
@@ -360,6 +399,24 @@ class PacmanRules:
             PacmanRules.consume( nearest, state )
     applyAction = staticmethod( applyAction )
 
+    def movetoAnyState( state, pacmannxtpos ):
+        """
+        Edits the state to reflect the results of the action.
+        """
+
+        pacmanState = state.data.agentStates[0]
+
+        # Update Configuration
+        pacmanState.configuration = pacmanState.configuration.movetoAnyState( pacmannxtpos )
+
+        # Eat
+        next = pacmanState.configuration.getPosition()
+        nearest = nearestPoint( next )
+        if manhattanDistance( nearest, next ) <= 0.5 :
+            # Remove food
+            PacmanRules.consume( nearest, state )
+    movetoAnyState = staticmethod( movetoAnyState )
+
     def consume( position, state ):
         x,y = position
         # Eat food
@@ -397,8 +454,8 @@ class GhostRules:
         reverse = Actions.reverseDirection( conf.direction )
         if Directions.STOP in possibleActions:
             possibleActions.remove( Directions.STOP )
-        if reverse in possibleActions and len( possibleActions ) > 1:
-            possibleActions.remove( reverse )
+        # if reverse in possibleActions and len( possibleActions ) > 1:
+        #     possibleActions.remove( reverse )
         return possibleActions
     getLegalActions = staticmethod( getLegalActions )
 
@@ -414,6 +471,13 @@ class GhostRules:
         vector = Actions.directionToVector( action, speed )
         ghostState.configuration = ghostState.configuration.generateSuccessor( vector )
     applyAction = staticmethod( applyAction )
+
+    def movetoAnyState( state, ghostnxtpos, ghostIndex):
+        ghostState = state.data.agentStates[ghostIndex]
+        speed = GhostRules.GHOST_SPEED
+        if ghostState.scaredTimer > 0: speed /= 2.0
+        ghostState.configuration = ghostState.configuration.movetoAnyState( ghostnxtpos )
+    movetoAnyState = staticmethod( movetoAnyState )
 
     def decrementTimer( ghostState):
         timer = ghostState.scaredTimer
@@ -620,7 +684,7 @@ def replayGame( layout, actions, display ):
     display.initialize(state.data)
 
     for action in actions:
-            # Execute the action
+        # Execute the action
         state = state.generateSuccessor( *action )
         # Change the display
         display.update( state.data )
@@ -636,6 +700,10 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
     rules = ClassicGameRules(timeout)
     games = []
 
+    #define transition function
+    tree  = TransitionFunctionTree(pacman, ghosts, layout)
+    tree.computeProbabilities()
+
     for i in range( numGames ):
         print(i)
         beQuiet = i < numTraining
@@ -648,7 +716,10 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
             gameDisplay = display
             rules.quiet = False
         game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
+        tree.state = game.state
+        game.transitionFunctionTree = tree.copy()
         game.run(i, numGames)
+
         if not beQuiet: games.append(game)
 
         if record:
