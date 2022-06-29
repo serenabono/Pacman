@@ -619,8 +619,6 @@ class Game:
         self.display.initialize(self.state.data)
         self.numMoves = 0
 
-        actionList = []
-        prevstate = self.state.deepCopy()
         # self.display.initialize(self.state.makeObservation(1).data)
         # inform learning agents of the game start
         for i in range(len(self.agents)):
