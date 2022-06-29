@@ -16,6 +16,7 @@ from dis import dis
 from game import Agent
 from game import Actions
 from game import Directions
+from pacman import GhostRules, GameState
 import random
 from util import manhattanDistance
 import util
@@ -31,7 +32,8 @@ class GhostAgent(Agent):
             return Directions.STOP
         else:
             action = util.chooseFromDistribution(dist)
-            nxt = state.generateSuccessor( self.index, action )
+            nxt = GameState(state)
+            GhostRules.applyAction( nxt, action, self.index )
             return {transitionMatrix.getHashfromState(nxt): dist[action]}
 
     def getPerturbedDistribution(self, state, transitionMatrix):
@@ -48,7 +50,7 @@ class RandomGhost(GhostAgent):
 
     def getDistribution(self, state):
         dist = util.Counter()
-        for a in state.getLegalActions(self.index):
+        for a in GhostRules.getLegalActions(state, self.index):
             dist[a] = 1.0
         dist.normalize()
         return dist
@@ -58,7 +60,7 @@ class RandomGhost(GhostAgent):
         actlst = transitionMatrix.getLegalActions(
             transitionMatrix.getHashfromState(state), self.index)
         for a in actlst.keys():
-            dist[transitionMatrix.toactions[a]] = actlst[a].values()[0]
+            dist[transitionMatrix.toactions[a]] = actlst[a].values()[0]    
         return dist
 
 
