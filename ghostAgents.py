@@ -27,14 +27,12 @@ class GhostAgent(Agent):
         self.index = index
 
     def getAction(self, state, transitionMatrix):
-        dist = self.getPerturbedDistribution(state, transitionMatrix)
+        dist, actlst = self.getPerturbedDistribution(state, transitionMatrix)
         if len(dist) == 0:
             return Directions.STOP
         else:
             action = util.chooseFromDistribution(dist)
-            nxt = GameState(state)
-            GhostRules.applyAction( nxt, action, self.index )
-            return {transitionMatrix.getHashfromState(nxt): dist[action]}
+            return actlst[transitionMatrix.actions[action]]
 
     def getPerturbedDistribution(self, state, transitionMatrix):
         "Returns a Counter encoding a distribution over actions from the provided state."
@@ -59,9 +57,15 @@ class RandomGhost(GhostAgent):
         dist = util.Counter()
         actlst = transitionMatrix.getLegalActions(
             transitionMatrix.getHashfromState(state), self.index)
+        
+        probs = {}
         for a in actlst.keys():
-            dist[transitionMatrix.toactions[a]] = actlst[a].values()[0]    
-        return dist
+            probs[a] = sum(actlst[a])
+        
+        for a in probs:
+            dist[transitionMatrix.toactions[a]] = probs[a]
+
+        return dist, actlst
 
 
 class DirectionalGhost(GhostAgent):
