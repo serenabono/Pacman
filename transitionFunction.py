@@ -21,7 +21,7 @@ from noise import GaussianNoise
 #  TRANSITION FUNCTION CODE  #
 ##############################
 
-class TransitionFunctionTree():
+class TransitionMatrixDicTree():
     """
     Class containing all the information to generate the state transition matrix
     """
@@ -69,23 +69,22 @@ class TransitionFunctionTree():
 
         return tree
     
-    def applyNoiseToTransitionMatrix(self, **params):
+    def applyNoiseToTransitionMatrix(self, noiseDistribution):
         """
         Add noise to transition matrix
         """
-        noiseDistribution = GaussianNoise(params)
 
-        for fromstate in self.transitionFunction:
-            for throughaction in self.transitionFunction[fromstate]:
+        for fromstate in self.transitionMatrixDic:
+            for throughaction in self.transitionMatrixDic[fromstate]:
                 denom = 0
-                for tostate in range(self.transitionFunction.nStates):
-                    if tostate not in self.transitionFunction[fromstate][throughaction]:
-                        self.transitionFunction[fromstate][throughaction][tostate] = 0
-                    self.transitionFunction[fromstate][throughaction][tostate] += noiseDistribution.sample()
-                    denom += self.transitionFunction[fromstate][throughaction][tostate]
+                for tostate in range(self.nStates):
+                    if tostate not in self.transitionMatrixDic[fromstate][throughaction]:
+                        self.transitionMatrixDic[fromstate][throughaction][tostate] = 0
+                    self.transitionMatrixDic[fromstate][throughaction][tostate] += noiseDistribution.sample()
+                    denom += self.transitionMatrixDic[fromstate][throughaction][tostate]
                 
-                for tostate in self.transitionFunction[fromstate][throughaction]:
-                    self.transitionFunction[fromstate][throughaction] /= denom
+                for tostate in self.transitionMatrixDic[fromstate][throughaction]:
+                    self.transitionMatrixDic[fromstate][throughaction][tostate] //= denom
             
     def computeProbabilities(self):
         """

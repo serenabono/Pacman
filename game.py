@@ -666,7 +666,7 @@ class Game:
             agent = self.agents[agentIndex]
             move_time = 0
             skip_action = False
-            
+
             # Generate an observation of the state
             if 'observationFunction' in dir(agent):
                 self.mute(agentIndex)
@@ -691,18 +691,19 @@ class Game:
                 self.unmute()
             else:
                 observation = self.state.deepCopy()
-            
+
             action = None
             if agentIndex == 0:
                 action = self.transitionFunctionTree.actions[agent.getAction(
-                                observation, game_number, total_games, isInitial)]
+                    observation, game_number, total_games, isInitial)]
                 actionstostateshashdict = {}
                 if perturbingagents:
                     for id in range(len(self.agents)):
                         rolloutagent = self.agents[id]
                         actionstostateshashdict[id] = {}
                         if id == 0:
-                            actionstostateshashdict[id] = self.transitionFunctionTree.getLegalActions(self.transitionFunctionTree.getHashfromState(observation), 0)[action]
+                            actionstostateshashdict[id] = self.transitionFunctionTree.getLegalActions(
+                                self.transitionFunctionTree.getHashfromState(observation), 0)[action]
                             isInitial = False
                         else:
                             # implemented for random ghost
@@ -711,8 +712,9 @@ class Game:
                 else:
                     if id == 0:
                         isInitial = False
-                    actionstostateshashdict = self.transitionFunctionTree.getLegalStates(self.transitionFunctionTree.getHashfromState(observation), action)
-            
+                    actionstostateshashdict = self.transitionFunctionTree.getLegalStates(
+                        self.transitionFunctionTree.getHashfromState(observation), action)
+
             # Solicit an action
             self.mute(agentIndex)
             if self.catchExceptions:
@@ -759,7 +761,7 @@ class Game:
                     self._agentCrash(agentIndex)
                     self.unmute()
                     return
-        
+
             self.unmute()
 
             # Execute the action
@@ -792,7 +794,7 @@ class Game:
 
             if _BOINC_ENABLED:
                 boinc.set_fraction_done(self.getProgress())
-        
+
         if self.gameOver:
             self.agents[0].getAction(
                 self.state, game_number, total_games, isInitial)
