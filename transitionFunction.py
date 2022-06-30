@@ -15,7 +15,7 @@ import numpy as np
 from game import Directions, Grid
 from layout import Layout
 from pacman import GameState, PacmanRules, GhostRules
-
+from noise import GaussianNoise
 
 ##############################
 #  TRANSITION FUNCTION CODE  #
@@ -68,7 +68,25 @@ class TransitionFunctionTree():
         tree.helperDic = self.helperDic
 
         return tree
+    
+    def applyNoiseToTransitionMatrix(self, **params):
+        """
+        Add noise to transition matrix
+        """
+        noiseDistribution = GaussianNoise(params)
 
+        for fromstate in self.transitionFunction:
+            for throughaction in self.transitionFunction[fromstate]:
+                denom = 0
+                for tostate in range(self.transitionFunction.nStates):
+                    if tostate not in self.transitionFunction[fromstate][throughaction]:
+                        self.transitionFunction[fromstate][throughaction][tostate] = 0
+                    self.transitionFunction[fromstate][throughaction][tostate] += noiseDistribution.sample()
+                    denom += self.transitionFunction[fromstate][throughaction][tostate]
+                
+                for tostate in self.transitionFunction[fromstate][throughaction]:
+                    self.transitionFunction[fromstate][throughaction] /= denom
+            
     def computeProbabilities(self):
         """
         Function to compute probabilities P(s'|s,a). Most transitions are illegal and the matrix is extremely big,
@@ -184,14 +202,33 @@ class TransitionFunctionTree():
         actlst = {}
 
         for throughaction in self.helperDic[agentId][fromstatehash]:
-            acthashagent = self.getKeysfromHash(
+            actagent = self.getKeysfromHash(
                     throughaction, 1)[0]
-            for tostatehash in self.helperDic[agentId][fromstatehash][acthashagent]:
-                if acthashagent not in actlst:
-                    actlst[acthashagent] = {}    
-                actlst[acthashagent][tostatehash] = self.helperDic[agentId][fromstatehash][acthashagent][tostatehash]
+            for tostatehash in self.helperDic[agentId][fromstatehash][actagent]:
+                if actagent not in actlst:
+                    actlst[actagent] = {}    
+                actlst[actagent][tostatehash] = self.helperDic[agentId][fromstatehash][actagent][tostatehash]
               
         return actlst
+    
+    def getLegalStates(self, fromstatehash):
+        """ HelpDics are not affected, only the TransitionMatrixDic"""
+
+        actionstostateshashdict = {}
+        for throughaction in self.transitionMatrixDic[fromstatehash]:
+            actions = self.getKeysfromHash(throughaction, self.numAgents)
+            for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
+                current = fromstatehash
+                for agentIndex in range(len(actions)):
+                    successor = self.helperDic[agentIndex][current][actions[agentIndex]].keys()[0]
+                    if agentIndex not in actionstostateshashdict:
+                        actionstostateshashdict[agentIndex] = {}
+                    if actions[agentIndex] not in actionstostateshashdict[agentIndex]:
+                        actionstostateshashdict[agentIndex][actions[agentIndex]] = {}   
+                    actionstostateshashdict[agentIndex][actions[agentIndex]][successor] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
+                    current = successor
+        return actionstostateshashdict
+        
 
     def generateSuccessor(self, state, actionstostateshashdict, agentId):
         newstate = GameState(state)
