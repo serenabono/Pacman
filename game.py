@@ -20,6 +20,7 @@
 # John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
 
+from tkinter.tix import Tree
 from util import *
 import time
 import os
@@ -611,7 +612,7 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
-    def run(self, game_number, total_games, perturbungagents=False):
+    def run(self, game_number, total_games, perturbingagents=True):
         """
         Main control loop for game play.
         """
@@ -691,25 +692,28 @@ class Game:
             else:
                 observation = self.state.deepCopy()
             
+            action = None
             if agentIndex == 0:
+                action = self.transitionFunctionTree.actions[agent.getAction(
+                                observation, game_number, total_games, isInitial)]
                 actionstostateshashdict = {}
-                if perturbungagents:
-                    for id in len(self.agents):
+                if perturbingagents:
+                    for id in range(len(self.agents)):
+                        rolloutagent = self.agents[id]
                         actionstostateshashdict[id] = {}
                         if id == 0:
-                            action = self.transitionFunctionTree.actions[agent.getAction(
-                                observation, game_number, total_games, isInitial)]
                             actionstostateshashdict[id] = self.transitionFunctionTree.getLegalActions(self.transitionFunctionTree.getHashfromState(observation), 0)[action]
                             isInitial = False
                         else:
                             # implemented for random ghost
-                            actionstostateshashdict[id] = agent.getAction(
+                            actionstostateshashdict[id] = rolloutagent.getAction(
                                 observation, self.transitionFunctionTree)
                 else:
-                    actionstostateshashdict = self.transitionFunctionTree.getLegalStates(self.transitionFunctionTree.getHashfromState(observation))
+                    if id == 0:
+                        isInitial = False
+                    actionstostateshashdict = self.transitionFunctionTree.getLegalStates(self.transitionFunctionTree.getHashfromState(observation), action)
             
             # Solicit an action
-            action = None
             self.mute(agentIndex)
             if self.catchExceptions:
                 try:
@@ -788,7 +792,7 @@ class Game:
 
             if _BOINC_ENABLED:
                 boinc.set_fraction_done(self.getProgress())
-
+        
         if self.gameOver:
             self.agents[0].getAction(
                 self.state, game_number, total_games, isInitial)

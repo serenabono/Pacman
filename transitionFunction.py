@@ -211,22 +211,18 @@ class TransitionFunctionTree():
               
         return actlst
     
-    def getLegalStates(self, fromstatehash):
+    def getLegalStates(self, fromstatehash, actionPacman):
         """ HelpDics are not affected, only the TransitionMatrixDic"""
 
         actionstostateshashdict = {}
         for throughaction in self.transitionMatrixDic[fromstatehash]:
             actions = self.getKeysfromHash(throughaction, self.numAgents)
-            for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
-                current = fromstatehash
-                for agentIndex in range(len(actions)):
-                    successor = self.helperDic[agentIndex][current][actions[agentIndex]].keys()[0]
-                    if agentIndex not in actionstostateshashdict:
-                        actionstostateshashdict[agentIndex] = {}
-                    if actions[agentIndex] not in actionstostateshashdict[agentIndex]:
-                        actionstostateshashdict[agentIndex][actions[agentIndex]] = {}   
-                    actionstostateshashdict[agentIndex][actions[agentIndex]][successor] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
-                    current = successor
+            if actions[0] == actionPacman:
+                for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
+                    for n in range(self.numAgents):
+                        if n not in actionstostateshashdict:
+                            actionstostateshashdict[n] = {}    
+                        actionstostateshashdict[n][tostatehash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]  
         return actionstostateshashdict
         
 
@@ -234,7 +230,6 @@ class TransitionFunctionTree():
         newstate = GameState(state)
         # random weighted choice
         actiontostatehash = np.random.choice(actionstostateshashdict.keys(),1, actionstostateshashdict.values())
-        
         listpos = self.fromBaseTen(
             actiontostatehash, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
         posingrid = self.getPositionInGridCoord(listpos[agentId])
