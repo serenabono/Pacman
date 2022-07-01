@@ -201,31 +201,48 @@ class TransitionMatrixDicTree():
         actlst = {}
 
         for throughaction in self.helperDic[agentId][fromstatehash]:
-            actagent = self.getKeysfromHash(
-                    throughaction, 1)[0]
-            for tostatehash in self.helperDic[agentId][fromstatehash][actagent]:
-                if actagent not in actlst:
-                    actlst[actagent] = {}
-                if tostatehash not in actlst[actagent]:    
-                    actlst[actagent][tostatehash] = self.helperDic[agentId][fromstatehash][actagent][tostatehash]
+            for tostatehash in self.helperDic[agentId][fromstatehash][throughaction]:
+                if throughaction not in actlst:
+                    actlst[throughaction] = {}
+                if tostatehash not in actlst[throughaction]:    
+                    actlst[throughaction][tostatehash] = self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
                 else:
-                    actlst[actagent][tostatehash] += self.helperDic[agentId][fromstatehash][actagent][tostatehash]
+                    actlst[throughaction][tostatehash] += self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
               
         return actlst
     
     def getLegalPacmanActions(self, fromstatehash):        
         return self.transitionMatrixDic[fromstatehash].keys()
 
-    def getLegalStates(self, fromstatehash, throughaction):
+    def getLegalStates(self, fromstate, throughaction):
         """ HelpDics are not affected, only the TransitionMatrixDic"""
-
+        fromstatehash = self.getHashfromState(fromstate)
         actionstostateshashdict = {}
         for throughaction in self.transitionMatrixDic[fromstatehash]:
             for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
-                if throughaction not in actionstostateshashdict:
-                    actionstostateshashdict[throughaction] = {}    
-                if tostatehash not in actionstostateshashdict[throughaction]: 
-                    actionstostateshashdict[throughaction][tostatehash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash] 
+                pacmanFin, ghostsFin = self.getPositionAgentsInGridCoordfromHash(
+                    tostatehash)
+                positions = [pacmanFin]+ghostsFin
+                current = GameState(fromstate)
+                for agentId in range(len(positions)):
+                    successor = current.movetoAnyState(
+                        agentId, positions[agentId])
+                    successorelementhash = self.getHashfromState(
+                        successor)
+                    posingrid = self.getPositionInWorldCoord(positions[agentId])
+                    
+                    if agentId not in actionstostateshashdict:
+                        actionstostateshashdict[agentId] = {}
+                    
+                    if posingrid not in actionstostateshashdict[agentId]:
+                        actionstostateshashdict[agentId][posingrid] = {}
+
+                    if successorelementhash not in actionstostateshashdict[agentId][posingrid]:
+                        actionstostateshashdict[agentId][posingrid][successorelementhash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
+                    else: 
+                        actionstostateshashdict[agentId][posingrid][successorelementhash] += self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
+                    
+                    current = successor.deepCopy()
         return actionstostateshashdict
         
 
