@@ -77,7 +77,7 @@ class TransitionMatrixDicTree():
         for fromstate in range(self.nStates):
             if fromstate not in self.transitionMatrixDic:
                 self.transitionMatrixDic[fromstate] = {}
-            for throughaction in range(self.nActions):
+            for throughaction in range(self.nPossibleAcitons):
                 if throughaction not in self.transitionMatrixDic[fromstate]:
                     self.transitionMatrixDic[fromstate][throughaction] = {}
                 denom = 0
@@ -89,7 +89,7 @@ class TransitionMatrixDicTree():
                 
                 for tostate in self.transitionMatrixDic[fromstate][throughaction]:
                     self.transitionMatrixDic[fromstate][throughaction][tostate] /= denom
-            
+                            
     def computeProbabilities(self):
         """
         Function to compute probabilities P(s'|s,a). Most transitions are illegal and the matrix is extremely big,
@@ -171,35 +171,21 @@ class TransitionMatrixDicTree():
                 probel = prob * \
                     self.helperDic[agentid][currentelementhash][action][successorelementhash]
                 if agentid == self.numAgents - 1:
-                    throughactionhash = self.getHashfromKeys(throughactions)
+                    # throughactionhash = self.getHashfromKeys(throughactions)
+                    throughactionhash = throughactions[0]
                     if lastpacmanstate not in self.transitionMatrixDic:
                         self.transitionMatrixDic[lastpacmanstate] = {}
                     if throughactionhash not in self.transitionMatrixDic[lastpacmanstate]:
-                        self.transitionMatrixDic[lastpacmanstate][throughactionhash] = {
-                        }
-                    self.transitionMatrixDic[lastpacmanstate][throughactionhash][successorelementhash] = probel
+                        self.transitionMatrixDic[lastpacmanstate][throughactionhash] = {}
+                    if successorelementhash not in self.transitionMatrixDic[lastpacmanstate][throughactionhash]:
+                        self.transitionMatrixDic[lastpacmanstate][throughactionhash][successorelementhash] = probel
+                    else:
+                        self.transitionMatrixDic[lastpacmanstate][throughactionhash][successorelementhash] += probel
                 else:
                     self.createMatrixrecursively(
                         agentid + 1, lastpacmanstate, throughactions, successorelementhash, probel)
 
             throughactions.pop()
-
-    def getProbsStatesgivenAction(self, fromstate, throughactions):
-        """
-        Returns the prob of reaching a certain state s' given an initial state s and action a'. P(s'|s,a) is the transition probability.
-        """
-
-        fromstatehash = self.getHashfromState(fromstate)
-        throughactionhash = self.getHashfromKeys(throughactions)
-
-        probstate = {}
-
-        try:
-            for tostatehash in self.transitionMatrixDic[fromstatehash][throughactionhash]:
-                probstate[tostatehash] = self.transitionMatrixDic[fromstatehash][throughactionhash][tostatehash]
-        except:
-            return {}
-        return probstate
 
     def getLegalActionsAgent(self, fromstatehash, agentId):
         actlst = {}
@@ -209,31 +195,31 @@ class TransitionMatrixDicTree():
                     throughaction, 1)[0]
             for tostatehash in self.helperDic[agentId][fromstatehash][actagent]:
                 if actagent not in actlst:
-                    actlst[actagent] = {}    
-                actlst[actagent][tostatehash] = self.helperDic[agentId][fromstatehash][actagent][tostatehash]
+                    actlst[actagent] = {}
+                if tostatehash not in actlst[actagent]:    
+                    actlst[actagent][tostatehash] = self.helperDic[agentId][fromstatehash][actagent][tostatehash]
+                else:
+                    actlst[actagent][tostatehash] += self.helperDic[agentId][fromstatehash][actagent][tostatehash]
               
         return actlst
     
-    def getLegalPacmanActions(self, fromstatehash):
-        actions = set()
-        for throughaction in self.transitionMatrixDic[fromstatehash]:
-            pacmanaction = self.getKeysfromHash(throughaction, self.numAgents)[0]
-            actions.add(pacmanaction)
-        
-        return actions
+    def getLegalPacmanActions(self, fromstatehash):        
+        return self.transitionMatrixDic[fromstatehash].keys()
 
-    def getLegalStates(self, fromstatehash, throughactionpacman):
+    def getLegalStates(self, fromstatehash, throughaction):
         """ HelpDics are not affected, only the TransitionMatrixDic"""
 
         actionstostateshashdict = {}
         for throughaction in self.transitionMatrixDic[fromstatehash]:
             for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
-                pacmanaction = self.getKeysfromHash(throughaction, self.numAgents)[0]
-                if pacmanaction== throughactionpacman:
-                    for n in range(self.numAgents):
-                        if n not in actionstostateshashdict:
-                            actionstostateshashdict[n] = {}    
-                        actionstostateshashdict[n][tostatehash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]  
+                for n in range(self.numAgents):
+                    if n not in actionstostateshashdict:
+                        actionstostateshashdict[n] = {}    
+                    if tostatehash not in actionstostateshashdict[n]: 
+                        actionstostateshashdict[n][tostatehash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash] 
+                    else:
+                        actionstostateshashdict[n][tostatehash] += self.transitionMatrixDic[fromstatehash][throughaction][tostatehash] 
+    
         return actionstostateshashdict
         
 

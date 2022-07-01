@@ -612,7 +612,7 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
-    def run(self, game_number, total_games, perturbingagents=True):
+    def run(self, game_number, total_games, perturbingagents=False):
         """
         Main control loop for game play.
         """
