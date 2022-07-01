@@ -55,7 +55,7 @@ class RandomGhost(GhostAgent):
 
     def getPerturbedDistribution(self, state, transitionMatrix):
         dist = util.Counter()
-        actlst = transitionMatrix.getLegalActions(
+        actlst = transitionMatrix.getLegalActionsAgent(
             transitionMatrix.getHashfromState(state), self.index)
         
         probs = {}

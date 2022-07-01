@@ -201,7 +201,7 @@ class TransitionMatrixDicTree():
             return {}
         return probstate
 
-    def getLegalActions(self, fromstatehash, agentId):
+    def getLegalActionsAgent(self, fromstatehash, agentId):
         actlst = {}
 
         for throughaction in self.helperDic[agentId][fromstatehash]:
@@ -214,15 +214,26 @@ class TransitionMatrixDicTree():
               
         return actlst
     
-    def getLegalStates(self, fromstatehash, throughaction):
+    def getLegalPacmanActions(self, fromstatehash):
+        actions = set()
+        for throughaction in self.transitionMatrixDic[fromstatehash]:
+            pacmanaction = self.getKeysfromHash(throughaction, self.numAgents)[0]
+            actions.add(pacmanaction)
+        
+        return actions
+
+    def getLegalStates(self, fromstatehash, throughactionpacman):
         """ HelpDics are not affected, only the TransitionMatrixDic"""
 
         actionstostateshashdict = {}
-        for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
-            for n in range(self.numAgents):
-                if n not in actionstostateshashdict:
-                    actionstostateshashdict[n] = {}    
-                actionstostateshashdict[n][tostatehash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]  
+        for throughaction in self.transitionMatrixDic[fromstatehash]:
+            for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
+                pacmanaction = self.getKeysfromHash(throughaction, self.numAgents)[0]
+                if pacmanaction== throughactionpacman:
+                    for n in range(self.numAgents):
+                        if n not in actionstostateshashdict:
+                            actionstostateshashdict[n] = {}    
+                        actionstostateshashdict[n][tostatehash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]  
         return actionstostateshashdict
         
 

@@ -612,7 +612,7 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
-    def run(self, game_number, total_games, perturbingagents=False):
+    def run(self, game_number, total_games, perturbingagents=True):
         """
         Main control loop for game play.
         """
@@ -691,17 +691,18 @@ class Game:
                 self.unmute()
             else:
                 observation = self.state.deepCopy()
-            
+
             action = None
             if agentIndex == 0:
-                action = agent.getAction(observation,self.transitionFunctionTree, game_number, total_games, isInitial)
                 actionstostateshashdict = {}
                 if perturbingagents:
+                    action = agent.getAction(observation, self.transitionFunctionTree.getLegalActionsAgent(
+                        self.transitionFunctionTree.getHashfromState(observation), 0).keys(), game_number, total_games, isInitial)
                     for id in range(len(self.agents)):
                         rolloutagent = self.agents[id]
                         actionstostateshashdict[id] = {}
                         if id == 0:
-                            actionstostateshashdict[id] = self.transitionFunctionTree.getLegalActions(
+                            actionstostateshashdict[id] = self.transitionFunctionTree.getLegalActionsAgent(
                                 self.transitionFunctionTree.getHashfromState(observation), 0)[action]
                             isInitial = False
                         else:
@@ -709,6 +710,8 @@ class Game:
                             actionstostateshashdict[id] = rolloutagent.getAction(
                                 observation, self.transitionFunctionTree)
                 else:
+                    action = agent.getAction(observation, self.transitionFunctionTree.getLegalPacmanActions(
+                       self.transitionFunctionTree.getHashfromState(observation)), game_number, total_games, isInitial)
                     if agentIndex == 0:
                         isInitial = False
                     actionstostateshashdict = self.transitionFunctionTree.getLegalStates(
@@ -794,7 +797,7 @@ class Game:
 
         if self.gameOver:
             self.agents[0].getAction(
-                self.state,self.transitionFunctionTree, game_number, total_games, isInitial)
+                self.state, [], game_number, total_games, isInitial)
         # inform a learning agent of the game result
         for agentIndex, agent in enumerate(self.agents):
             if "final" in dir(agent):
