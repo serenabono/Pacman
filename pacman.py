@@ -750,7 +750,7 @@ def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, c
     # define transition function
     tree = TransitionMatrixDicTree(pacman, ghosts, layout)
     tree.computeProbabilities()
-    tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1}))
+    tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 0.000001}))
 
     for i in range(numGames):
         print(i)

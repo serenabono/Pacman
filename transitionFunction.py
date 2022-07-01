@@ -73,7 +73,6 @@ class TransitionMatrixDicTree():
         """
         Add noise to transition matrix
         """
-
         for fromstate in range(self.nStates):
             if fromstate not in self.transitionMatrixDic:
                 self.transitionMatrixDic[fromstate] = {}
@@ -89,7 +88,12 @@ class TransitionMatrixDicTree():
                 
                 for tostate in self.transitionMatrixDic[fromstate][throughaction]:
                     self.transitionMatrixDic[fromstate][throughaction][tostate] /= denom
-                            
+
+        # check correctness
+        for fromstate in self.transitionMatrixDic:
+            for throughaction in self.transitionMatrixDic[fromstate]:
+                np.testing.assert_almost_equal(sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
+        
     def computeProbabilities(self):
         """
         Function to compute probabilities P(s'|s,a). Most transitions are illegal and the matrix is extremely big,
@@ -159,6 +163,12 @@ class TransitionMatrixDicTree():
         for currentelementhash in self.helperDic[0]:
             self.createMatrixrecursively(
                 self.startingIndex, currentelementhash, [], currentelementhash, prob=1)
+        
+        # check correctness
+        for fromstate in self.transitionMatrixDic:
+            for throughaction in self.transitionMatrixDic[fromstate]:
+                np.testing.assert_almost_equal(sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
+
 
     def createMatrixrecursively(self, agentid, lastpacmanstate, throughactions, currentelementhash, prob):
         if currentelementhash not in self.helperDic[agentid]:
@@ -212,21 +222,17 @@ class TransitionMatrixDicTree():
         actionstostateshashdict = {}
         for throughaction in self.transitionMatrixDic[fromstatehash]:
             for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
-                for n in range(self.numAgents):
-                    if n not in actionstostateshashdict:
-                        actionstostateshashdict[n] = {}    
-                    if tostatehash not in actionstostateshashdict[n]: 
-                        actionstostateshashdict[n][tostatehash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash] 
-                    else:
-                        actionstostateshashdict[n][tostatehash] += self.transitionMatrixDic[fromstatehash][throughaction][tostatehash] 
-    
+                if throughaction not in actionstostateshashdict:
+                    actionstostateshashdict[throughaction] = {}    
+                if tostatehash not in actionstostateshashdict[throughaction]: 
+                    actionstostateshashdict[throughaction][tostatehash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash] 
         return actionstostateshashdict
         
 
     def generateSuccessor(self, state, actionstostateshashdict, agentId):
         newstate = GameState(state)
         # random weighted choice
-        actiontostatehash = np.random.choice(actionstostateshashdict.keys(),1, actionstostateshashdict.values())
+        actiontostatehash = np.random.choice(actionstostateshashdict.keys(),1, p=actionstostateshashdict.values())
         listpos = self.fromBaseTen(
             actiontostatehash, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
         posingrid = self.getPositionInGridCoord(listpos[agentId])
