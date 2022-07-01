@@ -74,8 +74,12 @@ class TransitionMatrixDicTree():
         Add noise to transition matrix
         """
 
-        for fromstate in self.transitionMatrixDic:
-            for throughaction in self.transitionMatrixDic[fromstate]:
+        for fromstate in range(self.nStates):
+            if fromstate not in self.transitionMatrixDic:
+                self.transitionMatrixDic[fromstate] = {}
+            for throughaction in range(self.nActions):
+                if throughaction not in self.transitionMatrixDic[fromstate]:
+                    self.transitionMatrixDic[fromstate][throughaction] = {}
                 denom = 0
                 for tostate in range(self.nStates):
                     if tostate not in self.transitionMatrixDic[fromstate][throughaction]:
@@ -210,18 +214,15 @@ class TransitionMatrixDicTree():
               
         return actlst
     
-    def getLegalStates(self, fromstatehash, actionPacman):
+    def getLegalStates(self, fromstatehash, throughaction):
         """ HelpDics are not affected, only the TransitionMatrixDic"""
 
         actionstostateshashdict = {}
-        for throughaction in self.transitionMatrixDic[fromstatehash]:
-            actions = self.getKeysfromHash(throughaction, self.numAgents)
-            if actions[0] == actionPacman:
-                for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
-                    for n in range(self.numAgents):
-                        if n not in actionstostateshashdict:
-                            actionstostateshashdict[n] = {}    
-                        actionstostateshashdict[n][tostatehash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]  
+        for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
+            for n in range(self.numAgents):
+                if n not in actionstostateshashdict:
+                    actionstostateshashdict[n] = {}    
+                actionstostateshashdict[n][tostatehash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]  
         return actionstostateshashdict
         
 

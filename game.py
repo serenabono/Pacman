@@ -612,7 +612,7 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
-    def run(self, game_number, total_games, perturbingagents=True):
+    def run(self, game_number, total_games, perturbingagents=False):
         """
         Main control loop for game play.
         """
@@ -691,11 +691,10 @@ class Game:
                 self.unmute()
             else:
                 observation = self.state.deepCopy()
-
+            
             action = None
             if agentIndex == 0:
-                action = self.transitionFunctionTree.actions[agent.getAction(
-                    observation, game_number, total_games, isInitial)]
+                action = agent.getAction(observation,self.transitionFunctionTree, game_number, total_games, isInitial)
                 actionstostateshashdict = {}
                 if perturbingagents:
                     for id in range(len(self.agents)):
@@ -710,11 +709,10 @@ class Game:
                             actionstostateshashdict[id] = rolloutagent.getAction(
                                 observation, self.transitionFunctionTree)
                 else:
-                    if id == 0:
+                    if agentIndex == 0:
                         isInitial = False
                     actionstostateshashdict = self.transitionFunctionTree.getLegalStates(
                         self.transitionFunctionTree.getHashfromState(observation), action)
-
             # Solicit an action
             self.mute(agentIndex)
             if self.catchExceptions:
@@ -763,7 +761,6 @@ class Game:
                     return
 
             self.unmute()
-
             # Execute the action
             self.moveHistory.append((agentIndex, action))
             if self.catchExceptions:
@@ -797,7 +794,7 @@ class Game:
 
         if self.gameOver:
             self.agents[0].getAction(
-                self.state, game_number, total_games, isInitial)
+                self.state,self.transitionFunctionTree, game_number, total_games, isInitial)
         # inform a learning agent of the game result
         for agentIndex, agent in enumerate(self.agents):
             if "final" in dir(agent):

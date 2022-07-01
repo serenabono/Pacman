@@ -751,7 +751,6 @@ def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, c
     tree = TransitionMatrixDicTree(pacman, ghosts, layout)
     tree.computeProbabilities()
     tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1}))
-    print(tree.transitionMatrixDic)
 
     for i in range(numGames):
         print(i)
