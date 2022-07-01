@@ -88,7 +88,7 @@ class TransitionMatrixDicTree():
                     denom += self.transitionMatrixDic[fromstate][throughaction][tostate]
                 
                 for tostate in self.transitionMatrixDic[fromstate][throughaction]:
-                    self.transitionMatrixDic[fromstate][throughaction][tostate] //= denom
+                    self.transitionMatrixDic[fromstate][throughaction][tostate] /= denom
             
     def computeProbabilities(self):
         """
