@@ -21,6 +21,7 @@ from noise import GaussianNoise
 #  TRANSITION FUNCTION CODE  #
 ##############################
 
+
 class TransitionMatrixDicTree():
     """
     Class containing all the information to generate the state transition matrix
@@ -44,8 +45,8 @@ class TransitionMatrixDicTree():
         self.transitionMatrixDic = {}
         self.actions = {Directions.NORTH: 0, Directions.SOUTH: 1,
                         Directions.EAST: 2, Directions.WEST: 3, Directions.STOP: 4}
-        self.toactions = {0: Directions.NORTH , 1:Directions.SOUTH,
-                        2:Directions.EAST, 3:Directions.WEST, 4:Directions.STOP}
+        self.toactions = {0: Directions.NORTH, 1: Directions.SOUTH,
+                          2: Directions.EAST, 3: Directions.WEST, 4: Directions.STOP}
         self.nPossibleAcitons = len(self.actions)
         self.nActions = self.nPossibleAcitons**self.numAgents
         self.helperDic = {}
@@ -68,7 +69,7 @@ class TransitionMatrixDicTree():
         tree.helperDic = self.helperDic
 
         return tree
-    
+
     def applyNoiseToTransitionMatrix(self, noiseDistribution):
         """
         Add noise to transition matrix
@@ -85,15 +86,16 @@ class TransitionMatrixDicTree():
                         self.transitionMatrixDic[fromstate][throughaction][tostate] = 0
                     self.transitionMatrixDic[fromstate][throughaction][tostate] += noiseDistribution.sample()
                     denom += self.transitionMatrixDic[fromstate][throughaction][tostate]
-                
+
                 for tostate in self.transitionMatrixDic[fromstate][throughaction]:
                     self.transitionMatrixDic[fromstate][throughaction][tostate] /= denom
 
         # check correctness
         for fromstate in self.transitionMatrixDic:
             for throughaction in self.transitionMatrixDic[fromstate]:
-                np.testing.assert_almost_equal(sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
-        
+                np.testing.assert_almost_equal(
+                    sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
+
     def computeProbabilities(self):
         """
         Function to compute probabilities P(s'|s,a). Most transitions are illegal and the matrix is extremely big,
@@ -155,19 +157,22 @@ class TransitionMatrixDicTree():
                                  ][successorelelmenthash] = True
                     self.queue.append(successor_element)
 
-                if  pacmanaction not in self.helperDic[current_element["id"]][currentelementhash]:
-                    self.helperDic[current_element["id"]][currentelementhash][pacmanaction] = {}
-                self.helperDic[current_element["id"]][currentelementhash][pacmanaction][successorelelmenthash] = successor_element["prob"]
+                if pacmanaction not in self.helperDic[current_element["id"]][currentelementhash]:
+                    self.helperDic[current_element["id"]
+                                   ][currentelementhash][pacmanaction] = {}
+                self.helperDic[current_element["id"]
+                               ][currentelementhash][pacmanaction][successorelelmenthash] = successor_element["prob"]
 
         for currentelementhash in self.helperDic[0]:
             self.createMatrixrecursively(
                 self.startingIndex, currentelementhash, [], currentelementhash, prob=1)
-        
+
         # check correctness
         for fromstate in self.transitionMatrixDic:
             for throughaction in self.transitionMatrixDic[fromstate]:
-                np.testing.assert_almost_equal(sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
-        
+                np.testing.assert_almost_equal(
+                    sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
+
     def createMatrixrecursively(self, agentid, lastpacmanstate, throughactions, currentelementhash, prob):
         if currentelementhash not in self.helperDic[agentid]:
             return
@@ -184,7 +189,8 @@ class TransitionMatrixDicTree():
                     if lastpacmanstate not in self.transitionMatrixDic:
                         self.transitionMatrixDic[lastpacmanstate] = {}
                     if throughactionhash not in self.transitionMatrixDic[lastpacmanstate]:
-                        self.transitionMatrixDic[lastpacmanstate][throughactionhash] = {}
+                        self.transitionMatrixDic[lastpacmanstate][throughactionhash] = {
+                        }
                     if successorelementhash not in self.transitionMatrixDic[lastpacmanstate][throughactionhash]:
                         self.transitionMatrixDic[lastpacmanstate][throughactionhash][successorelementhash] = probel
                     else:
@@ -201,11 +207,11 @@ class TransitionMatrixDicTree():
             for tostatehash in self.helperDic[agentId][fromstatehash][throughaction]:
                 if self.toactions[throughaction] not in actlst:
                     actlst[self.toactions[throughaction]] = {}
-                actlst[self.toactions[throughaction]][tostatehash] = self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
-               
+                actlst[self.toactions[throughaction]
+                       ][tostatehash] = self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
         return actlst
-    
-    def getLegalPacmanActions(self, fromstatehash):        
+
+    def getLegalPacmanActions(self, fromstatehash):
         return self.transitionMatrixDic[fromstatehash].keys()
 
     def getLegalStates(self, fromstate, throughaction):
@@ -226,21 +232,22 @@ class TransitionMatrixDicTree():
                 if agentId not in actionstostateshashdict:
                     actionstostateshashdict[agentId] = {}
                 if successorelementhash not in actionstostateshashdict[agentId]:
-                    actionstostateshashdict[agentId][successorelementhash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
+                    actionstostateshashdict[agentId][successorelementhash] = self.transitionMatrixDic[
+                        fromstatehash][throughaction][tostatehash]
                 else:
                     actionstostateshashdict[agentId][successorelementhash] += self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
-                
+
                 current = successor.deepCopy()
-        
+
         return actionstostateshashdict
-        
 
     def generateSuccessor(self, state, actionstostateshashdict, agentId):
         newstate = GameState(state)
+
         # random weighted choice
-        print(np.sort(actionstostateshashdict.values()))
-        actiontostatehash = np.random.choice(actionstostateshashdict.keys(),1, p=actionstostateshashdict.values())
-        
+        actiontostatehash = np.random.choice(
+            actionstostateshashdict.keys(), 1, p=actionstostateshashdict.values())
+
         listpos = self.fromBaseTen(
             actiontostatehash, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
         posingrid = self.getPositionInGridCoord(listpos[agentId])
@@ -327,7 +334,7 @@ class TransitionMatrixDicTree():
                 [ghost.configuration.pos[0], ghost.configuration.pos[1]]))
 
         return self.toBaseTen([pacmanpos] + ghostspos, self.state.data.layout.width*self.state.data.layout.height)
-    
+
     def getPositionAgentsInGridCoordfromHash(self, statehash):
         list = self.fromBaseTen(
             statehash, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
@@ -337,7 +344,7 @@ class TransitionMatrixDicTree():
 
         for ghost in list[1:]:
             ghosts.append(self.getPositionInGridCoord(ghost))
-        
+
         return pacman, ghosts
 
     def getStatefromHash(self, fromstate, tostatehash):
