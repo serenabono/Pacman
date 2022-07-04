@@ -22,11 +22,8 @@
 
 from util import *
 import time
-import os
 import traceback
 import sys
-import numpy as np
-from numpy.random import choice
 
 #######################
 # Parts worth reading #
@@ -611,7 +608,7 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
-    def run(self, game_number, total_games):
+    def run(self, game_number, total_games, perturbingagents=False):
         """
         Main control loop for game play.
         """
@@ -665,6 +662,7 @@ class Game:
             agent = self.agents[agentIndex]
             move_time = 0
             skip_action = False
+
             # Generate an observation of the state
             if 'observationFunction' in dir(agent):
                 self.mute(agentIndex)
@@ -690,8 +688,31 @@ class Game:
             else:
                 observation = self.state.deepCopy()
 
-            # Solicit an action
             action = None
+            if agentIndex == 0:
+                actionstostateshashdict = {}
+                if perturbingagents:
+                    action = agent.getAction(observation, self.transitionFunctionTree.getLegalActionsAgent(
+                        self.transitionFunctionTree.getHashfromState(observation), 0).keys(), game_number, total_games, isInitial)
+                    for id in range(len(self.agents)):
+                        rolloutagent = self.agents[id]
+                        actionstostateshashdict[id] = {}
+                        if id == 0:
+                            actionstostateshashdict[id] = self.transitionFunctionTree.getLegalActionsAgent(
+                                self.transitionFunctionTree.getHashfromState(observation), 0)[action]
+                            isInitial = False
+                        else:
+                            # implemented for random ghost
+                            actionstostateshashdict[id] = rolloutagent.getAction(
+                                observation, self.transitionFunctionTree)
+                else:
+                    action = agent.getAction(observation, self.transitionFunctionTree.getLegalPacmanActions(
+                       self.transitionFunctionTree.getHashfromState(observation)), game_number, total_games, isInitial)
+                    if agentIndex == 0:
+                        isInitial = False
+                    actionstostateshashdict = self.transitionFunctionTree.getLegalStates(
+                        observation, action)
+            # Solicit an action
             self.mute(agentIndex)
             if self.catchExceptions:
                 try:
@@ -737,24 +758,14 @@ class Game:
                     self._agentCrash(agentIndex)
                     self.unmute()
                     return
-            else:
-                if agentIndex == 0:
-                    action = self.transitionFunctionTree.actions[agent.getAction(
-                        observation, game_number, total_games, isInitial)]
-                    actionstostateshashdict = self.transitionFunctionTree.getLegalActions(self.transitionFunctionTree.getHashfromState(observation), 0)[action]
-                    isInitial = False
-                else:
-                    # implemented for random ghost
-                    actionstostateshashdict = agent.getAction(
-                        observation, self.transitionFunctionTree)
-            self.unmute()
 
+            self.unmute()
             # Execute the action
             self.moveHistory.append((agentIndex, action))
             if self.catchExceptions:
                 try:
                     self.state = self.transitionFunctionTree.generateSuccessor(
-                        self.state, actionstostateshashdict, agentIndex)
+                        self.state, actionstostateshashdict[agentIndex], agentIndex)
                 except Exception, data:
                     self.mute(agentIndex)
                     self._agentCrash(agentIndex)
@@ -762,7 +773,7 @@ class Game:
                     return
             else:
                 self.state = self.transitionFunctionTree.generateSuccessor(
-                    self.state, actionstostateshashdict, agentIndex)
+                    self.state, actionstostateshashdict[agentIndex], agentIndex)
 
             # Change the display
             self.display.update(self.state.data)
@@ -782,7 +793,7 @@ class Game:
 
         if self.gameOver:
             self.agents[0].getAction(
-                self.state, game_number, total_games, isInitial)
+                self.state, [], game_number, total_games, isInitial)
         # inform a learning agent of the game result
         for agentIndex, agent in enumerate(self.agents):
             if "final" in dir(agent):

@@ -16,12 +16,12 @@ from game import Directions, Grid
 from layout import Layout
 from pacman import GameState, PacmanRules, GhostRules
 
-
 ##############################
 #  TRANSITION FUNCTION CODE  #
 ##############################
 
-class TransitionFunctionTree():
+
+class TransitionMatrixDicTree():
     """
     Class containing all the information to generate the state transition matrix
     """
@@ -44,8 +44,8 @@ class TransitionFunctionTree():
         self.transitionMatrixDic = {}
         self.actions = {Directions.NORTH: 0, Directions.SOUTH: 1,
                         Directions.EAST: 2, Directions.WEST: 3, Directions.STOP: 4}
-        self.toactions = {0: Directions.NORTH , 1:Directions.SOUTH,
-                        2:Directions.EAST, 3:Directions.WEST, 4:Directions.STOP}
+        self.toactions = {0: Directions.NORTH, 1: Directions.SOUTH,
+                          2: Directions.EAST, 3: Directions.WEST, 4: Directions.STOP}
         self.nPossibleAcitons = len(self.actions)
         self.nActions = self.nPossibleAcitons**self.numAgents
         self.helperDic = {}
@@ -68,6 +68,32 @@ class TransitionFunctionTree():
         tree.helperDic = self.helperDic
 
         return tree
+
+    def applyNoiseToTransitionMatrix(self, noiseDistribution):
+        """
+        Add noise to transition matrix
+        """
+        for fromstate in range(self.nStates):
+            if fromstate not in self.transitionMatrixDic:
+                self.transitionMatrixDic[fromstate] = {}
+            for throughaction in range(self.nPossibleAcitons):
+                if throughaction not in self.transitionMatrixDic[fromstate]:
+                    self.transitionMatrixDic[fromstate][throughaction] = {}
+                denom = 0
+                for tostate in range(self.nStates):
+                    if tostate not in self.transitionMatrixDic[fromstate][throughaction]:
+                        self.transitionMatrixDic[fromstate][throughaction][tostate] = 0
+                    self.transitionMatrixDic[fromstate][throughaction][tostate] += noiseDistribution.sample()
+                    denom += self.transitionMatrixDic[fromstate][throughaction][tostate]
+
+                for tostate in self.transitionMatrixDic[fromstate][throughaction]:
+                    self.transitionMatrixDic[fromstate][throughaction][tostate] /= denom
+
+        # check correctness
+        for fromstate in self.transitionMatrixDic:
+            for throughaction in self.transitionMatrixDic[fromstate]:
+                np.testing.assert_almost_equal(
+                    sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
 
     def computeProbabilities(self):
         """
@@ -119,6 +145,7 @@ class TransitionFunctionTree():
 
                 if current_element["id"] == 0:
                     successor_element["prob"] = 1
+                    pacmanaction = self.actions[action]
                 else:
                     dist = self.currentAgents[current_element["id"]].getDistribution(
                         current_element["state"])
@@ -129,15 +156,21 @@ class TransitionFunctionTree():
                                  ][successorelelmenthash] = True
                     self.queue.append(successor_element)
 
-                if self.actions[action] not in self.helperDic[current_element["id"]][currentelementhash]:
+                if pacmanaction not in self.helperDic[current_element["id"]][currentelementhash]:
                     self.helperDic[current_element["id"]
-                                   ][currentelementhash][self.actions[action]] = {}
-                self.helperDic[current_element["id"]][currentelementhash][self.actions[action]
-                                                                          ][successorelelmenthash] = successor_element["prob"]
+                                   ][currentelementhash][pacmanaction] = {}
+                self.helperDic[current_element["id"]
+                               ][currentelementhash][pacmanaction][successorelelmenthash] = successor_element["prob"]
 
         for currentelementhash in self.helperDic[0]:
             self.createMatrixrecursively(
                 self.startingIndex, currentelementhash, [], currentelementhash, prob=1)
+
+        # check correctness
+        for fromstate in self.transitionMatrixDic:
+            for throughaction in self.transitionMatrixDic[fromstate]:
+                np.testing.assert_almost_equal(
+                    sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
 
     def createMatrixrecursively(self, agentid, lastpacmanstate, throughactions, currentelementhash, prob):
         if currentelementhash not in self.helperDic[agentid]:
@@ -150,54 +183,72 @@ class TransitionFunctionTree():
                 probel = prob * \
                     self.helperDic[agentid][currentelementhash][action][successorelementhash]
                 if agentid == self.numAgents - 1:
-                    throughactionhash = self.getHashfromKeys(throughactions)
+                    # throughactionhash = self.getHashfromKeys(throughactions)
+                    throughactionhash = throughactions[0]
                     if lastpacmanstate not in self.transitionMatrixDic:
                         self.transitionMatrixDic[lastpacmanstate] = {}
                     if throughactionhash not in self.transitionMatrixDic[lastpacmanstate]:
                         self.transitionMatrixDic[lastpacmanstate][throughactionhash] = {
                         }
-                    self.transitionMatrixDic[lastpacmanstate][throughactionhash][successorelementhash] = probel
+                    if successorelementhash not in self.transitionMatrixDic[lastpacmanstate][throughactionhash]:
+                        self.transitionMatrixDic[lastpacmanstate][throughactionhash][successorelementhash] = probel
+                    else:
+                        self.transitionMatrixDic[lastpacmanstate][throughactionhash][successorelementhash] += probel
                 else:
                     self.createMatrixrecursively(
                         agentid + 1, lastpacmanstate, throughactions, successorelementhash, probel)
 
             throughactions.pop()
 
-    def getProbsStatesgivenAction(self, fromstate, throughactions):
-        """
-        Returns the prob of reaching a certain state s' given an initial state s and action a'. P(s'|s,a) is the transition probability.
-        """
-
-        fromstatehash = self.getHashfromState(fromstate)
-        throughactionhash = self.getHashfromKeys(throughactions)
-
-        probstate = {}
-
-        try:
-            for tostatehash in self.transitionMatrixDic[fromstatehash][throughactionhash]:
-                probstate[tostatehash] = self.transitionMatrixDic[fromstatehash][throughactionhash][tostatehash]
-        except:
-            return {}
-        return probstate
-
-    def getLegalActions(self, fromstatehash, agentId):
+    def getLegalActionsAgent(self, fromstatehash, agentId):
         actlst = {}
-
         for throughaction in self.helperDic[agentId][fromstatehash]:
-            acthashagent = self.getKeysfromHash(
-                    throughaction, 1)[0]
-            for tostatehash in self.helperDic[agentId][fromstatehash][acthashagent]:
-                if acthashagent not in actlst:
-                    actlst[acthashagent] = {}    
-                actlst[acthashagent][tostatehash] = self.helperDic[agentId][fromstatehash][acthashagent][tostatehash]
-              
+            for tostatehash in self.helperDic[agentId][fromstatehash][throughaction]:
+                if self.toactions[throughaction] not in actlst:
+                    actlst[self.toactions[throughaction]] = {}
+                actlst[self.toactions[throughaction]
+                       ][tostatehash] = self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
         return actlst
+
+    def getLegalPacmanActions(self, fromstatehash):
+        return self.transitionMatrixDic[fromstatehash].keys()
+
+    def getLegalStates(self, fromstate, throughaction):
+        """ HelpDics are not affected, only the TransitionMatrixDic"""
+        fromstatehash = self.getHashfromState(fromstate)
+        actionstostateshashdict = {}
+
+        for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
+            pacmanFin, ghostsFin = self.getPositionAgentsInGridCoordfromHash(
+                tostatehash)
+            positions = [pacmanFin]+ghostsFin
+            current = fromstate
+            for agentId in range(len(positions)):
+                nxtstatepos = positions[agentId]
+                if agentId == 0:
+                    PacmanRules.movetoAnyState(current, nxtstatepos)
+                else:                # A ghost is moving
+                    GhostRules.movetoAnyState(current, nxtstatepos, agentId)
+                successorelementhash = self.getHashfromState(
+                    current)
+                if agentId not in actionstostateshashdict:
+                    actionstostateshashdict[agentId] = {}
+                if successorelementhash not in actionstostateshashdict[agentId]:
+                    actionstostateshashdict[agentId][successorelementhash] = self.transitionMatrixDic[
+                        fromstatehash][throughaction][tostatehash]
+                else:
+                    actionstostateshashdict[agentId][successorelementhash] += self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
+
+
+        return actionstostateshashdict
 
     def generateSuccessor(self, state, actionstostateshashdict, agentId):
         newstate = GameState(state)
+
         # random weighted choice
-        actiontostatehash = np.random.choice(actionstostateshashdict.keys(),1, actionstostateshashdict.values())
-        
+        actiontostatehash = np.random.choice(
+            actionstostateshashdict.keys(), 1, p=actionstostateshashdict.values())
+
         listpos = self.fromBaseTen(
             actiontostatehash, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
         posingrid = self.getPositionInGridCoord(listpos[agentId])
@@ -285,19 +336,23 @@ class TransitionFunctionTree():
 
         return self.toBaseTen([pacmanpos] + ghostspos, self.state.data.layout.width*self.state.data.layout.height)
 
-    def getStatefromHash(self, fromstate, tostate):
-        """
-        Reverts tostate and generates the string of the corresponding state
-        """
-
+    def getPositionAgentsInGridCoordfromHash(self, statehash):
         list = self.fromBaseTen(
-            tostate, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
+            statehash, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
 
         pacman = self.getPositionInGridCoord(list[0])
         ghosts = []
 
         for ghost in list[1:]:
             ghosts.append(self.getPositionInGridCoord(ghost))
+
+        return pacman, ghosts
+
+    def getStatefromHash(self, fromstate, tostatehash):
+        """
+        Reverts tostate and generates the string of the corresponding state
+        """
+        pacman, ghosts = self.getPositionAgentsInGridCoordfromHash(tostatehash)
 
         return self.generateLayout(pacman, ghosts, fromstate)
 

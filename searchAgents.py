@@ -58,7 +58,7 @@ class BoltzmannAgent(Agent):
             prevStateScore = prevState.getScore()
         return state.getScore() - prevStateScore
 
-    def getAction(self, state, game_number, total_games, isInitial):
+    def getAction(self, state, acitons, game_number, total_games, isInitial):
         "The agent receives a GameState (defined in pacman.py)."
 
         ### DOMAIN SPECIFIC STUFF, DON'T NEED TO UNDERSTAND FOR HOW TO USE THE CODEBASE
@@ -77,8 +77,8 @@ class BoltzmannAgent(Agent):
 
         ##get state representation
         state_rep = str(state)
-        actions_rep = state.getLegalPacmanActions()
-        
+        actions_rep = acitons
+
         try:
             actions_rep.remove(Directions.STOP)
         except:
