@@ -608,7 +608,7 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
-    def run(self, game_number, total_games, perturbingagents=True):
+    def run(self, game_number, total_games, perturbingagents=False):
         """
         Main control loop for game play.
         """
@@ -690,33 +690,34 @@ class Game:
 
             action = None
 
-            # There are two possible injecting noise strategies: injecting noise directly to the transition function P(s'|s,a), 
-            # alternatively the noise can be injected in the agents: P(s'|s,a) = sum_p* P(s'|p*,aghost)P(p*|s, apacman). This code 
-            # snippet implements both strategies and produces a rollout of the actions for each agent which are then executed.  
-            
+            # There are two possible injecting noise strategies: injecting noise directly to the transition function P(s'|s,a),
+            # alternatively the noise can be injected in the agents: P(s'|s,a) = sum_p* P(s'|p*,aghost)P(p*|s, apacman). This code
+            # snippet implements both strategies and produces a rollout of the actions for each agent which are then executed.
+
             if agentIndex == 0:
                 actionstostateshashdict = {}
-
-                # The transition function provides a list of possible actions with their relative probabilities
-                pacmanlegalactionspobdict = self.transitionFunctionTree.getLegalActionsAgent(
-                    self.transitionFunctionTree.getHashfromState(observation), 0)
-
-                # Boltzmann Agent decides on an action given all legal transitions
-                action = agent.getAction(observation, pacmanlegalactionspobdict.keys(
-                ), game_number, total_games, isInitial)
 
                 if perturbingagents:
                     for id in range(len(self.agents)):
                         rolloutagent = self.agents[id]
                         actionstostateshashdict[id] = {}
                         if id == 0:
+                            pacmanlegalactionspobdict = self.transitionFunctionTree.getLegalActionsAgent(
+                                self.transitionFunctionTree.getHashfromState(observation), 0)
+                            action = agent.getAction(observation, pacmanlegalactionspobdict.keys(
+                            ), game_number, total_games, isInitial)
                             actionstostateshashdict[id] = pacmanlegalactionspobdict[action]
                             isInitial = False
                         else:
-                            # implemented for random ghost
+                            ghostlegalactionspobdict = self.transitionFunctionTree.getLegalActionsAgent(
+                                self.transitionFunctionTree.getHashfromState(observation), self.index)
                             actionstostateshashdict[id] = rolloutagent.getAction(
-                                observation, self.transitionFunctionTree)
+                                observation, ghostlegalactionspobdict)
                 else:
+                    pacmanlegalactionspobdict = self.transitionFunctionTree.getLegalPacmanActions(
+                        self.transitionFunctionTree.getHashfromState(observation))
+                    action = agent.getAction(observation, pacmanlegalactionspobdict.keys(
+                    ), game_number, total_games, isInitial)
                     if agentIndex == 0:
                         isInitial = False
                     actionstostateshashdict = self.transitionFunctionTree.getLegalStates(

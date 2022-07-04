@@ -23,8 +23,7 @@ class GhostAgent( Agent ):
     def __init__( self, index ):
         self.index = index
 
-    def getAction( self, state, transitionFunction ):
-        actlist = transitionFunction.getLegalActionsAgent(transitionFunction.getHashfromState(state), self.index)
+    def getAction( self, state, actlist):
         dist = {}
         for a in actlist.keys():
             dist[a] = sum(actlist[a].values())
@@ -56,7 +55,7 @@ class DirectionalGhost( GhostAgent ):
     def getDistribution( self, state ):
         # Read variables from state
         ghostState = state.getGhostState( self.index )
-        legalActions = state.getLegalActions( self.index )
+        legalActions = GhostRules.getLegalActions(state, self.index )
         pos = state.getGhostPosition( self.index )
         isScared = ghostState.scaredTimer > 0
 
