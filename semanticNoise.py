@@ -1,4 +1,3 @@
-
 # projectParams.py
 # ----------------
 # Licensing Information:  You are free to use or extend these projects for
@@ -12,21 +11,26 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
-import numpy as np
+import util
+from noise import GaussianNoise
 
-class GaussianNoise():
+class SemanticNoise():
     """
-    Class responsible of adding noise to the transition function
+    Class responsible of adding semantic noise to the transition function
     """
 
-    def __init__(self, params):
-        self.params = params
+    def __init__(self, transitionMatrix, distribution = GaussianNoise({"mean":0, "std":1, "scale":0.1})):
+        self.distribution = distribution
+        self.transitionMatrix = transitionMatrix
+        self.statemap = None
     """
     P(s'|s,a) is implemented as a dictionary of the type TransitionFunction[fromstate][throughaction][tostate], the rules of probability have to be respected:
     sum(TransitionFunction[fromstate][throughaction]) = 1. 
     """
-    def sample(self):
-        return self.params["scale"]*np.abs(np.random.normal(self.params["mean"], self.params["std"], size=None))
-    
-        
+    def generateStateMap(self):
+        util.raiseNotDefined()
 
+class NoiseToNextWallStates(SemanticNoise):
+
+    def generateStateMap(self):
+        pass

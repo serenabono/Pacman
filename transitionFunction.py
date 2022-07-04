@@ -67,7 +67,7 @@ class TransitionMatrixDicTree():
 
         return tree
 
-    def applyNoiseToTransitionMatrix(self, noiseDistribution):
+    def applyNoiseToTransitionMatrix(self, noiseDistribution, statesmap = None):
         """
         Add noise to transition matrix
         """
@@ -79,10 +79,12 @@ class TransitionMatrixDicTree():
                     self.transitionMatrixDic[fromstate][throughaction] = {}
                 denom = 0
                 for tostate in range(self.nStates):
-                    if tostate not in self.transitionMatrixDic[fromstate][throughaction]:
-                        self.transitionMatrixDic[fromstate][throughaction][tostate] = 0
-                    self.transitionMatrixDic[fromstate][throughaction][tostate] += noiseDistribution.sample()
-                    denom += self.transitionMatrixDic[fromstate][throughaction][tostate]
+                    if statesmap:
+                        if statesmap[tostate]:
+                            if tostate not in self.transitionMatrixDic[fromstate][throughaction]:
+                                self.transitionMatrixDic[fromstate][throughaction][tostate] = 0
+                            self.transitionMatrixDic[fromstate][throughaction][tostate] += noiseDistribution.sample()
+                            denom += self.transitionMatrixDic[fromstate][throughaction][tostate]
 
                 for tostate in self.transitionMatrixDic[fromstate][throughaction]:
                     self.transitionMatrixDic[fromstate][throughaction][tostate] /= denom
@@ -92,7 +94,7 @@ class TransitionMatrixDicTree():
             for throughaction in self.transitionMatrixDic[fromstate]:
                 np.testing.assert_almost_equal(
                     sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
-
+    
     def computeProbabilities(self):
         """
         Function to compute probabilities P(s'|s,a). Most transitions are illegal and the matrix is extremely big,
