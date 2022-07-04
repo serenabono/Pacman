@@ -608,7 +608,7 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
-    def run(self, game_number, total_games, perturbingagents=False):
+    def run(self, game_number, total_games, perturbingagents=True):
         """
         Main control loop for game play.
         """
@@ -691,10 +691,15 @@ class Game:
             action = None
             if agentIndex == 0:
                 actionstostateshashdict = {}
-                if perturbingagents:
-                    pacmanlegalactionspobdict = self.transitionFunctionTree.getLegalActionsAgent(
+
+                # The transition function provides a list of possible actions with their relative probabilities
+                pacmanlegalactionspobdict = self.transitionFunctionTree.getLegalActionsAgent(
                         self.transitionFunctionTree.getHashfromState(observation), 0)
-                    action = agent.getAction(observation, pacmanlegalactionspobdict.keys(), game_number, total_games, isInitial)
+                
+                #Boltzmann Agent decides on an action given all legal transitions
+                action = agent.getAction(observation, pacmanlegalactionspobdict.keys(), game_number, total_games, isInitial)
+                
+                if perturbingagents:
                     for id in range(len(self.agents)):
                         rolloutagent = self.agents[id]
                         actionstostateshashdict[id] = {}
@@ -706,8 +711,6 @@ class Game:
                             actionstostateshashdict[id] = rolloutagent.getAction(
                                 observation, self.transitionFunctionTree)
                 else:
-                    action = agent.getAction(observation, self.transitionFunctionTree.getLegalPacmanActions(
-                       self.transitionFunctionTree.getHashfromState(observation)), game_number, total_games, isInitial)
                     if agentIndex == 0:
                         isInitial = False
                     actionstostateshashdict = self.transitionFunctionTree.getLegalStates(
