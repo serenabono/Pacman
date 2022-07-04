@@ -144,6 +144,7 @@ class TransitionMatrixDicTree():
 
                 if current_element["id"] == 0:
                     successor_element["prob"] = 1
+                    pacmanaction = self.actions[action]
                 else:
                     dist = self.currentAgents[current_element["id"]].getDistribution(
                         current_element["state"])
@@ -154,11 +155,9 @@ class TransitionMatrixDicTree():
                                  ][successorelelmenthash] = True
                     self.queue.append(successor_element)
 
-                if self.actions[action] not in self.helperDic[current_element["id"]][currentelementhash]:
-                    self.helperDic[current_element["id"]
-                                   ][currentelementhash][self.actions[action]] = {}
-                self.helperDic[current_element["id"]][currentelementhash][self.actions[action]
-                                                                          ][successorelelmenthash] = successor_element["prob"]
+                if  pacmanaction not in self.helperDic[current_element["id"]][currentelementhash]:
+                    self.helperDic[current_element["id"]][currentelementhash][pacmanaction] = {}
+                self.helperDic[current_element["id"]][currentelementhash][pacmanaction][successorelelmenthash] = successor_element["prob"]
 
         for currentelementhash in self.helperDic[0]:
             self.createMatrixrecursively(
@@ -168,8 +167,7 @@ class TransitionMatrixDicTree():
         for fromstate in self.transitionMatrixDic:
             for throughaction in self.transitionMatrixDic[fromstate]:
                 np.testing.assert_almost_equal(sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
-
-
+        
     def createMatrixrecursively(self, agentid, lastpacmanstate, throughactions, currentelementhash, prob):
         if currentelementhash not in self.helperDic[agentid]:
             return
@@ -199,16 +197,12 @@ class TransitionMatrixDicTree():
 
     def getLegalActionsAgent(self, fromstatehash, agentId):
         actlst = {}
-
         for throughaction in self.helperDic[agentId][fromstatehash]:
             for tostatehash in self.helperDic[agentId][fromstatehash][throughaction]:
-                if throughaction not in actlst:
-                    actlst[throughaction] = {}
-                if tostatehash not in actlst[throughaction]:    
-                    actlst[throughaction][tostatehash] = self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
-                else:
-                    actlst[throughaction][tostatehash] += self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
-              
+                if self.toactions[throughaction] not in actlst:
+                    actlst[self.toactions[throughaction]] = {}
+                actlst[self.toactions[throughaction]][tostatehash] = self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
+               
         return actlst
     
     def getLegalPacmanActions(self, fromstatehash):        
@@ -218,38 +212,35 @@ class TransitionMatrixDicTree():
         """ HelpDics are not affected, only the TransitionMatrixDic"""
         fromstatehash = self.getHashfromState(fromstate)
         actionstostateshashdict = {}
-        for throughaction in self.transitionMatrixDic[fromstatehash]:
-            for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
-                pacmanFin, ghostsFin = self.getPositionAgentsInGridCoordfromHash(
-                    tostatehash)
-                positions = [pacmanFin]+ghostsFin
-                current = GameState(fromstate)
-                for agentId in range(len(positions)):
-                    successor = current.movetoAnyState(
-                        agentId, positions[agentId])
-                    successorelementhash = self.getHashfromState(
-                        successor)
-                    posingrid = self.getPositionInWorldCoord(positions[agentId])
-                    
-                    if agentId not in actionstostateshashdict:
-                        actionstostateshashdict[agentId] = {}
-                    
-                    if posingrid not in actionstostateshashdict[agentId]:
-                        actionstostateshashdict[agentId][posingrid] = {}
 
-                    if successorelementhash not in actionstostateshashdict[agentId][posingrid]:
-                        actionstostateshashdict[agentId][posingrid][successorelementhash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
-                    else: 
-                        actionstostateshashdict[agentId][posingrid][successorelementhash] += self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
-                    
-                    current = successor.deepCopy()
+        for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
+            pacmanFin, ghostsFin = self.getPositionAgentsInGridCoordfromHash(
+                tostatehash)
+            positions = [pacmanFin]+ghostsFin
+            current = GameState(fromstate)
+            for agentId in range(len(positions)):
+                successor = current.movetoAnyState(
+                    agentId, positions[agentId])
+                successorelementhash = self.getHashfromState(
+                    successor)
+                if agentId not in actionstostateshashdict:
+                    actionstostateshashdict[agentId] = {}
+                if successorelementhash not in actionstostateshashdict[agentId]:
+                    actionstostateshashdict[agentId][successorelementhash] = self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
+                else:
+                    actionstostateshashdict[agentId][successorelementhash] += self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
+                
+                current = successor.deepCopy()
+        
         return actionstostateshashdict
         
 
     def generateSuccessor(self, state, actionstostateshashdict, agentId):
         newstate = GameState(state)
         # random weighted choice
+        print(np.sort(actionstostateshashdict.values()))
         actiontostatehash = np.random.choice(actionstostateshashdict.keys(),1, p=actionstostateshashdict.values())
+        
         listpos = self.fromBaseTen(
             actiontostatehash, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
         posingrid = self.getPositionInGridCoord(listpos[agentId])
@@ -336,20 +327,24 @@ class TransitionMatrixDicTree():
                 [ghost.configuration.pos[0], ghost.configuration.pos[1]]))
 
         return self.toBaseTen([pacmanpos] + ghostspos, self.state.data.layout.width*self.state.data.layout.height)
-
-    def getStatefromHash(self, fromstate, tostate):
-        """
-        Reverts tostate and generates the string of the corresponding state
-        """
-
+    
+    def getPositionAgentsInGridCoordfromHash(self, statehash):
         list = self.fromBaseTen(
-            tostate, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
+            statehash, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
 
         pacman = self.getPositionInGridCoord(list[0])
         ghosts = []
 
         for ghost in list[1:]:
             ghosts.append(self.getPositionInGridCoord(ghost))
+        
+        return pacman, ghosts
+
+    def getStatefromHash(self, fromstate, tostatehash):
+        """
+        Reverts tostate and generates the string of the corresponding state
+        """
+        pacman, ghosts = self.getPositionAgentsInGridCoordfromHash(tostatehash)
 
         return self.generateLayout(pacman, ghosts, fromstate)
 

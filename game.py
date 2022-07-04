@@ -612,7 +612,7 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
-    def run(self, game_number, total_games, perturbingagents=True):
+    def run(self, game_number, total_games, perturbingagents=False):
         """
         Main control loop for game play.
         """
@@ -715,7 +715,7 @@ class Game:
                     if agentIndex == 0:
                         isInitial = False
                     actionstostateshashdict = self.transitionFunctionTree.getLegalStates(
-                        self.transitionFunctionTree.getHashfromState(observation), action)
+                        observation, action)
             # Solicit an action
             self.mute(agentIndex)
             if self.catchExceptions:
