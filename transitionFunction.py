@@ -223,12 +223,15 @@ class TransitionMatrixDicTree():
             pacmanFin, ghostsFin = self.getPositionAgentsInGridCoordfromHash(
                 tostatehash)
             positions = [pacmanFin]+ghostsFin
-            current = GameState(fromstate)
+            current = fromstate
             for agentId in range(len(positions)):
-                successor = current.movetoAnyState(
-                    agentId, positions[agentId])
+                nxtstatepos = positions[agentId]
+                if agentId == 0:
+                    PacmanRules.movetoAnyState(current, nxtstatepos)
+                else:                # A ghost is moving
+                    GhostRules.movetoAnyState(current, nxtstatepos, agentId)
                 successorelementhash = self.getHashfromState(
-                    successor)
+                    current)
                 if agentId not in actionstostateshashdict:
                     actionstostateshashdict[agentId] = {}
                 if successorelementhash not in actionstostateshashdict[agentId]:
@@ -237,7 +240,6 @@ class TransitionMatrixDicTree():
                 else:
                     actionstostateshashdict[agentId][successorelementhash] += self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
 
-                current = successor.deepCopy()
 
         return actionstostateshashdict
 
