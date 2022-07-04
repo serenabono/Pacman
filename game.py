@@ -692,14 +692,14 @@ class Game:
             if agentIndex == 0:
                 actionstostateshashdict = {}
                 if perturbingagents:
-                    action = agent.getAction(observation, self.transitionFunctionTree.getLegalActionsAgent(
-                        self.transitionFunctionTree.getHashfromState(observation), 0).keys(), game_number, total_games, isInitial)
+                    pacmanlegalactionspobdict = self.transitionFunctionTree.getLegalActionsAgent(
+                        self.transitionFunctionTree.getHashfromState(observation), 0)
+                    action = agent.getAction(observation, pacmanlegalactionspobdict.keys(), game_number, total_games, isInitial)
                     for id in range(len(self.agents)):
                         rolloutagent = self.agents[id]
                         actionstostateshashdict[id] = {}
                         if id == 0:
-                            actionstostateshashdict[id] = self.transitionFunctionTree.getLegalActionsAgent(
-                                self.transitionFunctionTree.getHashfromState(observation), 0)[action]
+                            actionstostateshashdict[id] = pacmanlegalactionspobdict[action]
                             isInitial = False
                         else:
                             # implemented for random ghost

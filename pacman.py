@@ -39,6 +39,7 @@ code to run a game.  This file is divided into three sections:
 To play your first game, type 'python pacman.py' from the command line.
 The keys are 'a', 's', 'd', and 'w' to move (or arrow keys).  Have fun!
 """
+import imp
 from game import GameStateData
 from game import Game
 from game import Directions
@@ -52,6 +53,7 @@ import os
 from QLearningAgent import *
 from search import *
 from transitionFunction import *
+from noise import GaussianNoise
 
 ###################################################
 # YOUR INTERFACE TO THE PACMAN WORLD: A GameState #
