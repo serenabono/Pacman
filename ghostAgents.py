@@ -55,7 +55,7 @@ class DirectionalGhost( GhostAgent ):
     def getDistribution( self, state ):
         # Read variables from state
         ghostState = state.getGhostState( self.index )
-        legalActions = state.getLegalActions( self.index )
+        legalActions = GhostRules.getLegalActions(state, self.index )
         pos = state.getGhostPosition( self.index )
         isScared = ghostState.scaredTimer > 0
 
