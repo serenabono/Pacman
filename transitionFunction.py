@@ -183,7 +183,6 @@ class TransitionMatrixDicTree():
                 probel = prob * \
                     self.helperDic[agentid][currentelementhash][action][successorelementhash]
                 if agentid == self.numAgents - 1:
-                    # throughactionhash = self.getHashfromKeys(throughactions)
                     throughactionhash = throughactions[0]
                     if lastpacmanstate not in self.transitionMatrixDic:
                         self.transitionMatrixDic[lastpacmanstate] = {}
@@ -204,14 +203,13 @@ class TransitionMatrixDicTree():
         actlst = {}
         for throughaction in self.helperDic[agentId][fromstatehash]:
             for tostatehash in self.helperDic[agentId][fromstatehash][throughaction]:
-                if self.toactions[throughaction] not in actlst:
-                    actlst[self.toactions[throughaction]] = {}
-                actlst[self.toactions[throughaction]
-                       ][tostatehash] = self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
+                if throughaction not in actlst:
+                    actlst[throughaction] = {}
+                actlst[throughaction][tostatehash] = self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
         return actlst
 
     def getLegalPacmanActions(self, fromstatehash):
-        return self.transitionMatrixDic[fromstatehash].keys()
+        return self.transitionMatrixDic[fromstatehash]
 
     def getLegalStates(self, fromstate, throughaction):
         """ HelpDics are not affected, only the TransitionMatrixDic"""
@@ -227,7 +225,7 @@ class TransitionMatrixDicTree():
                 nxtstatepos = positions[agentId]
                 if agentId == 0:
                     PacmanRules.movetoAnyState(current, nxtstatepos)
-                else:                # A ghost is moving
+                else:
                     GhostRules.movetoAnyState(current, nxtstatepos, agentId)
                 successorelementhash = self.getHashfromState(
                     current)
