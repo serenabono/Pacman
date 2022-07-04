@@ -20,14 +20,10 @@
 # John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
 
-from tkinter.tix import Tree
 from util import *
 import time
-import os
 import traceback
 import sys
-import numpy as np
-from numpy.random import choice
 
 #######################
 # Parts worth reading #

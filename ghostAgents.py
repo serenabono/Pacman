@@ -12,12 +12,10 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-from operator import index
 from game import Agent
 from game import Actions
 from game import Directions
 from pacman import GhostRules
-import random
 from util import manhattanDistance
 import util
 

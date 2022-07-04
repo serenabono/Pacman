@@ -15,7 +15,6 @@ import numpy as np
 from game import Directions, Grid
 from layout import Layout
 from pacman import GameState, PacmanRules, GhostRules
-from noise import GaussianNoise
 
 ##############################
 #  TRANSITION FUNCTION CODE  #
