@@ -67,27 +67,25 @@ class TransitionMatrixDicTree():
 
         return tree
 
-    def applyNoiseToTransitionMatrix(self, noiseDistribution, statesmap = None):
+    def applyNoiseToTransitionMatrix(self, noiseDistribution, stateMap):
         """
         Add noise to transition matrix
         """
-        for fromstate in range(self.nStates):
+        for fromstate in stateMap:
             if fromstate not in self.transitionMatrixDic:
                 self.transitionMatrixDic[fromstate] = {}
-            for throughaction in range(self.nPossibleAcitons):
+            for throughaction in stateMap[fromstate]:
                 if throughaction not in self.transitionMatrixDic[fromstate]:
                     self.transitionMatrixDic[fromstate][throughaction] = {}
                 denom = 0
-                for tostate in range(self.nStates):
-                    if statesmap:
-                        if statesmap[tostate]:
-                            if tostate not in self.transitionMatrixDic[fromstate][throughaction]:
-                                self.transitionMatrixDic[fromstate][throughaction][tostate] = 0
-                            self.transitionMatrixDic[fromstate][throughaction][tostate] += noiseDistribution.sample()
-                            denom += self.transitionMatrixDic[fromstate][throughaction][tostate]
+                for tostate in stateMap[fromstate][throughaction]:
+                    if tostate not in self.transitionMatrixDic[fromstate][throughaction]:
+                        self.transitionMatrixDic[fromstate][throughaction][tostate] = 0
+                    self.transitionMatrixDic[fromstate][throughaction][tostate] += noiseDistribution.sample()
+                    denom += self.transitionMatrixDic[fromstate][throughaction][tostate]
 
                 for tostate in self.transitionMatrixDic[fromstate][throughaction]:
-                    self.transitionMatrixDic[fromstate][throughaction][tostate] /= denom
+                    self.transitionMatrixDic[fromstate][throughaction][tostate] /= (1+denom)
 
         # check correctness
         for fromstate in self.transitionMatrixDic:
@@ -302,6 +300,17 @@ class TransitionMatrixDicTree():
         Converts world coordinates into tuples (x,y) representing the grid position of each agent. The coordinate system originates in the bottom left corner
         """
         return (agent / self.state.data.layout.width, agent % self.state.data.layout.width)
+    
+    def getHashfromAgentPositionsInGridCoord(self, pacman, ghosts):
+
+        pacmanpos = self.getPositionInWorldCoord(
+            [pacman[0], pacman[1]])
+        ghostspos = []
+        for ghost in ghosts:
+            ghostspos.append(self.getPositionInWorldCoord(
+                [ghost[0], ghost[1]]))
+
+        return self.toBaseTen([pacmanpos] + ghostspos, self.state.data.layout.width*self.state.data.layout.height)
 
     def getHashfromState(self, state):
         """
@@ -400,7 +409,6 @@ class TransitionMatrixDicTree():
         return int(num)
 
     def fromBaseTen(self, n, b, digits):
-
         idx = 0
         while n:
             digits[idx] = int(n % b)

@@ -42,6 +42,7 @@ import time
 import search
 from QLearningAgent import *
 import pickle
+from pacman import PacmanRules
 
 
 class BoltzmannAgent(Agent):
@@ -77,7 +78,7 @@ class BoltzmannAgent(Agent):
 
         ##get state representation
         state_rep = str(state)
-        actions_rep = legalactions
+        actions_rep = PacmanRules.getLegalActions(state)
 
         try:
             actions_rep.remove(Directions.STOP)

@@ -54,6 +54,7 @@ from QLearningAgent import *
 from search import *
 from transitionFunction import *
 from noise import GaussianNoise
+from semanticNoise import NoiseToNextWallStates
 
 ###################################################
 # YOUR INTERFACE TO THE PACMAN WORLD: A GameState #
@@ -754,7 +755,9 @@ def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, c
     tree.computeProbabilities()
     import time
     start_time = time.time()
-    tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 0.000001}))
+    semanticNoise = NoiseToNextWallStates(tree)
+    # statesTobePerturbed = semanticNoise.generateToBePerturbedStatesMap(layout)
+    # tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 0.000001}), statesTobePerturbed)
     print("--- %s seconds ---" % (time.time() - start_time))
 
     for i in range(numGames):
@@ -772,7 +775,7 @@ def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, c
                              gameDisplay, beQuiet, catchExceptions)
         tree.state = game.state
         game.transitionFunctionTree = tree.copy()
-        game.run(i, numGames)
+        game.run(i, numGames, perturbingagents=False)
 
         if not beQuiet:
             games.append(game)

@@ -12,17 +12,14 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 import util
-from noise import GaussianNoise
 
 class SemanticNoise():
     """
     Class responsible of adding semantic noise to the transition function
     """
 
-    def __init__(self, transitionMatrix, distribution = GaussianNoise({"mean":0, "std":1, "scale":0.1})):
-        self.distribution = distribution
-        self.transitionMatrix = transitionMatrix
-        self.statemap = None
+    def __init__(self, transitionMatrixTree):
+        self.transitionMatrixTree = transitionMatrixTree
     """
     P(s'|s,a) is implemented as a dictionary of the type TransitionFunction[fromstate][throughaction][tostate], the rules of probability have to be respected:
     sum(TransitionFunction[fromstate][throughaction]) = 1. 
@@ -32,5 +29,27 @@ class SemanticNoise():
 
 class NoiseToNextWallStates(SemanticNoise):
 
-    def generateStateMap(self):
-        pass
+    def generateToBePerturbedStatesMap(self, layout):
+        stateMap = {}
+
+        for fromstatehash in self.transitionMatrixTree.transitionMatrixDic:
+            for throughaction in self.transitionMatrixTree.transitionMatrixDic[fromstatehash]:
+                pacman, ghosts = self.transitionMatrixTree.getPositionAgentsInGridCoordfromHash(fromstatehash)
+                positions = []
+                positions.append((pacman[0] + 1,pacman[1]))
+                positions.append((pacman[0] - 1,pacman[1]))
+                positions.append((pacman[0], pacman[1] + 1))
+                positions.append((pacman[0], pacman[1] - 1))
+                for pos in positions:
+                    try:
+                        if layout.walls[pos[0]][pos[1]]:
+                            trapstatehash = self.transitionMatrixTree.getHashfromAgentPositionsInGridCoord(pacman, ghosts)
+                            if fromstatehash not in stateMap:
+                                stateMap[fromstatehash] = {}
+                            if throughaction not in stateMap[fromstatehash]:
+                                stateMap[fromstatehash][throughaction] = {}
+                            stateMap[fromstatehash][throughaction][trapstatehash] = True
+                    except:
+                        continue
+                        
+        return stateMap
