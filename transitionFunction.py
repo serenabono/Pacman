@@ -71,7 +71,6 @@ class TransitionMatrixDicTree():
         """
         Add noise to transition matrix
         """
-        print(self.transitionMatrixDic)
         for fromstate in stateMap:
             if fromstate not in self.transitionMatrixDic:
                 self.transitionMatrixDic[fromstate] = {}
@@ -215,6 +214,7 @@ class TransitionMatrixDicTree():
         """ HelpDics are not affected, only the TransitionMatrixDic"""
         fromstatehash = self.getHashfromState(fromstate)
         actionstostateshashdict = {}
+
         for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
             pacmanFin, ghostsFin = self.getPositionAgentsInGridCoordfromHash(
                 tostatehash)
@@ -233,12 +233,17 @@ class TransitionMatrixDicTree():
                 if successorelementhash not in actionstostateshashdict[agentId]:
                     actionstostateshashdict[agentId][successorelementhash] = self.transitionMatrixDic[
                         fromstatehash][throughaction][tostatehash]
-                
+                else:
+                    actionstostateshashdict[agentId][successorelementhash] += self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
+
         return actionstostateshashdict
 
     def generateSuccessor(self, state, actionstostateshashdict, agentId):
-        newstate = GameState(state)
+        if actionstostateshashdict == {}:
+            raise Exception('Can\'t generate a successor of a terminal state.')
 
+        newstate = GameState(state)
+        
         # random weighted choice
         actiontostatehash = np.random.choice(
             actionstostateshashdict.keys(), 1, p=actionstostateshashdict.values())

@@ -759,7 +759,6 @@ def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, c
     statesTobePerturbed = semanticNoise.generateToBePerturbedStatesMap(layout)
     tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 1}), statesTobePerturbed)
     print("--- %s seconds ---" % (time.time() - start_time))
-    print(tree.transitionMatrixDic)
 
     for i in range(numGames):
         print(i)

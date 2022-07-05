@@ -721,7 +721,7 @@ class Game:
                     if agentIndex == 0:
                         isInitial = False
                     actionstostateshashdict = self.transitionFunctionTree.getLegalStates(
-                        observation, action)
+                            observation, action)
 
             # Solicit an action
             self.mute(agentIndex)
@@ -792,6 +792,9 @@ class Game:
             ###self.display.update( self.state.makeObservation(idx).data )
 
             # Allow for game specific conditions (winning, losing, etc.)
+            if self.transitionFunctionTree.getHashfromState(self.state) not in self.transitionFunctionTree.transitionMatrixDic:
+                self.state.data._lose = True
+
             self.rules.process(self.state, self)
             # Track progress
             if agentIndex == numAgents + 1:
