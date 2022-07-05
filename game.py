@@ -788,10 +788,8 @@ class Game:
 
             # Change the display
             self.display.update(self.state.data)
-            ###idx = agentIndex - agentIndex % 2 + 1
-            ###self.display.update( self.state.makeObservation(idx).data )
 
-            # Allow for game specific conditions (winning, losing, etc.)
+            # marks missing states in transition function as final, to avoid breaking the markovian property
             if self.transitionFunctionTree.getHashfromState(self.state) not in self.transitionFunctionTree.transitionMatrixDic:
                 self.state.data._lose = True
 

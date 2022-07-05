@@ -24,8 +24,23 @@ class SemanticNoise():
     P(s'|s,a) is implemented as a dictionary of the type TransitionFunction[fromstate][throughaction][tostate], the rules of probability have to be respected:
     sum(TransitionFunction[fromstate][throughaction]) = 1. 
     """
-    def generateStateMap(self):
+    def generateToBePerturbedStatesMap(self):
         util.raiseNotDefined()
+
+class DistributedNoise(SemanticNoise):
+
+    def generateToBePerturbedStatesMap(self):
+        stateMap = {}
+        for fromstatehash in range(self.transitionMatrixTree.nStates):
+            if fromstatehash not in stateMap:
+                stateMap[fromstatehash] = {}
+            for throughaction in range(self.transitionMatrixTree.nPossibleAcitons):
+                if throughaction not in stateMap[fromstatehash]:
+                    stateMap[fromstatehash][throughaction] = {}
+                for tostatehash in range(self.transitionMatrixTree.nStates):
+                    stateMap[fromstatehash][throughaction][tostatehash] = True
+
+        return stateMap 
 
 class NoiseToNextWallStates(SemanticNoise):
 
