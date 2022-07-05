@@ -71,6 +71,7 @@ class TransitionMatrixDicTree():
         """
         Add noise to transition matrix
         """
+        print(self.transitionMatrixDic)
         for fromstate in stateMap:
             if fromstate not in self.transitionMatrixDic:
                 self.transitionMatrixDic[fromstate] = {}
@@ -81,12 +82,13 @@ class TransitionMatrixDicTree():
                 for tostate in stateMap[fromstate][throughaction]:
                     if tostate not in self.transitionMatrixDic[fromstate][throughaction]:
                         self.transitionMatrixDic[fromstate][throughaction][tostate] = 0
-                    self.transitionMatrixDic[fromstate][throughaction][tostate] += noiseDistribution.sample()
-                    denom += self.transitionMatrixDic[fromstate][throughaction][tostate]
+                    noise = noiseDistribution.sample()
+                    self.transitionMatrixDic[fromstate][throughaction][tostate] += noise
+                    denom += noise
 
                 for tostate in self.transitionMatrixDic[fromstate][throughaction]:
                     self.transitionMatrixDic[fromstate][throughaction][tostate] /= (1+denom)
-
+        
         # check correctness
         for fromstate in self.transitionMatrixDic:
             for throughaction in self.transitionMatrixDic[fromstate]:
@@ -213,7 +215,6 @@ class TransitionMatrixDicTree():
         """ HelpDics are not affected, only the TransitionMatrixDic"""
         fromstatehash = self.getHashfromState(fromstate)
         actionstostateshashdict = {}
-
         for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
             pacmanFin, ghostsFin = self.getPositionAgentsInGridCoordfromHash(
                 tostatehash)
@@ -232,10 +233,7 @@ class TransitionMatrixDicTree():
                 if successorelementhash not in actionstostateshashdict[agentId]:
                     actionstostateshashdict[agentId][successorelementhash] = self.transitionMatrixDic[
                         fromstatehash][throughaction][tostatehash]
-                else:
-                    actionstostateshashdict[agentId][successorelementhash] += self.transitionMatrixDic[fromstatehash][throughaction][tostatehash]
-
-
+                
         return actionstostateshashdict
 
     def generateSuccessor(self, state, actionstostateshashdict, agentId):
@@ -304,11 +302,11 @@ class TransitionMatrixDicTree():
     def getHashfromAgentPositionsInGridCoord(self, pacman, ghosts):
 
         pacmanpos = self.getPositionInWorldCoord(
-            [pacman[0], pacman[1]])
+            [pacman[1], pacman[0]])
         ghostspos = []
         for ghost in ghosts:
             ghostspos.append(self.getPositionInWorldCoord(
-                [ghost[0], ghost[1]]))
+                [ghost[1], ghost[0]]))
 
         return self.toBaseTen([pacmanpos] + ghostspos, self.state.data.layout.width*self.state.data.layout.height)
 

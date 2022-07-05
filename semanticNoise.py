@@ -43,7 +43,7 @@ class NoiseToNextWallStates(SemanticNoise):
                 for pos in positions:
                     try:
                         if layout.walls[pos[0]][pos[1]]:
-                            trapstatehash = self.transitionMatrixTree.getHashfromAgentPositionsInGridCoord(pacman, ghosts)
+                            trapstatehash = self.transitionMatrixTree.getHashfromAgentPositionsInGridCoord(pos, ghosts)
                             if fromstatehash not in stateMap:
                                 stateMap[fromstatehash] = {}
                             if throughaction not in stateMap[fromstatehash]:

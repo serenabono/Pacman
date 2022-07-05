@@ -756,9 +756,10 @@ def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, c
     import time
     start_time = time.time()
     semanticNoise = NoiseToNextWallStates(tree)
-    # statesTobePerturbed = semanticNoise.generateToBePerturbedStatesMap(layout)
-    # tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 0.000001}), statesTobePerturbed)
+    statesTobePerturbed = semanticNoise.generateToBePerturbedStatesMap(layout)
+    tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 1}), statesTobePerturbed)
     print("--- %s seconds ---" % (time.time() - start_time))
+    print(tree.transitionMatrixDic)
 
     for i in range(numGames):
         print(i)

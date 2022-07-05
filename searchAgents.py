@@ -78,7 +78,7 @@ class BoltzmannAgent(Agent):
 
         ##get state representation
         state_rep = str(state)
-        actions_rep = PacmanRules.getLegalActions(state)
+        actions_rep = legalactions
 
         try:
             actions_rep.remove(Directions.STOP)

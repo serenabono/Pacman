@@ -716,8 +716,8 @@ class Game:
                 else:
                     pacmanlegalactionspobdict = self.transitionFunctionTree.getLegalPacmanActions(
                         self.transitionFunctionTree.getHashfromState(observation))
-                    action = self.transitionFunctionTree.actions[agent.getAction(observation, pacmanlegalactionspobdict.keys(
-                    ), game_number, total_games, isInitial)]
+                    action = agent.getAction(observation, pacmanlegalactionspobdict.keys(
+                    ), game_number, total_games, isInitial)
                     if agentIndex == 0:
                         isInitial = False
                     actionstostateshashdict = self.transitionFunctionTree.getLegalStates(
