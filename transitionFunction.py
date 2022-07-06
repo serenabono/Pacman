@@ -78,15 +78,16 @@ class TransitionMatrixDicTree():
                 if throughaction not in self.transitionMatrixDic[fromstate]:
                     self.transitionMatrixDic[fromstate][throughaction] = {}
                 denom = 0
+                sumstates = sum(self.transitionMatrixDic[fromstate][throughaction].values())
                 for tostate in stateMap[fromstate][throughaction]:
                     if tostate not in self.transitionMatrixDic[fromstate][throughaction]:
                         self.transitionMatrixDic[fromstate][throughaction][tostate] = 0
                     noise = noiseDistribution.sample()
                     self.transitionMatrixDic[fromstate][throughaction][tostate] += noise
                     denom += noise
-
+                
                 for tostate in self.transitionMatrixDic[fromstate][throughaction]:
-                    self.transitionMatrixDic[fromstate][throughaction][tostate] /= (1+denom)
+                    self.transitionMatrixDic[fromstate][throughaction][tostate] /= (sumstates+denom)
         
         # check correctness
         for fromstate in self.transitionMatrixDic:

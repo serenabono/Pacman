@@ -39,7 +39,7 @@ code to run a game.  This file is divided into three sections:
 To play your first game, type 'python pacman.py' from the command line.
 The keys are 'a', 's', 'd', and 'w' to move (or arrow keys).  Have fun!
 """
-import imp
+import time
 from game import GameStateData
 from game import Game
 from game import Directions
@@ -753,19 +753,19 @@ def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, c
     # define transition function
     tree = TransitionMatrixDicTree(pacman, ghosts, layout)
     tree.computeProbabilities()
-    import time
-    start_time = time.time()
     
+    # start_time = time.time()
+    
+    # example of noise addition
     # semanticNoiseToWalls = NoiseToNextWallStates(tree)
     # statesTobePerturbed = semanticNoiseToWalls.generateToBePerturbedStatesMap(layout)
-    # tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 1}), statesTobePerturbed)
+    # tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 0.1}), statesTobePerturbed)
 
+    # distributedNoise = DistributedNoise(tree)
+    # statesTobePerturbed = distributedNoise.generateToBePerturbedStatesMap()
+    # tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 0.0001}), statesTobePerturbed)
 
-    distributedNoise = DistributedNoise(tree)
-    statesTobePerturbed = distributedNoise.generateToBePerturbedStatesMap()
-    tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 1}), statesTobePerturbed)
-
-    print("--- %s seconds ---" % (time.time() - start_time))
+    # print("--- %s seconds ---" % (time.time() - start_time))
 
     for i in range(numGames):
         print(i)

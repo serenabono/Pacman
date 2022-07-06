@@ -26,7 +26,4 @@ class GaussianNoise():
     sum(TransitionFunction[fromstate][throughaction]) = 1. 
     """
     def sample(self):
-        return self.params["scale"]*np.abs(np.random.normal(self.params["mean"], self.params["std"], size=None))
-    
-        
-
+        return self.params["scale"]*np.abs(np.random.normal(self.params["mean"], self.params["std"]))
