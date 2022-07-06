@@ -203,7 +203,9 @@ class TransitionMatrixDicTree():
             for tostatehash in self.helperDic[agentId][fromstatehash][throughaction]:
                 if throughaction not in actlst:
                     actlst[throughaction] = {}
-                actlst[throughaction][tostatehash] = self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
+                    actlst[throughaction][tostatehash] = self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
+                else:
+                    actlst[throughaction][tostatehash] += self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
         return actlst
 
     def getLegalPacmanActions(self, fromstatehash):
