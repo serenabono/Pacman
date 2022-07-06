@@ -49,7 +49,7 @@ class NoiseToNextWallStates(SemanticNoise):
 
         for fromstatehash in self.transitionMatrixTree.transitionMatrixDic:
             for throughaction in self.transitionMatrixTree.transitionMatrixDic[fromstatehash]:
-                pacman, ghosts = self.transitionMatrixTree.getPositionAgentsInGridCoordfromHash(fromstatehash)
+                pacman, _ = self.transitionMatrixTree.getPositionAgentsInGridCoordfromHash(fromstatehash)
                 positions = []
                 positions.append((pacman[0] + 1,pacman[1]))
                 positions.append((pacman[0] - 1,pacman[1]))
@@ -59,12 +59,14 @@ class NoiseToNextWallStates(SemanticNoise):
                 for pos in positions:
                     try:
                         if layout.walls[pos[1]][pos[0]]:
-                            trapstatehash = self.transitionMatrixTree.getHashfromAgentPositionsInGridCoord(pos, ghosts)
-                            if fromstatehash not in stateMap:
-                                stateMap[fromstatehash] = {}
-                            if throughaction not in stateMap[fromstatehash]:
-                                stateMap[fromstatehash][throughaction] = {}
-                            stateMap[fromstatehash][throughaction][trapstatehash] = True
+                            for tostatehash in self.transitionMatrixTree.transitionMatrixDic[fromstatehash][throughaction]:
+                                _, ghosts = self.transitionMatrixTree.getPositionAgentsInGridCoordfromHash(tostatehash)
+                                trapstatehash = self.transitionMatrixTree.getHashfromAgentPositionsInGridCoord(pos, ghosts)
+                                if fromstatehash not in stateMap:
+                                    stateMap[fromstatehash] = {}
+                                if throughaction not in stateMap[fromstatehash]:
+                                    stateMap[fromstatehash][throughaction] = {}
+                                stateMap[fromstatehash][throughaction][trapstatehash] = True
                     except:
                         continue
                         
