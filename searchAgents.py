@@ -42,6 +42,7 @@ import time
 import search
 from QLearningAgent import *
 import pickle
+from pacman import PacmanRules
 
 
 class BoltzmannAgent(Agent):
