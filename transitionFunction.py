@@ -205,12 +205,13 @@ class TransitionMatrixDicTree():
             for tostatehash in self.helperDic[agentId][fromstatehash][throughaction]:
                 if throughaction not in actlst:
                     actlst[throughaction] = {}
+                if tostatehash not in actlst[throughaction]:
                     actlst[throughaction][tostatehash] = self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
                 else:
                     actlst[throughaction][tostatehash] += self.helperDic[agentId][fromstatehash][throughaction][tostatehash]
         return actlst
 
-    def getLegalPacmanActions(self, fromstatehash):
+    def getLegalPacmanActions(self, fromstatehash):        
         return self.transitionMatrixDic[fromstatehash]
 
     def getLegalStates(self, fromstate, throughaction):
@@ -221,7 +222,7 @@ class TransitionMatrixDicTree():
         for tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
             pacmanFin, ghostsFin = self.getPositionAgentsInGridCoordfromHash(
                 tostatehash)
-            positions = [pacmanFin]+ghostsFin
+            positions = [pacmanFin]+ ghostsFin
             current = fromstate
             for agentId in range(len(positions)):
                 nxtstatepos = positions[agentId]

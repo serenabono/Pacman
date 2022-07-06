@@ -757,9 +757,9 @@ def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, c
     # start_time = time.time()
     
     # example of noise addition
-    # semanticNoiseToWalls = NoiseToNextWallStates(tree)
-    # statesTobePerturbed = semanticNoiseToWalls.generateToBePerturbedStatesMap(layout)
-    # tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 0.1}), statesTobePerturbed)
+    semanticNoiseToWalls = NoiseToNextWallStates(tree)
+    statesTobePerturbed = semanticNoiseToWalls.generateToBePerturbedStatesMap(layout)
+    tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 0.001}), statesTobePerturbed)
 
     # distributedNoise = DistributedNoise(tree)
     # statesTobePerturbed = distributedNoise.generateToBePerturbedStatesMap()
