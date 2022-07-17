@@ -780,11 +780,8 @@ class Game:
                     self.unmute()
                     return
             else:
-                print("agent ", agentIndex)
-                print(self.state)
                 self.state = self.transitionFunctionTree.generateSuccessor(
                     self.state, actionstostateshashdict[agentIndex], agentIndex)
-                print(self.state)
             # Change the display
             self.display.update(self.state.data)
 
