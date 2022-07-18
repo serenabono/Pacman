@@ -81,7 +81,8 @@ class BoltzmannAgent(Agent):
         actions_rep = legalactions
 
         try:
-            actions_rep.remove(Directions.STOP)
+            # Remove Directions.STOP
+            actions_rep.remove(4)
         except:
             pass
 
