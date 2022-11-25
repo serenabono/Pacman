@@ -233,9 +233,9 @@ def train_epoch(transitionMatrixTree, n_training_steps, rules, pacman, ghosts, l
                              gameDisplay, 1, catchExceptions=False)
         transitionMatrixTree.state = game.state
         game.transitionFunctionTree = transitionMatrixTree.copy()
-        if pacman.__class__.__name__ == "BoltzmannAgent":
+        if 'Boltzmann' in pacman.__class__.__name__: 
             pacman.agent.set_trainable(trainable=True)
-        else:
+        elif 'PacmanDQN' in pacman.__class__.__name__:
             pacman.params["num_training"] = n_training_steps
         game.run(i, n_training_steps)
 
@@ -303,14 +303,15 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
     import __main__
     __main__.__dict__['_display'] = display
 
+    width, height = pacman.width, pacman.height
     rules = ClassicGameRules(timeout)
 
     stats = np.zeros(
         [trained_agents, epochs // n_training_steps], dtype=np.float32)
-
+    
     for i in range(trained_agents):
         transitionMatrixTree = defineTransitionMatrix(
-            pacman, ghosts, layout, file_to_be_loaded, applynoise)
+            pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=applynoise)
         for j in range(epochs // n_training_steps):
             print(j)
             if pacman.__class__.__name__ != "KeyboardAgent":
@@ -322,6 +323,8 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
         print('trained agent ', i)
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
         
+        if not os.path.exists(args['outputStats'].split('/')[0]):
+            os.makedirs(args['outputStats'].split('/')[0])
         np.savetxt(args['outputStats'] + f"{i}_training_agent.pkl", stats[i],  delimiter=',')
 
         #   reinitialize pacman
@@ -335,6 +338,8 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
         else:
             pacmanType = loadAgent(pacmanName, 1)
         pacman = pacmanType(pacmanOpts)
+        pacman.width, pacman.height = width, height
+
 
     return np.mean(stats, 0)
 

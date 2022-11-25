@@ -296,10 +296,6 @@ class TransitionMatrixDicTree():
                     self.transitionMatrixDic[fromstatehash][action] = {}
                 self.transitionMatrixDic[fromstatehash][action] = dict(zip(self.transitionMatrixDic.keys(), c_cpu)) 
 
-                for key in listkeys:
-                    print(self.transitionMatrixDic[fromstatehash][action][key])
-
-                print(self.transitionMatrixDic[fromstatehash][action])
             i+=self.nPossibleAcitons
 
         

@@ -361,7 +361,7 @@ class PacmanDQN(game.Agent):
         move = self.getMove(state)
 
         # Stop moving when not legal
-        if move not in action_rep:
-            move = 4
+        if move not in action_rep and action_rep != set():
+            move = np.random.choice(list(action_rep))
 
         return move
