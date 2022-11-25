@@ -197,6 +197,10 @@ def readCommand(argv):
     return args
 
 
+NOISY_ARGS = [{},{"std":0.1, "mean":0}, {"std":0.2, "mean":0},{"std":0.3, "mean":0},{"std":0.4, "mean":0},{"std":0.5, "mean":0},{"std":0.6, "mean":0},{"std":0.7, "mean":0},{"std":0.8, "mean":0},{"std":0.9, "mean":0},
+    {"std":0.1, "mean":0.1}, {"std":0.1, "mean":0.2},{"std":0.1, "mean":0.3},{"std":0.1, "mean":0.4},{"std":0.1, "mean":0.5},{"std":0.1, "mean":0.6},{"std":0.1, "mean":0.7},{"std":0.1, "mean":0.8},{"std":0.1, "mean":0.9},]
+   
+
 def loadAgent(pacman, nographics):
     # Looks through all pythonPath Directories for the right module,
     pythonPathStr = os.path.expandvars("$PYTHONPATH")
@@ -261,6 +265,30 @@ def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, lay
     return np.asarray(scores)
 
 
+def test_noisy_agents_epoch(transitionMatrixTreeList, n_testing_steps, rules, pacman, ghosts, layout, gameDisplay):
+        
+    across_agents_scores = []
+    for n in range(len(NOISY_ARGS)):
+        scores = []
+        for i in range(n_testing_steps):
+            import textDisplay
+            game = rules.newGame(layout, pacman, ghosts,
+                                gameDisplay, 1, catchExceptions=False)
+            transitionMatrixTreeList[n].state = game.state
+            game.transitionFunctionTree = transitionMatrixTreeList[n].copy()
+
+            if 'Boltzmann' in pacman.__class__.__name__: 
+                pacman.agent.set_trainable(trainable=False)
+            elif 'PacmanDQN' in pacman.__class__.__name__:
+                pacman.params["num_training"] = 0
+            
+            game.run(i, n_testing_steps)
+            scores.append(game.state.getScore())
+        
+        across_agents_scores.append(np.asarray(scores))
+
+    return across_agents_scores
+
 def defineTransitionMatrix(pacman, ghosts, layout, file_to_be_loaded=None, file_to_be_saved=None, applynoise=None):
     # define transition function
     
@@ -303,7 +331,6 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
     import __main__
     __main__.__dict__['_display'] = display
 
-    width, height = pacman.width, pacman.height
     rules = ClassicGameRules(timeout)
 
     stats = np.zeros(
@@ -336,29 +363,47 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
 
     return np.mean(stats, 0)
 
-
-def runTestonNoisyEnv(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, epochs=200, trained_agents=300, n_training_steps=10, n_testing_steps=10, timeout=30):
+def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
 
     rules = ClassicGameRules(timeout)
 
     stats = np.zeros(
-        [trained_agents], dtype=np.float32)
+        [trained_agents, len(NOISY_ARGS), epochs // n_training_steps], dtype=np.float32)
     
+    transitionMatrixTreeList=[]
+
     for i in range(trained_agents):
-        transitionMatrixTree = defineTransitionMatrix(
-            pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=applynoise)
-        score = np.mean(test_epoch(
-            transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, layout, display))
-        stats[i]= score
+        for n in range(len(NOISY_ARGS)):
+            transitionMatrixTreeList.append(defineTransitionMatrix(
+                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=NOISY_ARGS[n]))
+        for j in range(epochs // n_training_steps):
+            print(j)
+            if pacman.__class__.__name__ != "KeyboardAgent":
+                train_epoch(transitionMatrixTreeList[0], n_training_steps,
+                            rules, pacman, ghosts, layout, display)
+            scores = test_noisy_agents_epoch(
+                transitionMatrixTreeList, n_testing_steps, rules, pacman, ghosts, layout, display)
+            for k in range(len(scores)):
+                stats[i][k][j] = np.mean(scores[k])
+            
         print('trained agent ', i)
-        print('Scores:       ', stats[i])
-    
-        if (i+1)%10 == 0:
-            np.savetxt(args['outputStats'] + f"{i}_agent.pkl", stats[(i+1-10):i+1],  delimiter=',')
-    
-    return stats
+        print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
+        
+        for k in range(len(NOISY_ARGS)):
+            if not os.path.exists(args['outputStats'].split('/')[0]):
+                os.makedirs(args['outputStats'].split('/')[0])
+            np.savetxt(args['outputStats'] +f"_{NOISY_ARGS[k]}_"+f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
+
+        #   reinitialize pacman
+        if pacman.__class__.__name__ == "KeyboardAgent":
+            pacmanType = loadAgent(pacmanName, 0)
+        else:
+            pacmanType = loadAgent(pacmanName, 1)
+        pacman = pacmanType(pacmanArgs)
+
+    return np.mean(stats, 0)
 
 if __name__ == '__main__':
     """
@@ -376,10 +421,12 @@ if __name__ == '__main__':
     if args['mode'] == 's':
         output = runStatistics(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applynoise=args['noiseOpts'], **args['statOpts'])
+        np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
     elif args['mode'] == 't':
-        output = runTestonNoisyEnv(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
+        output = runGenralization(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applynoise=args['noiseOpts'], **args['statOpts'])
+        for n in range(len(NOISY_ARGS)):
+            np.savetxt(args['outputStats']+f"_{NOISY_ARGS[n]}"+".pkl", output[n],  delimiter=',')
     
-    np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
 
     pass
