@@ -53,9 +53,7 @@ import os
 from QLearningAgent import *
 from search import *
 from transitionFunction import *
-from noise import GaussianNoise
-from semanticNoise import *
-
+# from pacmanDQN_Agents import *
 ###################################################
 # YOUR INTERFACE TO THE PACMAN WORLD: A GameState #
 ###################################################
@@ -137,7 +135,7 @@ class GameState:
         GameState.explored.add(state)
         return state
 
-    def movetoAnyState(self, agentIndex, nxtstatepos):
+    def movetoAnyState(self, action, agentIndex, nxtstatepos):
         """
         SHOULD BE USED IN PLACE of generateSuccessor!
         Returns the successor state after the specified agent takes the action.
@@ -168,6 +166,7 @@ class GameState:
         # Book keeping
         state.data._agentMoved = agentIndex
         state.data.score += state.data.scoreChange
+        state.data.action = action
         GameState.explored.add(self)
         GameState.explored.add(state)
         return state
@@ -359,9 +358,9 @@ class ClassicGameRules:
 
     def agentCrash(self, game, agentIndex):
         if agentIndex == 0:
-            print "Pacman crashed"
+            print("Pacman crashed")
         else:
-            print "A ghost crashed"
+            print("A ghost crashed")
 
     def getMaxTotalTime(self, agentIndex):
         return self.timeout
@@ -390,7 +389,12 @@ class PacmanRules:
         """
         Returns a list of possible actions.
         """
-        return Actions.getPossibleActions(state.getPacmanState().configuration, state.data.layout.walls)
+        possibleActions =  Actions.getPossibleActions(state.getPacmanState().configuration, state.data.layout.walls)
+        if Directions.STOP in possibleActions:
+            possibleActions.remove(Directions.STOP)
+        
+        return possibleActions
+        
     getLegalActions = staticmethod(getLegalActions)
 
     def applyAction(state, action):
@@ -489,8 +493,7 @@ class GhostRules:
         ghostState = state.data.agentStates[ghostIndex]
         speed = GhostRules.GHOST_SPEED
         if ghostState.scaredTimer > 0:
-            # speed /= 2.0
-            pass
+            speed /= 2.0
         vector = Actions.directionToVector(action, speed)
         ghostState.configuration = ghostState.configuration.generateSuccessor(
             vector)
@@ -613,6 +616,8 @@ def readCommand(argv):
                       help='Fixes the random seed to always play the same game', default=False)
     parser.add_option('-r', '--recordActions', action='store_true', dest='record',
                       help='Writes game histories to a file (named by the time they were played)', default=False)
+    parser.add_option('-m', '--recordHeatMap', action='store_true', dest='recordHeatMap',
+                      help='Writes game heatmaps to a file (named by the time they were played)', default=False)
     parser.add_option('--replay', dest='gameToReplay',
                       help='A recorded game file (pickle) to replay', default=None)
     parser.add_option('-a', '--agentArgs', dest='agentArgs',
@@ -645,12 +650,20 @@ def readCommand(argv):
         options.textGraphics or options.quietGraphics)
     pacmanType = loadAgent(options.pacman, noKeyboard)
     agentOpts = parseAgentArgs(options.agentArgs)
+
+    agentOpts['width'] = layout.getLayout(options.layout).width
+    agentOpts['height'] = layout.getLayout(options.layout).height
+
     if options.numTraining > 0:
         args['numTraining'] = options.numTraining
         if 'numTraining' not in agentOpts:
             agentOpts['numTraining'] = options.numTraining
-    pacman = pacmanType(**agentOpts)  # Instantiate Pacman with agentArgs
+        
+    pacman = pacmanType(agentOpts)  # Instantiate Pacman with agentArgs
     args['pacman'] = pacman
+    pacman.width = agentOpts['width']
+    pacman.height = agentOpts['height']
+    
 
     # Don't display training games
     if 'numTrain' in agentOpts:
@@ -677,19 +690,11 @@ def readCommand(argv):
     args['record'] = options.record
     args['catchExceptions'] = options.catchExceptions
     args['timeout'] = options.timeout
-
+    args['gameToReplay'] = options.gameToReplay
+    args['saveHeatMap'] = options.recordHeatMap
+    
     # Special case: recorded games don't use the runGames method or args structure
-    if options.gameToReplay != None:
-        print 'Replaying recorded game %s.' % options.gameToReplay
-        import cPickle
-        f = open(options.gameToReplay)
-        try:
-            recorded = cPickle.load(f)
-        finally:
-            f.close()
-        recorded['display'] = args['display']
-        replayGame(**recorded)
-        sys.exit(0)
+    
 
     return args
 
@@ -734,7 +739,7 @@ def replayGame(layout, actions, display):
 
     for action in actions:
         # Execute the action
-        state = state.generateSuccessor(*action)
+        state = state(*action)
         # Change the display
         display.update(state.data)
         # Allow for game specific conditions (winning, losing, etc.)
@@ -743,7 +748,7 @@ def replayGame(layout, actions, display):
     display.finish()
 
 
-def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, catchExceptions=False, timeout=30):
+def runGames(layout, pacman, ghosts, display, numGames, record, gameToReplay, saveHeatMap = False, numTraining=0, catchExceptions=False, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
 
@@ -751,21 +756,25 @@ def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, c
     games = []
 
     # define transition function
-    tree = TransitionMatrixDicTree(pacman, ghosts, layout)
+    import time
+    start_time = time.time()
+    tree = TransitionMatrixDicTree(pacman, ghosts, layout, noise={"std":0.01,"mean":0})
     tree.computeProbabilities()
-    
-    # start_time = time.time()
-    
-    # example of noise addition
-    semanticNoiseToWalls = NoiseToNextWallStates(tree)
-    statesTobePerturbed = semanticNoiseToWalls.generateToBePerturbedStatesMap(layout)
-    tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 0.001}), statesTobePerturbed)
+    end_time = time.time()
 
-    # distributedNoise = DistributedNoise(tree)
-    # statesTobePerturbed = distributedNoise.generateToBePerturbedStatesMap()
-    # tree.applyNoiseToTransitionMatrix(GaussianNoise({"mean": 0, "std": 1, "scale": 0.0001}), statesTobePerturbed)
-
-    # print("--- %s seconds ---" % (time.time() - start_time))
+    print("Compute Probabilities: ", end_time - start_time)
+    
+    if gameToReplay != None:
+        print('Replaying recorded game %s.' % gameToReplay)
+        import pickle
+        f = open(gameToReplay, "rb")
+        try:
+            recorded = pickle.load(f)
+        finally:
+            f.close()
+        recorded['display'] = args['display']
+        tree.replayGame(**recorded)
+        sys.exit(0)
 
     for i in range(numGames):
         print(i)
@@ -782,29 +791,20 @@ def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, c
                              gameDisplay, beQuiet, catchExceptions)
         tree.state = game.state
         game.transitionFunctionTree = tree.copy()
-        game.run(i, numGames, perturbingagents=False)
+        game.run(i, numGames)
 
         if not beQuiet:
             games.append(game)
-
-        if record:
-            import time
-            import cPickle
-            fname = ('recorded-game-%d' % (i + 1)) + \
-                '-'.join([str(t) for t in time.localtime()[1:6]])
-            f = file(fname, 'w')
-            components = {'layout': layout, 'actions': game.moveHistory}
-            cPickle.dump(components, f)
-            f.close()
 
     if (numGames-numTraining) > 0:
         scores = [game.state.getScore() for game in games]
         wins = [game.state.isWin() for game in games]
         winRate = wins.count(True) / float(len(wins))
-        print 'Average Score:', sum(scores) / float(len(scores))
-        print 'Scores:       ', ', '.join([str(score) for score in scores])
-        print 'Win Rate:      %d/%d (%.2f)' % (wins.count(True), len(wins), winRate)
-        print 'Record:       ', ', '.join([['Loss', 'Win'][int(w)] for w in wins])
+
+        print('Average Score:', sum(scores) / float(len(scores)))
+        print('Scores:       ', ', '.join([str(score) for score in scores]))
+        print('Win Rate:      %d/%d (%.2f)' % (wins.count(True), len(wins), winRate))
+        print('Record:       ', ', '.join([['Loss', 'Win'][int(w)] for w in wins]))
 
     return games
 
