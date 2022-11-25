@@ -328,18 +328,11 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
         np.savetxt(args['outputStats'] + f"{i}_training_agent.pkl", stats[i],  delimiter=',')
 
         #   reinitialize pacman
-        try:
-            pacmanOpts = json.loads(pacmanArgs)
-        except:
-            pacmanOpts = {}
-        
         if pacman.__class__.__name__ == "KeyboardAgent":
             pacmanType = loadAgent(pacmanName, 0)
         else:
             pacmanType = loadAgent(pacmanName, 1)
-        pacman = pacmanType(pacmanOpts)
-        pacman.width, pacman.height = width, height
-
+        pacman = pacmanType(pacmanArgs)
 
     return np.mean(stats, 0)
 
