@@ -372,9 +372,9 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
     stats = np.zeros(
         [trained_agents, len(NOISY_ARGS), epochs // n_training_steps], dtype=np.float32)
     
-    transitionMatrixTreeList=[]
 
     for i in range(trained_agents):
+        transitionMatrixTreeList=[]
         for n in range(len(NOISY_ARGS)):
             transitionMatrixTreeList.append(defineTransitionMatrix(
                 pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=NOISY_ARGS[n]))
