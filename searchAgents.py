@@ -166,9 +166,12 @@ class BoltzmannAgent(Agent):
         # EPSILON ANNEALING EXAMPLE, YOU CAN ANNEAL EPSILON IN ANY WAY YOU'D LIKE. DIRECT ACCESS TO EPSILON IS
         # GIVEN TO ALLOW FOR DESIGNER'S DISCRETION OF ANNEALING TECHNIQUES
 
+        # pass it through a decaying function, of the iteration number
         if (game_number + 1)%50 == 0 and self.agent.current_state_type == "terminal":
             if self.agent.EXPLORATION_STRATEGY == "E_GREEDY":
-                self.agent.EPSILON -= 0.025
+                r = np.max((self.total_games - self.game_number)/self.total_games,0)
+                self.agent.EPSILON = (self.agent.EPSILON-0.1)*r + 0.1
+                # self.agent.EPSILON -= 0.025 # function of the game number
 
         return action
 

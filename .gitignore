@@ -130,3 +130,7 @@ dmypy.json
 
 # generated output files
 *.csv
+ql-smallClassic-**
+saves_smallClassic/**
+slurm_outputs_scripts/**
+generalization_**
