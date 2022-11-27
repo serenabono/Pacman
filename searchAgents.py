@@ -115,7 +115,11 @@ class RandomAgent(Agent):
 class BoltzmannAgent(Agent):
 
     def __init__(self, args):
+<<<<<<< Updated upstream
         self.agent = QLearningAgent(args, exploration_strategy="E_GREEDY", T=1.5, epsilon=0.99, 
+=======
+        self.agent = QLearningAgent(args, exploration_strategy="E_GREEDY", T=None, epsilon=0.99, 
+>>>>>>> Stashed changes
             on_policy=False, initialization_value=0, gamma=0.9, alpha=0.05, is_train=True, load_existing_agent=False)
 
 
