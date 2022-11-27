@@ -24,6 +24,7 @@ from util import *
 import time
 import traceback
 import sys
+import numpy as np
 
 #######################
 # Parts worth reading #
@@ -123,7 +124,7 @@ class Configuration:
         return Configuration((x + dx, y+dy), direction)
 
     def movetoAnyState(self, nxtstatepos):
-        return Configuration((nxtstatepos[1], nxtstatepos[0]), None)
+        return Configuration((nxtstatepos[0], nxtstatepos[1]), None)
 
 
 class AgentState:
@@ -570,8 +571,8 @@ class Game:
         self.totalAgentTimeWarnings = [0 for agent in agents]
         self.agentTimeout = False
         self.transitionFunctionTree = None
-        import cStringIO
-        self.agentOutput = [cStringIO.StringIO() for agent in agents]
+        from io import StringIO
+        self.agentOutput = [StringIO() for agent in agents]
 
     def getProgress(self):
         if self.gameOver:
@@ -608,7 +609,7 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
-    def run(self, game_number, total_games, perturbingagents=False):
+    def run(self, game_number, total_games):
         """
         Main control loop for game play.
         """
@@ -688,37 +689,15 @@ class Game:
                 self.unmute()
             else:
                 observation = self.state.deepCopy()
-
-            action = None
-
-            # There are two possible injecting noise strategies: injecting noise directly to the transition function P(s'|s,a),
-            # alternatively the noise can be injected in the agents: P(s'|s,a) = sum_p* P(s'|p*,aghost)P(p*|s, apacman). This code
-            # snippet implements both strategies and produces a rollout of the actions for each agent which are then executed.
-            
-            if perturbingagents:
-                rolloutagent = self.agents[agentIndex]
-                actionstostateshashdict[agentIndex] = {}
-                if agentIndex == 0:
-                    pacmanlegalactionspobdict = self.transitionFunctionTree.getLegalActionsAgent(
-                        self.transitionFunctionTree.getHashfromState(observation), 0)
-                    action = agent.getAction(observation, pacmanlegalactionspobdict.keys(
-                    ), game_number, total_games, isInitial)
-                    actionstostateshashdict[agentIndex] = pacmanlegalactionspobdict[action]
-                    isInitial = False
-                else:
-                    ghostlegalactionspobdict = self.transitionFunctionTree.getLegalActionsAgent(
-                        self.transitionFunctionTree.getHashfromState(observation), agentIndex)
-                    actionstostateshashdict[agentIndex] = rolloutagent.getAction(
-                        observation, ghostlegalactionspobdict)
-            else:
-                if agentIndex == 0:
-                    pacmanlegalactionspobdict = self.transitionFunctionTree.getLegalPacmanActions(
-                        self.transitionFunctionTree.getHashfromState(observation))
-                    action = agent.getAction(observation, pacmanlegalactionspobdict.keys(
-                    ), game_number, total_games, isInitial)
-                    actionstostateshashdict = self.transitionFunctionTree.getLegalStates(
-                            observation, action)
-                    isInitial = False
+                
+            if agentIndex == 0:
+                fromstatehash = self.transitionFunctionTree.getHashfromState(observation)
+                legal_actions = self.transitionFunctionTree.transitionMatrixDic[fromstatehash].keys()
+                pacaction = agent.getAction(observation, legal_actions, game_number, total_games, isInitial)
+                actionstostateshashdict = self.transitionFunctionTree.getLegalActions(
+                    fromstatehash, pacaction)
+                nextstatehash = self.transitionFunctionTree.generateSuccessor(actionstostateshashdict)
+                isInitial = False
             
             # Solicit an action
             self.mute(agentIndex)
@@ -769,26 +748,23 @@ class Game:
 
             self.unmute()
             # Execute the action
-            self.moveHistory.append((agentIndex, action))
+            
             if self.catchExceptions:
                 try:
-                    self.state = self.transitionFunctionTree.generateSuccessor(
-                        self.state, actionstostateshashdict[agentIndex], agentIndex)
-                except Exception, data:
+                    self.state = self.transitionFunctionTree.moveToPosition(
+                        self.state, nextstatehash, agentIndex)
+                except Exception as data:
                     self.mute(agentIndex)
                     self._agentCrash(agentIndex)
                     self.unmute()
                     return
             else:
-                self.state = self.transitionFunctionTree.generateSuccessor(
-                    self.state, actionstostateshashdict[agentIndex], agentIndex)
+                self.state = self.transitionFunctionTree.moveToPosition(
+                        self.state, pacaction, nextstatehash, agentIndex)
+      
             # Change the display
+            self.moveHistory.append((agentIndex, nextstatehash, self.transitionFunctionTree.toactions[pacaction]))
             self.display.update(self.state.data)
-
-            # marks missing states in transition function as final, to avoid breaking the markovian property
-            if agentIndex == 0 and self.transitionFunctionTree.getHashfromState(self.state) not in self.transitionFunctionTree.transitionMatrixDic:
-                self.state.data._lose = True
-
             self.rules.process(self.state, self)
             # Track progress
             if agentIndex == numAgents + 1:
@@ -798,10 +774,9 @@ class Game:
 
             if _BOINC_ENABLED:
                 boinc.set_fraction_done(self.getProgress())
-
+            
         if self.gameOver:
-            self.agents[0].getAction(
-                self.state, [], game_number, total_games, isInitial)
+            self.agents[0].getAction(self.state, [], game_number, total_games, isInitial)
         # inform a learning agent of the game result
         for agentIndex, agent in enumerate(self.agents):
             if "final" in dir(agent):

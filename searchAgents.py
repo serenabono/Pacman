@@ -41,14 +41,81 @@ import util
 import time
 import search
 from QLearningAgent import *
-import pickle
-from pacman import PacmanRules
+
+import numpy as np
+class RandomTurnAgent:
+    "An agent that turns left at every opportunity"
+    def __init__(self):
+        self.current_state = None
+        self.current_legal_actions = None
+        self.current_state_type = "initial"
+    
+    def set_trainable(self, trainable=True):
+        pass
+
+    def set_current_state(self, state_rep):
+        self.current_state = state_rep
+
+    def set_current_legal_actions(self, actions):
+        self.current_legal_actions = actions
+
+    def set_current_state_type(self, state_type):
+        self.current_state_type = state_type
+
+    def get_action(self):
+        if self.current_state_type == "terminal":
+            return None, None
+        return np.random.choice(list(self.current_legal_actions))
+
+class RandomAgent(Agent):
+
+    def __init__(self, args):
+        self.agent = RandomTurnAgent()
+
+    def getReward(self, state, prevState):
+        if self.prevState == None:
+            prevStateScore = 0
+        else:
+            prevStateScore = prevState.getScore()
+        return state.getScore() - prevStateScore
+
+    def getAction(self, state, legalactions, game_number, total_games, isInitial):
+        "The agent receives a GameState (defined in pacman.py)."
+
+        ### DOMAIN SPECIFIC STUFF, DON'T NEED TO UNDERSTAND FOR HOW TO USE THE CODEBASE
+        state_type = "mid_episode"
+        if isInitial:
+            state_type = "initial"
+            self.prevState = None
+
+        elif state.isWin() or state.isLose():
+            state_type = "terminal"
+
+        self.prevState = state
+
+        ##get state representation
+        state_rep = str(state)
+        actions_rep = legalactions
+
+        try:
+            # Remove Directions.STOP
+            actions_rep.remove(4)
+        except:
+            pass
+
+        # CODEBASE SPECIFIC STUFF. VERY IMPORTANT TO MAKE THE CALLS IN THE SAME ORDER
+        self.agent.set_current_state(state_rep)
+        self.agent.set_current_legal_actions(legalactions)
+        self.agent.set_current_state_type(state_type)
+        action = self.agent.get_action()
+
+        return action
 
 
 class BoltzmannAgent(Agent):
 
-    def __init__(self):
-        self.agent = QLearningAgent(exploration_strategy="BOLTZMANN", T=1.5, epsilon=None, 
+    def __init__(self, args):
+        self.agent = QLearningAgent(args, exploration_strategy="E_GREEDY", T=1.5, epsilon=0.99, 
             on_policy=False, initialization_value=0, gamma=0.9, alpha=0.05, is_train=True, load_existing_agent=False)
 
 
@@ -85,7 +152,7 @@ class BoltzmannAgent(Agent):
             actions_rep.remove(4)
         except:
             pass
-
+        
         # CODEBASE SPECIFIC STUFF. VERY IMPORTANT TO MAKE THE CALLS IN THE SAME ORDER
         self.agent.set_current_state(state_rep)
         self.agent.set_current_legal_actions(actions_rep)
@@ -98,14 +165,12 @@ class BoltzmannAgent(Agent):
         # EPSILON ANNEALING EXAMPLE, YOU CAN ANNEAL EPSILON IN ANY WAY YOU'D LIKE. DIRECT ACCESS TO EPSILON IS
         # GIVEN TO ALLOW FOR DESIGNER'S DISCRETION OF ANNEALING TECHNIQUES
 
-        if (game_number + 1)%50 == 0 and self.agent.current_state_type == "terminal":
-            if self.agent.EXPLORATION_STRATEGY == "E_GREEDY":
-                self.agent.EPSILON -= 0.025
+        # pass it through a decaying function, of the iteration number
+        if self.agent.current_state_type == "terminal" and self.agent.EXPLORATION_STRATEGY == "E_GREEDY":
+                r = np.max((total_games - game_number)/total_games,0)
+                self.agent.EPSILON = (self.agent.EPSILON-0.1)*r + 0.1
+                # self.agent.EPSILON -= 0.025 # function of the game number
 
-
-        #WRITE THE AGENT WHEN ALL LEARNING IS DONE (OPTIONAL)
-        if (game_number + 1) == total_games and self.agent.current_state_type == "terminal":
-            self.agent.save_agent_to_disk("agent.pkl")
         return action
 
 #######################################################
@@ -135,7 +200,7 @@ class SearchAgent(Agent):
 
         # Get the search function from the name and heuristic
         if fn not in dir(search):
-            raise AttributeError, fn + ' is not a search function in search.py.'
+            raise AttributeError(fn + ' is not a search function in search.py.')
         func = getattr(search, fn)
         if 'heuristic' not in func.func_code.co_varnames:
             print('[SearchAgent] using function ' + fn)
@@ -146,14 +211,14 @@ class SearchAgent(Agent):
             elif heuristic in dir(search):
                 heur = getattr(search, heuristic)
             else:
-                raise AttributeError, heuristic + ' is not a function in searchAgents.py or search.py.'
+                raise AttributeError(heuristic + ' is not a function in searchAgents.py or search.py.')
             print('[SearchAgent] using function %s and heuristic %s' % (fn, heuristic))
             # Note: this bit of Python trickery combines the search algorithm and the heuristic
             self.searchFunction = lambda x: func(x, heuristic=heur)
 
         # Get the search problem type from the name
         if prob not in globals().keys() or not prob.endswith('Problem'):
-            raise AttributeError, prob + ' is not a search problem type in SearchAgents.py.'
+            raise AttributeError(prob + ' is not a search problem type in SearchAgents.py.')
         self.searchType = globals()[prob]
         print('[SearchAgent] using problem type ' + prob)
 
@@ -166,7 +231,7 @@ class SearchAgent(Agent):
 
         state: a GameState object (pacman.py)
         """
-        if self.searchFunction == None: raise Exception, "No search function provided for SearchAgent"
+        if self.searchFunction == None: raise Exception("No search function provided for SearchAgent")
         starttime = time.time()
         problem = self.searchType(state) # Makes a new search problem
         self.actions  = self.searchFunction(problem) # Find a path
@@ -216,7 +281,7 @@ class PositionSearchProblem(search.SearchProblem):
         self.costFn = costFn
         self.visualize = visualize
         if warn and (gameState.getNumFood() != 1 or not gameState.hasFood(*goal)):
-            print 'Warning: this does not look like a regular search maze'
+            print('Warning: this does not look like a regular search maze')
 
         # For display purposes
         self._visited, self._visitedlist, self._expanded = {}, [], 0 # DO NOT CHANGE
@@ -340,7 +405,7 @@ class CornersProblem(search.SearchProblem):
         self.corners = ((1,1), (1,top), (right, 1), (right, top))
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
-                print 'Warning: no food in corner ' + str(corner)
+                print('Warning: no food in corner ' + str(corner))
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
@@ -525,10 +590,10 @@ class ClosestDotSearchAgent(SearchAgent):
                 legal = currentState.getLegalActions()
                 if action not in legal:
                     t = (str(action), str(currentState))
-                    raise Exception, 'findPathToClosestDot returned an illegal move: %s!\n%s' % t
+                    raise Exception('findPathToClosestDot returned an illegal move: %s!\n%s' % t)
                 currentState = currentState.generateSuccessor(0, action)
         self.actionIndex = 0
-        print 'Path found with cost %d.' % len(self.actions)
+        print('Path found with cost %d.' % len(self.actions))
 
     def findPathToClosestDot(self, gameState):
         """

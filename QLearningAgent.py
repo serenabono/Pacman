@@ -7,10 +7,10 @@ import pickle
 
 class QLearningAgent:
 
-    def __init__(self, exploration_strategy="BOLTZMANN", T=None, epsilon=None, on_policy=False, initialization_value=0, gamma=0.9, alpha=0.05, is_train=False, load_existing_agent=False):
+    def __init__(self, args, exploration_strategy="BOLTZMANN", T=None, epsilon=None, on_policy=False, initialization_value=0, gamma=0.9, alpha=0.05, is_train=False, load_existing_agent=True):
         ##################q learning hyperparameters#############################
         if is_train:
-            self.EXPLORATION_STRATEGY = "BOLTZMANN"  # {E_GREEDY, BOLTZMANN}
+            self.EXPLORATION_STRATEGY = exploration_strategy  # {E_GREEDY, BOLTZMANN}
             self.ON_POLICY = on_policy
             self.INITIALIZE_VALUE = initialization_value
             self.GAMMA = gamma
@@ -45,18 +45,22 @@ class QLearningAgent:
                 else:
                     self.EPSILON = epsilon
 
-        if (not is_train) or (load_existing_agent):
+        if load_existing_agent:
             try:
-                loaded_agent = pickle.load(open("agent.pkl", "rb"))
+                loaded_agent = pickle.load(open("ql-smallClassic-300000.pkl", "rb"))
             except:
                 raise(
                     "Object pickle file not present. Please train and write the agent to disk first.")
             self.__class__ = loaded_agent.__class__
             self.__dict__ = loaded_agent.__dict__
-
+        
+        if not is_train:
             if not is_train:
                 self.train = False
-
+    
+    def set_trainable(self, trainable):
+        self.train = trainable
+    
     def save_agent_to_disk(self, filename):
         pickle.dump(self, open(filename, "wb"))
 
@@ -72,6 +76,9 @@ class QLearningAgent:
     def initialize_q_values_if_absent(self):
         try:
             self.q_values[self.current_state]
+            for action in self.current_legal_actions:
+                if action not in self.q_values[self.current_state]:
+                    self.q_values[self.current_state][action] = self.INITIALIZE_VALUE
         except KeyError:
             self.q_values[self.current_state] = {}
             actions_q = {}
@@ -102,9 +109,8 @@ class QLearningAgent:
                 other_actions_arr.append(action)
 
         ############################################
-
-        max_action = np.random.choice(max_actions_arr)
-        exploration_action = np.random.choice(self.current_legal_actions)
+        max_action = np.random.choice(np.asarray(max_actions_arr))
+        exploration_action = np.random.choice(list(self.current_legal_actions))
 
         return exploration_action, max_action
 
