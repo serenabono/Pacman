@@ -115,7 +115,6 @@ class RandomAgent(Agent):
 class BoltzmannAgent(Agent):
 
     def __init__(self, args):
-        print(args)
         self.agent = QLearningAgent(args, exploration_strategy="BOLTZMANN", T=1.5, epsilon=None, 
             on_policy=False, initialization_value=0, gamma=0.9, alpha=0.05, is_train=True, load_existing_agent=False)
 
@@ -167,8 +166,7 @@ class BoltzmannAgent(Agent):
         # GIVEN TO ALLOW FOR DESIGNER'S DISCRETION OF ANNEALING TECHNIQUES
 
         # pass it through a decaying function, of the iteration number
-        if (game_number + 1)%50 == 0 and self.agent.current_state_type == "terminal":
-            if self.agent.EXPLORATION_STRATEGY == "E_GREEDY":
+        if self.agent.current_state_type == "terminal" and self.agent.EXPLORATION_STRATEGY == "E_GREEDY":
                 r = np.max((self.total_games - self.game_number)/self.total_games,0)
                 self.agent.EPSILON = (self.agent.EPSILON-0.1)*r + 0.1
                 # self.agent.EPSILON -= 0.025 # function of the game number
