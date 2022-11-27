@@ -10,7 +10,7 @@ class QLearningAgent:
     def __init__(self, args, exploration_strategy="BOLTZMANN", T=None, epsilon=None, on_policy=False, initialization_value=0, gamma=0.9, alpha=0.05, is_train=False, load_existing_agent=True):
         ##################q learning hyperparameters#############################
         if is_train:
-            self.EXPLORATION_STRATEGY = "BOLTZMANN"  # {E_GREEDY, BOLTZMANN}
+            self.EXPLORATION_STRATEGY = exploration_strategy  # {E_GREEDY, BOLTZMANN}
             self.ON_POLICY = on_policy
             self.INITIALIZE_VALUE = initialization_value
             self.GAMMA = gamma
@@ -109,9 +109,8 @@ class QLearningAgent:
                 other_actions_arr.append(action)
 
         ############################################
-
-        max_action = np.random.choice(max_actions_arr)
-        exploration_action = np.random.choice(self.current_legal_actions)
+        max_action = np.random.choice(np.asarray(max_actions_arr))
+        exploration_action = np.random.choice(list(self.current_legal_actions))
 
         return exploration_action, max_action
 
