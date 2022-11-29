@@ -198,8 +198,7 @@ def readCommand(argv):
 
 
 NOISY_ARGS = [{},{"std":0.1, "mean":0}, {"std":0.2, "mean":0},{"std":0.3, "mean":0},{"std":0.4, "mean":0},{"std":0.5, "mean":0},{"std":0.6, "mean":0},{"std":0.7, "mean":0},{"std":0.8, "mean":0},{"std":0.9, "mean":0},
-    {"std":0.1, "mean":0.1}, {"std":0.1, "mean":0.2},{"std":0.1, "mean":0.3},{"std":0.1, "mean":0.4},{"std":0.1, "mean":0.5},{"std":0.1, "mean":0.6},{"std":0.1, "mean":0.7},{"std":0.1, "mean":0.8},{"std":0.1, "mean":0.9},]
-   
+    {"std":0.1, "mean":0.1}, {"std":0.1, "mean":0.2},{"std":0.1, "mean":0.3},{"std":0.1, "mean":0.4},{"std":0.1, "mean":0.5},{"std":0.1, "mean":0.6},{"std":0.1, "mean":0.7},{"std":0.1, "mean":0.8},{"std":0.1, "mean":0.9}]
 
 def loadAgent(pacman, nographics):
     # Looks through all pythonPath Directories for the right module,
@@ -240,7 +239,7 @@ def train_epoch(transitionMatrixTree, n_training_steps, rules, pacman, ghosts, l
         if 'Boltzmann' in pacman.__class__.__name__: 
             pacman.agent.set_trainable(trainable=True)
         elif 'PacmanDQN' in pacman.__class__.__name__:
-            pacman.params["num_training"] = n_training_steps
+            pacman.set_trainable(trainable=True)
         game.run(i, n_training_steps)
 
 
@@ -256,7 +255,7 @@ def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, lay
         if 'Boltzmann' in pacman.__class__.__name__: 
             pacman.agent.set_trainable(trainable=False)
         elif 'PacmanDQN' in pacman.__class__.__name__:
-            pacman.params["num_training"] = 0
+            pacman.set_trainable(trainable=False)
         
         game.run(i, n_testing_steps)
         scores.append(game.state.getScore())
@@ -280,7 +279,7 @@ def test_noisy_agents_epoch(transitionMatrixTreeList, n_testing_steps, rules, pa
             if 'Boltzmann' in pacman.__class__.__name__: 
                 pacman.agent.set_trainable(trainable=False)
             elif 'PacmanDQN' in pacman.__class__.__name__:
-                pacman.params["num_training"] = 0
+                pacman.set_trainable(trainable=False)
             
             game.run(i, n_testing_steps)
             scores.append(game.state.getScore())
@@ -300,7 +299,7 @@ def defineTransitionMatrix(pacman, ghosts, layout, file_to_be_loaded=None, file_
                 pacman.agent.__class__ = loaded_agent.__class__
                 pacman.agent.__dict__ = loaded_agent.__dict__
                 # set not trainable
-                pacman.agent.set_trainable(False)
+                pacman.set_trainable(False)
         except:
             print("impossible to load file: " + file_to_be_loaded)
             print("starting a new agent from scratch ...")
@@ -310,7 +309,7 @@ def defineTransitionMatrix(pacman, ghosts, layout, file_to_be_loaded=None, file_
                 pacman.params["load_file"] = file_to_be_loaded
                 pacman.params["save_file"] = file_to_be_saved
                 # set not trainable
-                pacman.params["num_training"] = 0
+                pacman.agent.set_trainable(False)
         except:
             print("impossible to load file: " + file_to_be_loaded)
             print("starting a new agent from scratch ...")
@@ -363,7 +362,7 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
 
     return np.mean(stats, 0)
 
-def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, timeout=30):
+def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, epochs=1000, trained_agents=500, n_training_steps=40, n_testing_steps=10, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
 
@@ -381,8 +380,10 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
         for j in range(epochs // n_training_steps):
             print(j)
             if pacman.__class__.__name__ != "KeyboardAgent":
+                print("training")
                 train_epoch(transitionMatrixTreeList[0], n_training_steps,
                             rules, pacman, ghosts, layout, display)
+            print("testing")
             scores = test_noisy_agents_epoch(
                 transitionMatrixTreeList, n_testing_steps, rules, pacman, ghosts, layout, display)
             for k in range(len(scores)):

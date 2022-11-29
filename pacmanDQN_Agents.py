@@ -58,8 +58,7 @@ class PacmanDQN(game.Agent):
         self.params = params
         self.params['width'] = args['width']
         self.params['height'] = args['height']
-        if 'numTraining' in args:
-            self.params['num_training'] = args['numTraining']
+        self.trainable=True
 
         # Start Tensorflow session
         gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.1)
@@ -139,27 +138,31 @@ class PacmanDQN(game.Agent):
                 self.last_reward = 500.
             self.ep_rew += self.last_reward
 
-            # Store last experience into memory 
-            experience = (self.last_state, float(self.last_reward), self.last_action, self.current_state, self.terminal)
-            self.replay_mem.append(experience)
-            if len(self.replay_mem) > self.params['mem_size']:
-                self.replay_mem.popleft()
-
-            # Save model
-            if(params['save_file']):
-                if self.local_cnt > self.params['train_start'] and self.local_cnt % self.params['save_interval'] == 0:
-                    self.qnet.save_ckpt('saves_smallClassic/model-' + params['save_file'] + "_" + str(self.cnt) + '_' + str(self.numeps))
-                    print('Model saved')
-
+            
             # Train
-            self.train()
+            if self.trainable:
+                # Store last experience into memory 
+                experience = (self.last_state, float(self.last_reward), self.last_action, self.current_state, self.terminal)
+                self.replay_mem.append(experience)
+                if len(self.replay_mem) > self.params['mem_size']:
+                    self.replay_mem.popleft()
 
-        # Next
-        self.local_cnt += 1
-        self.frame += 1
-        self.params['eps'] = max(self.params['eps_final'],
-                                 1.00 - float(self.cnt)/ float(self.params['eps_step']))
+                # Save model
+                if(params['save_file']):
+                    if self.local_cnt > self.params['train_start'] and self.local_cnt % self.params['save_interval'] == 0:
+                        self.qnet.save_ckpt('saves_smallClassic/model-' + params['save_file'] + "_" + str(self.cnt) + '_' + str(self.numeps))
+                        print('Model saved')
 
+                self.train()
+
+                # Next
+                self.local_cnt += 1
+                self.frame += 1
+                self.params['eps'] = max(self.params['eps_final'],
+                                        1.00 - float(self.cnt)/ float(self.params['eps_step']))
+
+    def set_trainable(self, trainable=True):
+        self.trainable=trainable
 
     def observationFunction(self, state):
         # Do observation
@@ -177,15 +180,15 @@ class PacmanDQN(game.Agent):
         self.observation_step(state)
 
         # Print stats
-        log_file = open('./logs/'+str(self.general_record_time)+'-l-'+str(self.params['width'])+'-m-'+str(self.params['height'])+'-x-'+str(self.params['num_training'])+'.log','a')
-        log_file.write("# %4d | steps: %5d | steps_t: %5d | t: %4f | r: %12f | e: %10f " %
-                         (self.numeps,self.local_cnt, self.cnt, time.time()-self.s, self.ep_rew, self.params['eps']))
-        log_file.write("| Q: %10f | won: %r \n" % ((max(self.Q_global, default=float('nan')), self.won)))
-        sys.stdout.write("# %4d | steps: %5d | steps_t: %5d | t: %4f | r: %12f | e: %10f " %
-                         (self.numeps,self.local_cnt, self.cnt, time.time()-self.s, self.ep_rew, self.params['eps']))
-        sys.stdout.write("| Q: %10f | won: %r \n" % ((max(self.Q_global, default=float('nan')), self.won)))
+        # log_file = open('./logs/'+str(self.general_record_time)+'-l-'+str(self.params['width'])+'-m-'+str(self.params['height'])+'-x-'+str(self.params['num_training'])+'.log','a')
+        # log_file.write("# %4d | steps: %5d | steps_t: %5d | t: %4f | r: %12f | e: %10f " %
+        #                  (self.numeps,self.local_cnt, self.cnt, time.time()-self.s, self.ep_rew, self.params['eps']))
+        # log_file.write("| Q: %10f | won: %r \n" % ((max(self.Q_global, default=float('nan')), self.won)))
+        # sys.stdout.write("# %4d | steps: %5d | steps_t: %5d | t: %4f | r: %12f | e: %10f " %
+        #                  (self.numeps,self.local_cnt, self.cnt, time.time()-self.s, self.ep_rew, self.params['eps']))
+        # sys.stdout.write("| Q: %10f | won: %r \n" % ((max(self.Q_global, default=float('nan')), self.won)))
         
-        sys.stdout.flush()
+        # sys.stdout.flush()
 
     def train(self):
         # Train
@@ -210,8 +213,7 @@ class PacmanDQN(game.Agent):
             batch_t = np.array(batch_t)
 
             self.cnt, self.cost_disp = self.qnet.train(batch_s, batch_a, batch_t, batch_n, batch_r)
-
-
+        
     def get_onehot(self, actions):
         """ Create list of vectors with 1 values at index of action in list """
         actions_onehot = np.zeros((self.params['batch_size'], 4))
