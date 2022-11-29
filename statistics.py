@@ -362,7 +362,7 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
 
     return np.mean(stats, 0)
 
-def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, epochs=1000, trained_agents=500, n_training_steps=40, n_testing_steps=10, timeout=30):
+def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
 
@@ -380,10 +380,8 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
         for j in range(epochs // n_training_steps):
             print(j)
             if pacman.__class__.__name__ != "KeyboardAgent":
-                print("training")
                 train_epoch(transitionMatrixTreeList[0], n_training_steps,
                             rules, pacman, ghosts, layout, display)
-            print("testing")
             scores = test_noisy_agents_epoch(
                 transitionMatrixTreeList, n_testing_steps, rules, pacman, ghosts, layout, display)
             for k in range(len(scores)):
