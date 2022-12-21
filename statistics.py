@@ -200,7 +200,9 @@ def readCommand(argv):
 #NOISY_ARGS = [{},{"std":0.1, "mean":0}, {"std":0.2, "mean":0},{"std":0.3, "mean":0},{"std":0.4, "mean":0},{"std":0.5, "mean":0},{"std":0.6, "mean":0},{"std":0.7, "mean":0},{"std":0.8, "mean":0},{"std":0.9, "mean":0},
 #    {"std":0.1, "mean":0.1}, {"std":0.1, "mean":0.2},{"std":0.1, "mean":0.3},{"std":0.1, "mean":0.4},{"std":0.1, "mean":0.5},{"std":0.1, "mean":0.6},{"std":0.1, "mean":0.7},{"std":0.1, "mean":0.8},{"std":0.1, "mean":0.9}]
 
-NOISY_ARGS = [{},{"std":0.1, "mean":0}, {"std":0.2, "mean":0},{"std":0.3, "mean":0},{"std":0.1, "mean":0.1}, {"std":0.1, "mean":0.2},{"std":0.1, "mean":0.3}]
+NOISY_ARGS = [{},{"std":0.1, "mean":0}, {"std":0.2, "mean":0},{"std":0.4, "mean":0}, {"std":0.8, "mean":0},{"std":1, "mean":0}]
+
+#NOISY_ARGS = [{},{"std":0.00000000001, "mean":0}]
 
 def saveRecordings(tree, game, layout, filepath):
     import time
@@ -460,10 +462,6 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
                 recordpath=args['outputStats']  +"-generalization-RECORDING-"+ f"{j}_epoch"
             else:
                 recordpath=None
-            
-            if run_untill > j:
-                transitionMatrixTree = defineTransitionMatrix(
-                   pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=None)
 
             print(j)
             if pacman.__class__.__name__ != "KeyboardAgent":
@@ -503,15 +501,15 @@ if __name__ == '__main__':
     > python pacman.py --help
     """
     args = readCommand(sys.argv[1:])  # Get game components based on input
-    if args['mode'] == 's':
+    if args['mode'] == 'l':
         output = runLearnability(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applynoise=args['noiseOpts'], **args['statOpts'])
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
-    elif args['mode'] == 'n':
+    elif args['mode'] == 's':
         output = runStatistics(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applynoise=args['noiseOpts'], **args['statOpts'])
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
-    elif args['mode'] == 't':
+    elif args['mode'] == 'g':
         output = runGenralization(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applynoise=args['noiseOpts'], **args['statOpts'])
         for n in range(len(NOISY_ARGS)):

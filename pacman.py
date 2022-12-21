@@ -758,7 +758,7 @@ def runGames(layout, pacman, ghosts, display, numGames, record, gameToReplay, sa
     # define transition function
     import time
     start_time = time.time()
-    tree = TransitionMatrixDicTree(pacman, ghosts, layout, noise={"std":0.01,"mean":0})
+    tree = TransitionMatrixDicTree(pacman, ghosts, layout, noise={"std":0.00000000001,"mean":0})
     tree.computeProbabilities()
     end_time = time.time()
 

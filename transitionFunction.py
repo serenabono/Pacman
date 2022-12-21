@@ -185,7 +185,6 @@ class TransitionMatrixDicTree():
                 self.startingIndex, currentelementhash, [], currentelementhash, prob=1)
         
         self.factorLegal = len(self.transitionMatrixDic.keys())
-
         if self.noise:
             self.computeCompleteMatrix()
 
@@ -194,6 +193,7 @@ class TransitionMatrixDicTree():
             for throughaction in self.transitionMatrixDic[fromstate]:
                 np.testing.assert_almost_equal(
                     sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
+    
 
     def createMatrixrecursively(self, agentid, lastpacmanstate, throughactions, currentelementhash, prob):
         if currentelementhash not in self.helperDic[agentid]:
@@ -269,6 +269,7 @@ class TransitionMatrixDicTree():
                 
         return heatmap
     
+<<<<<<< Updated upstream
     def computeCompleteMatrix(self):
 
         list_pos=[]
@@ -287,6 +288,8 @@ class TransitionMatrixDicTree():
         #     print(self.transitionMatrixDic[el["fromstatehash"]][el["throughaction"]][el["key"]])
 
 
+=======
+>>>>>>> Stashed changes
     def computeCompleteMatrixGPU(self):
         nvalues = (len(self.transitionMatrixDic.keys())**2)*self.nPossibleAcitons
         seed =  np.int32(123456789*self.seedMesher)
@@ -297,7 +300,11 @@ class TransitionMatrixDicTree():
         gdata_device = np.asarray(gdata.get())
         i=0
         for fromstatehash in self.transitionMatrixDic:  
+<<<<<<< Updated upstream
             for action in self.transitionMatrixDic[fromstatehash].keys():
+=======
+            for action in self.transitionMatrixDic[fromstate][throughaction].keys():
+>>>>>>> Stashed changes
                 currentIdxsstart= (i + action)*len(self.transitionMatrixDic.keys())
                 currentIdxsend= (i + action + 1)*len(self.transitionMatrixDic.keys())
                 
