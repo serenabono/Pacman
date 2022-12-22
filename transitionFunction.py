@@ -15,12 +15,12 @@ import numpy as np
 from game import Directions, Grid
 from layout import Layout
 from pacman import GameState, PacmanRules, GhostRules, ClassicGameRules
-import pycuda.autoinit
-from pycuda.compiler import SourceModule
-from pycuda import gpuarray
-import pycuda.curandom
-from pycuda.autoinit import context
-from pycuda.elementwise import ElementwiseKernel
+# import pycuda.autoinit
+# from pycuda.compiler import SourceModule
+# from pycuda import gpuarray
+# import pycuda.curandom
+# from pycuda.autoinit import context
+# from pycuda.elementwise import ElementwiseKernel
 import random
 import time
 
@@ -35,9 +35,7 @@ class TransitionMatrixDicTree():
     """
 
     def __init__(self, pacmanAgent, ghostAgents, layout, noise = None, scale=1, shift=0):
-        self.stateDic = {}
-        self.keyDict = {}
-        self.currentStateNum = 0
+        
         initState = GameState()
         initState.initialize(layout, layout.getNumGhosts())
         self.state = initState
@@ -74,7 +72,7 @@ class TransitionMatrixDicTree():
         if self.noise:
             self.STD = noise["std"]
             self.MEAN = noise["mean"]
-            self.initializeGeneratorFromCode()
+            #self.initializeGeneratorFromCode()
         
         print("Computational overload: [", self.nStates, " x ",self.nPossibleAcitons, " x ", self.nStates, "]")
 
@@ -103,16 +101,38 @@ class TransitionMatrixDicTree():
         tree.MEAN = self.MEAN
 
         return tree
-        
-    def getHashfromState(self,state):
-        if str(state) not in self.stateDic:
-            self.stateDic[str(state)] = self.currentStateNum
-            self.keyDict[self.currentStateNum] = state
-            self.currentStateNum +=1            
-        
-        return self.stateDic[str(state)]
 
+    def applyNoiseToTransitionMatrix(self, noiseDistribution, stateMap):
+        """
+        Add noise to transition matrix
+        """
+        for fromstate in stateMap:
+            if fromstate not in self.transitionMatrixDic:
+                self.transitionMatrixDic[fromstate] = {}
+            for throughaction in stateMap[fromstate]:
+                if throughaction not in self.transitionMatrixDic[fromstate]:
+                    self.transitionMatrixDic[fromstate][throughaction] = {}
+                denom = 0.0
+                sumstates = sum(
+                    self.transitionMatrixDic[fromstate][throughaction].values())
+                for tostate in stateMap[fromstate][throughaction]:
+                    if tostate not in self.transitionMatrixDic[fromstate][throughaction]:
+                        self.transitionMatrixDic[fromstate][throughaction][tostate] = 0
+                    noise = noiseDistribution.sample() / self.nStates
+                    self.transitionMatrixDic[fromstate][throughaction][tostate] += noise
+                    denom += noise
 
+                for tostate in self.transitionMatrixDic[fromstate][throughaction]:
+                    self.transitionMatrixDic[fromstate][throughaction][tostate] /= (
+                        sumstates+denom)
+
+        # check correctness
+        for fromstate in self.transitionMatrixDic:
+            for throughaction in self.transitionMatrixDic[fromstate]:
+                np.testing.assert_almost_equal(
+                    sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
+        
+        
     def computeProbabilities(self):
         """
         Function to compute probabilities P(s'|s,a). Most transitions are illegal and the matrix is extremely big,
@@ -183,7 +203,7 @@ class TransitionMatrixDicTree():
         for currentelementhash in self.helperDic[0]:
             self.createMatrixrecursively(
                 self.startingIndex, currentelementhash, [], currentelementhash, prob=1)
-        
+
         self.factorLegal = len(self.transitionMatrixDic.keys())
         if self.noise:
             self.computeCompleteMatrix()
@@ -193,7 +213,9 @@ class TransitionMatrixDicTree():
             for throughaction in self.transitionMatrixDic[fromstate]:
                 np.testing.assert_almost_equal(
                     sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
-    
+        
+        self.factorLegal = len(self.transitionMatrixDic.keys())
+                
 
     def createMatrixrecursively(self, agentid, lastpacmanstate, throughactions, currentelementhash, prob):
         if currentelementhash not in self.helperDic[agentid]:
@@ -247,7 +269,7 @@ class TransitionMatrixDicTree():
             listpos = self.fromBaseTen(
                 actiontostatehash, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
             posingrid = self.getPositionInGridCoord(listpos[agentIndex])
-            state = state.movetoAnyState(1, agentIndex, posingrid)
+            state = state.movetoAnyState(agentIndex, posingrid)
 
             # Change the display
             display.update(state.data)
@@ -270,7 +292,6 @@ class TransitionMatrixDicTree():
         return heatmap
     
     def computeCompleteMatrix(self):
-
         list_pos=[]
         for fromstatehash in self.transitionMatrixDic:  
             for throughaction in self.transitionMatrixDic[fromstatehash].keys():
@@ -314,10 +335,6 @@ class TransitionMatrixDicTree():
                 self.transitionMatrixDic[fromstatehash][action] = dict(zip(self.transitionMatrixDic.keys(), c_cpu)) 
 
             i+=self.nPossibleAcitons
-        
-        
-        del gdata
-        
 
     def getLegalActions(self, fromstatehash, action):
         return self.transitionMatrixDic[fromstatehash][action]
@@ -369,9 +386,135 @@ class TransitionMatrixDicTree():
         del actionstostateshashdict
         return actiontostatehash[0]
     
-    def moveToPosition(self, state, pacaction, actiontostate, agentId):
+    def moveToPosition(self,state, pacaction, actiontostatehash, agentId):
 
-        posingrid = self.keyDict[actiontostate].data.agentStates[agentId].getPosition()
+        newstate = GameState(state)
+        listpos = self.fromBaseTen(
+            actiontostatehash, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
+        posingrid = self.getPositionInGridCoord(listpos[agentId])
         newstate = state.movetoAnyState(pacaction, agentId, posingrid)
-
         return newstate
+
+    def getPositionInWorldCoord(self, agent):
+        """
+        Coordinates used by the hash function. Converts the grid coordinates into positive numbers from o to n, where n is layout.width * layout.height. 
+        The initial position is the bottom left corner.
+        """
+        return self.state.data.layout.width * agent[1] + agent[0]
+
+    def getPositionInGridCoord(self, agent):
+        """
+        Converts world coordinates into tuples (x,y) representing the grid position of each agent. The coordinate system originates in the bottom left corner
+        """
+        return (agent // self.state.data.layout.width, agent % self.state.data.layout.width)
+
+    def getHashfromAgentPositionsInGridCoord(self, pacman, ghosts):
+
+        pacmanpos = self.getPositionInWorldCoord(
+            [pacman[1], pacman[0]])
+        ghostspos = []
+        for ghost in ghosts:
+            ghostspos.append(self.getPositionInWorldCoord(
+                [ghost[1], ghost[0]]))
+
+        return self.toBaseTen([pacmanpos] + ghostspos, self.state.data.layout.width*self.state.data.layout.height)
+
+    def getHashfromState(self, state):
+        """
+        Returns the tostate encoding of each state. It aims at returning a 1-to-1 mapping between states and naturals.
+        It defines an ordering among states and enables a meaningful matrix representation.
+        It works by leveraging the position of the agents and encoding it in a base [grid height x grid width] number
+        The origin of the grid is the lower left corner with coordinates (0,0)
+        Example:
+        %%%%%%%%%%
+        %o%  P..G%     [10 x 3]
+        %%%%%%%%%%
+        pacman  ghost
+        16      18
+        [16 18] base 30 = 178 base 10
+        """
+        pacman = state.data.agentStates[0]
+        ghosts = state.data.agentStates[1:]
+
+        pacmanpos = self.getPositionInWorldCoord(
+            [pacman.configuration.pos[0], pacman.configuration.pos[1]])
+        ghostspos = []
+        for ghost in ghosts:
+            ghostspos.append(self.getPositionInWorldCoord(
+                [ghost.configuration.pos[0], ghost.configuration.pos[1]]))
+
+        return self.toBaseTen([pacmanpos] + ghostspos, self.state.data.layout.width*self.state.data.layout.height)
+
+    def getPositionAgentsInGridCoordfromHash(self, statehash):
+        list = self.fromBaseTen(
+            statehash, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
+
+        pacman = self.getPositionInGridCoord(list[0])
+        ghosts = []
+
+        for ghost in list[1:]:
+            ghosts.append(self.getPositionInGridCoord(ghost))
+
+        return pacman, ghosts
+
+    def getStatefromHash(self, fromstate, tostatehash):
+        """
+        Reverts tostate and generates the string of the corresponding state
+        """
+        pacman, ghosts = self.getPositionAgentsInGridCoordfromHash(tostatehash)
+
+        return self.generateLayout(pacman, ghosts, fromstate)
+
+    def generateLayout(self, pacmanpos, ghostspos, fromstate):
+        map = Grid(self.state.data.layout.width,
+                   self.state.data.layout.height)
+        for w in range(self.state.data.layout.width):
+            for h in range(self.state.data.layout.height):
+                map[w][h] = fromstate.data._foodWallStr(
+                    fromstate.data.layout.food[w][h], fromstate.data.layout.walls[w][h])
+
+        row, col = pacmanpos
+        map[col][row] = 'P'
+        for ghostpos in ghostspos:
+            grow, gcol = ghostpos
+            map[gcol][grow] = 'G'
+
+        lay = Layout([l.strip() for l in str(map).split('\n')])
+
+        state = GameState()
+        state.initialize(lay, len(ghostspos))
+        return state
+
+    def getKeysfromHash(self, action, numAgents):
+
+        list = self.fromBaseTen(
+            action, self.nPossibleAcitons, digits=np.zeros((numAgents), dtype=int))
+
+        return list
+
+    def getHashfromKeys(self, keys):
+        """
+        Encodes the actions similarly to the getHashfromState function
+        """
+        digits = []
+        for key in keys:
+            digits.append(key)
+
+        return self.toBaseTen(digits, self.nPossibleAcitons)
+
+    def toBaseTen(self, digits, b):
+
+        num = 0
+        for idx in range(len(digits)):
+            num += digits[idx]*(b**idx)
+
+        return int(num)
+
+    def fromBaseTen(self, n, b, digits):
+        idx = 0
+        while n:
+            digits[idx] = int(n % b)
+            n //= b
+            idx += 1
+
+        return digits
