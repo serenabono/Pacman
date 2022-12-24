@@ -15,12 +15,12 @@ import numpy as np
 from game import Directions, Grid
 from layout import Layout
 from pacman import GameState, PacmanRules, GhostRules, ClassicGameRules
-import pycuda.autoinit
-from pycuda.compiler import SourceModule
-from pycuda import gpuarray
-import pycuda.curandom
-from pycuda.autoinit import context
-from pycuda.elementwise import ElementwiseKernel
+# import pycuda.autoinit
+# from pycuda.compiler import SourceModule
+# from pycuda import gpuarray
+# import pycuda.curandom
+# from pycuda.autoinit import context
+# from pycuda.elementwise import ElementwiseKernel
 import random
 import time
 
@@ -356,10 +356,10 @@ class TransitionMatrixDicTree():
                 }
             }
         """
-        mod = SourceModule(code % {"NGENERATORS": self.N}, no_extern_c=True)
-        self.init_func = mod.get_function("initkernel")
-        self.fill_func = mod.get_function("randfillkernel")
-        self.change_elem = mod.get_function("changeelem")
+        #mod = SourceModule(code % {"NGENERATORS": self.N}, no_extern_c=True)
+        #self.init_func = mod.get_function("initkernel")
+        #self.fill_func = mod.get_function("randfillkernel")
+        #self.change_elem = mod.get_function("changeelem")
 
     def generateSuccessor(self, actionstostateshashdict):
         if actionstostateshashdict == {}:
@@ -372,6 +372,6 @@ class TransitionMatrixDicTree():
     def moveToPosition(self, state, pacaction, actiontostate, agentId):
 
         posingrid = self.keyDict[actiontostate].data.agentStates[agentId].getPosition()
-        newstate = state.movetoAnyState(pacaction, agentId, posingrid)
+        newstate = state.movetoAnyState(self.keyDict[actiontostate], pacaction, agentId, posingrid)
 
         return newstate
