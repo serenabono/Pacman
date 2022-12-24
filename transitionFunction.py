@@ -34,7 +34,7 @@ class TransitionMatrixDicTree():
     Class containing all the information to generate the state transition matrix
     """
 
-    def __init__(self, pacmanAgent, ghostAgents, layout, noise = None, scale=1, shift=0):
+    def __init__(self, pacmanAgent, ghostAgents, layout, noise=None, swaps=None, scale=1, shift=0):
         self.stateDic = {}
         self.keyDict = {}
         self.currentStateNum = 0
@@ -66,7 +66,10 @@ class TransitionMatrixDicTree():
         self.scale=scale
         self.shift=shift
         self.factorLegal = None
-        
+    
+        self.swaps = 0.1
+        print("swaps level: ", self.swaps)
+
         self.STD = None
         self.MEAN = None
         self.noise = noise
@@ -188,6 +191,9 @@ class TransitionMatrixDicTree():
         if self.noise:
             self.computeCompleteMatrix()
 
+        if self.swaps:
+            self.computeCompleteMatrixSwaps()
+
         # check correctness
         for fromstate in self.transitionMatrixDic:
             for throughaction in self.transitionMatrixDic[fromstate]:
@@ -285,6 +291,15 @@ class TransitionMatrixDicTree():
         
         # for el in list_pos:
         #     print(self.transitionMatrixDic[el["fromstatehash"]][el["throughaction"]][el["key"]])
+
+
+    def computeCompleteMatrixSwaps(self):
+        randomindices = random.sample(range(0, self.factorLegal), int(self.swaps *self.factorLegal))
+        shuffledvaluelist = [list(self.transitionMatrixDic.values())[idx] for idx in randomindices]
+        for fromstatehash in randomindices:
+            self.transitionMatrixDic[fromstatehash] = shuffledvaluelist[fromstatehash]
+
+
 
 
     def computeCompleteMatrixGPU(self):
