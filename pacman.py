@@ -135,7 +135,7 @@ class GameState:
         GameState.explored.add(state)
         return state
 
-    def movetoAnyState(self, action, agentIndex, nxtstatepos):
+    def movetoAnyState(self, nextstate, action, agentIndex, nxtstatepos):
         """
         SHOULD BE USED IN PLACE of generateSuccessor!
         Returns the successor state after the specified agent takes the action.
@@ -167,6 +167,7 @@ class GameState:
         state.data._agentMoved = agentIndex
         state.data.score += state.data.scoreChange
         state.data.action = action
+        state.data.food = nextstate.data.food
         GameState.explored.add(self)
         GameState.explored.add(state)
         return state
@@ -418,6 +419,8 @@ class PacmanRules:
         if manhattanDistance(nearest, next) <= 0.5:
             # Remove food
             PacmanRules.consume(nearest, state)
+        PacmanRules.checkstatus(state)
+    
     applyAction = staticmethod(applyAction)
 
     def movetoAnyState(state, pacmannxtpos):
@@ -437,6 +440,10 @@ class PacmanRules:
         if manhattanDistance(nearest, next) <= 0.5:
             # Remove food
             PacmanRules.consume(nearest, state)
+        
+        # check status food
+        PacmanRules.checkstatus(state)
+
     movetoAnyState = staticmethod(movetoAnyState)
 
     def consume(position, state):
@@ -448,10 +455,7 @@ class PacmanRules:
             state.data.food[x][y] = False
             state.data._foodEaten = position
             # TODO: cache numFood?
-            numFood = state.getNumFood()
-            if numFood == 0 and not state.data._lose:
-                state.data.scoreChange += 500
-                state.data._win = True
+            
         # Eat capsule
         if(position in state.getCapsules()):
             state.data.capsules.remove(position)
@@ -460,6 +464,13 @@ class PacmanRules:
             for index in range(1, len(state.data.agentStates)):
                 state.data.agentStates[index].scaredTimer = SCARED_TIME
     consume = staticmethod(consume)
+
+    def checkstatus(state):
+        numFood = state.getNumFood()
+        if numFood == 0 and not state.data._lose:
+            state.data.scoreChange += 500
+            state.data._win = True
+    checkstatus = staticmethod(checkstatus)
 
 
 class GhostRules:
@@ -758,7 +769,7 @@ def runGames(layout, pacman, ghosts, display, numGames, record, gameToReplay, sa
     # define transition function
     import time
     start_time = time.time()
-    tree = TransitionMatrixDicTree(pacman, ghosts, layout, noise={"std":0.00000000001,"mean":0})
+    tree = TransitionMatrixDicTree(pacman, ghosts, layout, noise={"std":0.1,"mean":0})
     tree.computeProbabilities()
     end_time = time.time()
 
