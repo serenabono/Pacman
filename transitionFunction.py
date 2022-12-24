@@ -67,7 +67,7 @@ class TransitionMatrixDicTree():
         self.shift=shift
         self.factorLegal = None
     
-        self.swaps = 0.1
+        self.swaps = swaps
         print("swaps level: ", self.swaps)
 
         self.STD = None
@@ -128,10 +128,9 @@ class TransitionMatrixDicTree():
 
         self.queue.append(
             {"state": self.state, "id": self.startingIndex})
-
+        
         while self.queue:
             current_element = self.queue.pop()
-
             currentelementhash = self.getHashfromState(
                 current_element["state"])
 
@@ -160,6 +159,11 @@ class TransitionMatrixDicTree():
                         current_element["state"])
                     GhostRules.applyAction(
                         successor_element["state"], action, current_element["id"])
+                
+                if successor_element["id"]==0:
+                    PacmanRules.checkstatus(current_element["state"])
+                    if current_element["state"].data._win:
+                        continue
 
                 successorelelmenthash = self.getHashfromState(
                     successor_element["state"])
@@ -171,6 +175,7 @@ class TransitionMatrixDicTree():
                     dist = self.currentAgents[current_element["id"]].getDistribution(
                         current_element["state"])
                     successor_element["prob"] = dist[action]
+                     
 
                 if successorelelmenthash not in self.visited[successor_element["id"]]:
                     self.visited[successor_element["id"]

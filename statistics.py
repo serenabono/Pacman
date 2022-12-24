@@ -350,7 +350,10 @@ def defineTransitionMatrix(pacman, ghosts, layout, file_to_be_loaded=None, file_
             print("starting a new agent from scratch ...")
 
     # only gaussian supported for now    
-    transitionMatrixTree = TransitionMatrixDicTree(pacman, ghosts, layout, noise=applynoise,swaps=float(applyswaps))
+    if applyswaps:
+        applyswaps = float(applyswaps
+    )
+    transitionMatrixTree = TransitionMatrixDicTree(pacman, ghosts, layout, noise=applynoise, swaps=applyswaps)
     transitionMatrixTree.computeProbabilities()
 
     return transitionMatrixTree

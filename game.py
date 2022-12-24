@@ -689,7 +689,7 @@ class Game:
                 self.unmute()
             else:
                 observation = self.state.deepCopy()
-                
+            
             if agentIndex == 0:
                 fromstatehash = self.transitionFunctionTree.getHashfromState(observation)
                 legal_actions = self.transitionFunctionTree.transitionMatrixDic[fromstatehash].keys()
