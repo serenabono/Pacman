@@ -296,8 +296,11 @@ class TransitionMatrixDicTree():
     def computeCompleteMatrixSwaps(self):
         randomindices = random.sample(range(0, self.factorLegal), int(self.swaps *self.factorLegal))
         shuffledvaluelist = [list(self.transitionMatrixDic.values())[idx] for idx in randomindices]
-        for fromstatehash in randomindices:
-            self.transitionMatrixDic[fromstatehash] = shuffledvaluelist[fromstatehash]
+        random.shuffle(shuffledvaluelist)
+        keylist = [list(self.transitionMatrixDic.keys())[idx] for idx in randomindices]
+    
+        for key, value in zip(keylist, shuffledvaluelist):
+            self.transitionMatrixDic[key] = value
 
 
 
