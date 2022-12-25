@@ -162,7 +162,7 @@ class TransitionMatrixDicTree():
                 
                 if successor_element["id"]==0:
                     PacmanRules.checkstatus(current_element["state"])
-                    if current_element["state"].data._win:
+                    if successor_element["state"].data._win:
                         continue
 
                 successorelelmenthash = self.getHashfromState(
