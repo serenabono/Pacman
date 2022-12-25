@@ -693,11 +693,14 @@ class Game:
             if agentIndex == 0:
                 fromstatehash = self.transitionFunctionTree.getHashfromState(observation)
                 legal_actions = self.transitionFunctionTree.transitionMatrixDic[fromstatehash].keys()
-                pacaction = agent.getAction(observation, legal_actions, game_number, total_games, isInitial)
-                actionstostateshashdict = self.transitionFunctionTree.getLegalActions(
-                    fromstatehash, pacaction)
-                nextstatehash = self.transitionFunctionTree.generateSuccessor(actionstostateshashdict)
-                isInitial = False
+                try:
+                    pacaction = agent.getAction(observation, legal_actions, game_number, total_games, isInitial)
+                    actionstostateshashdict = self.transitionFunctionTree.getLegalActions(
+                        fromstatehash, pacaction)
+                    nextstatehash = self.transitionFunctionTree.generateSuccessor(actionstostateshashdict)
+                    isInitial = False
+                except:
+                    pass
             
             # Solicit an action
             self.mute(agentIndex)
@@ -766,6 +769,7 @@ class Game:
             self.moveHistory.append((agentIndex, nextstatehash, self.transitionFunctionTree.toactions[pacaction]))
             self.display.update(self.state.data)
             self.rules.process(self.state, self)
+
             # Track progress
             if agentIndex == numAgents + 1:
                 self.numMoves += 1

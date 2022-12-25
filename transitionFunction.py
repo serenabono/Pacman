@@ -122,6 +122,7 @@ class TransitionMatrixDicTree():
         therefore it is compressed in a dictionary containing as key the tostate value of the states and the actions
         for all non zero probability transitions.
         """
+        agents = {0:"pacman", 1:"ghost"}
         for el in range(self.numAgents):
             self.visited[el] = {}
             self.helperDic[el] = {}
@@ -133,9 +134,15 @@ class TransitionMatrixDicTree():
             current_element = self.queue.pop()
             currentelementhash = self.getHashfromState(
                 current_element["state"])
-
+            
             if currentelementhash not in self.helperDic[current_element["id"]]:
                 self.helperDic[current_element["id"]][currentelementhash] = {}
+
+            if current_element["id"]==0:
+                PacmanRules.checkstatus(current_element["state"])
+                if current_element["state"].isWin():
+                    self.transitionMatrixDic[currentelementhash] = {}
+                    continue
 
             if current_element["id"] == 0:
                 legal_actions = PacmanRules.getLegalActions(
@@ -159,11 +166,6 @@ class TransitionMatrixDicTree():
                         current_element["state"])
                     GhostRules.applyAction(
                         successor_element["state"], action, current_element["id"])
-                
-                if successor_element["id"]==0:
-                    PacmanRules.checkstatus(current_element["state"])
-                    if successor_element["state"].data._win:
-                        continue
 
                 successorelelmenthash = self.getHashfromState(
                     successor_element["state"])
@@ -209,7 +211,7 @@ class TransitionMatrixDicTree():
     def createMatrixrecursively(self, agentid, lastpacmanstate, throughactions, currentelementhash, prob):
         if currentelementhash not in self.helperDic[agentid]:
             return
-
+        
         for action in self.helperDic[agentid][currentelementhash]:
             throughactions.append(action)
 
