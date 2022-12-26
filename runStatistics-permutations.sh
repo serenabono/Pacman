@@ -1,19 +1,17 @@
 #!/bin/bash
 
 #SBATCH -c 1
-#SBATCH --time=12:00:00
-#SBATCH --gres=gpu:1
-#SBATCH --job-name=Boltz-learn
+#SBATCH --time=8:00:00
+#SBATCH --job-name=Boltz-perm
 
-#SBATCH -p gpu
-#SBATCH --mem=30G
+#SBATCH -p short
+#SBATCH --mem=10G
 #SBATCH -o slurm_outputs_scripts/hostname_%j.out
 #SBATCH -e slurm_outputs_scripts/hostname_%j.err
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
-#SBATCH -w compute-g-16-176
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v3"
+layout="v1"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
 training_agents=500
@@ -26,7 +24,7 @@ std=0
 epochs=1000
 agent="BoltzmannAgent"
 noise_args='{"mean":'$mean',"std":'$std'}'
-swaps=0.9
+swaps=0.1
 
 min_range=0
 max_range=0

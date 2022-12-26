@@ -201,7 +201,7 @@ def readCommand(argv):
 #    {"std":0.1, "mean":0.1}, {"std":0.1, "mean":0.2},{"std":0.1, "mean":0.3},{"std":0.1, "mean":0.4},{"std":0.1, "mean":0.5},{"std":0.1, "mean":0.6},{"std":0.1, "mean":0.7},{"std":0.1, "mean":0.8},{"std":0.1, "mean":0.9}]
 
 NOISY_ARGS = [{}, {"std": 0.1, "mean": 0}, {"std": 0.2, "mean": 0}, {
-    "std": 0.4, "mean": 0}, {"std": 0.8, "mean": 0}, {"std": 1, "mean": 0}]
+    "std": 0.3, "mean": 0}, {"std": 0.5, "mean": 0}, {"std": 0.7, "mean": 0}, {"std": 0.9, "mean": 0}]
 
 #NOISY_ARGS = [{},{"std":0.00000000001, "mean":0}]
 
