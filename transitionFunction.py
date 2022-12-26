@@ -15,12 +15,12 @@ import numpy as np
 from game import Directions, Grid
 from layout import Layout
 from pacman import GameState, PacmanRules, GhostRules, ClassicGameRules
-import pycuda.autoinit
-from pycuda.compiler import SourceModule
-from pycuda import gpuarray
-import pycuda.curandom
-from pycuda.autoinit import context
-from pycuda.elementwise import ElementwiseKernel
+# import pycuda.autoinit
+# from pycuda.compiler import SourceModule
+# from pycuda import gpuarray
+# import pycuda.curandom
+# from pycuda.autoinit import context
+# from pycuda.elementwise import ElementwiseKernel
 import random
 import time
 
@@ -34,7 +34,7 @@ class TransitionMatrixDicTree():
     Class containing all the information to generate the state transition matrix
     """
 
-    def __init__(self, pacmanAgent, ghostAgents, layout, noise = None, scale=1, shift=0):
+    def __init__(self, pacmanAgent, ghostAgents, layout, noise=None, swaps=None, scale=1, shift=0):
         self.stateDic = {}
         self.keyDict = {}
         self.currentStateNum = 0
@@ -63,10 +63,13 @@ class TransitionMatrixDicTree():
         self.fill_finc = None
         self.change_elem = None
         self.N = 1024
-        self.scale=scale
-        self.shift=shift
+        self.scale = scale
+        self.shift = shift
         self.factorLegal = None
-        
+
+        self.swaps = swaps
+        print("swaps level: ", self.swaps)
+
         self.STD = None
         self.MEAN = None
         self.noise = noise
@@ -75,8 +78,9 @@ class TransitionMatrixDicTree():
             self.STD = noise["std"]
             self.MEAN = noise["mean"]
             self.initializeGeneratorFromCode()
-        
-        print("Computational overload: [", self.nStates, " x ",self.nPossibleAcitons, " x ", self.nStates, "]")
+
+        print("Computational overload: [", self.nStates, " x ",
+              self.nPossibleAcitons, " x ", self.nStates, "]")
 
     def copy(self):
         tree = self
@@ -103,15 +107,19 @@ class TransitionMatrixDicTree():
         tree.MEAN = self.MEAN
 
         return tree
-        
-    def getHashfromState(self,state):
-        if str(state) not in self.stateDic:
-            self.stateDic[str(state)] = self.currentStateNum
-            self.keyDict[self.currentStateNum] = state
-            self.currentStateNum +=1            
-        
-        return self.stateDic[str(state)]
 
+    def computeHash(self, state):
+        hashstate = str(state) + str(state.getNumFood())
+        return hashstate
+
+    def getHashfromState(self, state):
+        statehash = self.computeHash(state)
+        if statehash not in self.stateDic:
+            self.stateDic[statehash] = self.currentStateNum
+            self.keyDict[self.currentStateNum] = state
+            self.currentStateNum += 1
+
+        return self.stateDic[statehash]
 
     def computeProbabilities(self):
         """
@@ -141,6 +149,10 @@ class TransitionMatrixDicTree():
             else:
                 legal_actions = GhostRules.getLegalActions(
                     current_element["state"], current_element["id"])
+            
+            if current_element["state"].isWin() or current_element["state"].isLose():
+                self.transitionMatrixDic[currentelementhash] = {}
+                continue
 
             for action in legal_actions:
                 successor_element = {}
@@ -148,15 +160,11 @@ class TransitionMatrixDicTree():
                 successor_element["id"] = (
                     current_element["id"] + 1) % self.numAgents
 
-                if current_element["id"] == 0:
-                    successor_element["state"] = GameState(
-                        current_element["state"])
-                    PacmanRules.applyAction(successor_element["state"], action)
-                else:
-                    successor_element["state"] = GameState(
-                        current_element["state"])
-                    GhostRules.applyAction(
-                        successor_element["state"], action, current_element["id"])
+                successor_element["state"] = GameState(
+                    current_element["state"])
+
+                successor_element["state"] = current_element["state"].generateSuccessor(
+                        current_element["id"], action)
 
                 successorelelmenthash = self.getHashfromState(
                     successor_element["state"])
@@ -183,8 +191,12 @@ class TransitionMatrixDicTree():
         for currentelementhash in self.helperDic[0]:
             self.createMatrixrecursively(
                 self.startingIndex, currentelementhash, [], currentelementhash, prob=1)
-        
+
         self.factorLegal = len(self.transitionMatrixDic.keys())
+
+        if self.swaps:
+            self.computeCompleteMatrixSwaps()
+
         if self.noise:
             self.computeCompleteMatrix()
 
@@ -193,7 +205,6 @@ class TransitionMatrixDicTree():
             for throughaction in self.transitionMatrixDic[fromstate]:
                 np.testing.assert_almost_equal(
                     sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
-    
 
     def createMatrixrecursively(self, agentid, lastpacmanstate, throughactions, currentelementhash, prob):
         if currentelementhash not in self.helperDic[agentid]:
@@ -205,7 +216,7 @@ class TransitionMatrixDicTree():
             for successorelementhash in self.helperDic[agentid][currentelementhash][action]:
                 probel = prob * \
                     self.helperDic[agentid][currentelementhash][action][successorelementhash]
-                if agentid == self.numAgents - 1:
+                if agentid == self.numAgents - 1 or len(self.helperDic[agentid + 1][successorelementhash].keys()) == 0:
                     throughactionhash = throughactions[0]
                     if lastpacmanstate not in self.transitionMatrixDic:
                         self.transitionMatrixDic[lastpacmanstate] = {}
@@ -256,7 +267,7 @@ class TransitionMatrixDicTree():
             graphicsDisplay.saveFrame()
 
         display.finish()
-    
+
     def generateHeatMapAgent(self, layout, actions, agentId=0):
         heatmap = np.zeros([layout.height, layout.width])
         for agentIndex, actiontostatehash, action in actions:
@@ -265,59 +276,77 @@ class TransitionMatrixDicTree():
                     actiontostatehash, layout.width*layout.height, digits=np.zeros((self.numAgents), dtype=int))
                 posingrid = self.getPositionInGridCoord(listpos[agentIndex])
                 pospac = posingrid
-                heatmap[pospac]+=1
-                
+                heatmap[pospac] += 1
+
         return heatmap
-    
+
     def computeCompleteMatrix(self):
 
-        list_pos=[]
-        for fromstatehash in self.transitionMatrixDic:  
+        list_pos = []
+        for fromstatehash in self.transitionMatrixDic:
             for throughaction in self.transitionMatrixDic[fromstatehash].keys():
-                np.random.seed() 
+                np.random.seed()
                 n_states = len(self.transitionMatrixDic.keys())
-                noise_generated = np.absolute(np.random.normal(self.MEAN,self.STD, n_states))
-                for key, value in zip(self.transitionMatrixDic[fromstatehash][throughaction].keys(),self.transitionMatrixDic[fromstatehash][throughaction].values()):
+                noise_generated = np.absolute(
+                    np.random.normal(self.MEAN, self.STD, n_states))
+                for key, value in zip(self.transitionMatrixDic[fromstatehash][throughaction].keys(), self.transitionMatrixDic[fromstatehash][throughaction].values()):
                     #list_pos.append({"key": key, "value":value, "fromstatehash": fromstatehash, "throughaction": throughaction})
-                    noise_generated[list(self.transitionMatrixDic).index(key)] += value * self.factorLegal
-                probabilities = noise_generated /sum(noise_generated)
-                self.transitionMatrixDic[fromstatehash][throughaction] = dict(zip(self.transitionMatrixDic.keys(), probabilities))    
-        
+                    noise_generated[list(self.transitionMatrixDic).index(
+                        key)] += value * self.factorLegal
+                probabilities = noise_generated / sum(noise_generated)
+                self.transitionMatrixDic[fromstatehash][throughaction] = dict(
+                    zip(self.transitionMatrixDic.keys(), probabilities))
+
         # for el in list_pos:
         #     print(self.transitionMatrixDic[el["fromstatehash"]][el["throughaction"]][el["key"]])
 
+    def computeCompleteMatrixSwaps(self):
+        acceptable = [key for key, value in self.transitionMatrixDic.items() if value != {}]
+        randomindices = random.sample(
+            range(0, len(acceptable)), int(self.swaps * len(acceptable)))
+        shuffledvaluelist = [self.transitionMatrixDic[acceptable[idx]] for idx in randomindices]
+        random.shuffle(shuffledvaluelist)
+        keylist = [ acceptable[idx] for idx in randomindices]
+
+        for key, value in zip(keylist, shuffledvaluelist):
+            self.transitionMatrixDic[key] = value
 
     def computeCompleteMatrixGPU(self):
-        nvalues = (len(self.transitionMatrixDic.keys())**2)*self.nPossibleAcitons
-        seed =  np.int32(123456789*self.seedMesher)
+        nvalues = (len(self.transitionMatrixDic.keys())**2) * \
+            self.nPossibleAcitons
+        seed = np.int32(123456789*self.seedMesher)
         self.init_func(seed, block=(self.N, 1, 1), grid=(1, 1, 1))
         gdata = gpuarray.zeros(nvalues, dtype=np.float32)
-        self.fill_func(gdata,np.float32(self.STD), np.float32(self.MEAN), np.int32(nvalues),
-                    block=(self.N, 1, 1), grid=(1, 1, 1))
+        self.fill_func(gdata, np.float32(self.STD), np.float32(self.MEAN), np.int32(nvalues),
+                       block=(self.N, 1, 1), grid=(1, 1, 1))
         gdata_device = np.asarray(gdata.get())
-        i=0
-        for fromstatehash in self.transitionMatrixDic:  
+        i = 0
+        for fromstatehash in self.transitionMatrixDic:
             for action in range(self.nPossibleAcitons):
-                currentIdxsstart= (i + action)*len(self.transitionMatrixDic.keys())
-                currentIdxsend= (i + action + 1)*len(self.transitionMatrixDic.keys())
-                
-                listkeys=[]
+                currentIdxsstart = (i + action) * \
+                    len(self.transitionMatrixDic.keys())
+                currentIdxsend = (i + action + 1) * \
+                    len(self.transitionMatrixDic.keys())
+
+                listkeys = []
                 if action in self.transitionMatrixDic[fromstatehash]:
-                    for key, value in zip(self.transitionMatrixDic[fromstatehash][action].keys(),self.transitionMatrixDic[fromstatehash][action].values()):
-                        gdata_device[currentIdxsstart + list(self.transitionMatrixDic).index(key)] += value * self.factorLegal
+                    for key, value in zip(self.transitionMatrixDic[fromstatehash][action].keys(), self.transitionMatrixDic[fromstatehash][action].values()):
+                        gdata_device[currentIdxsstart + list(
+                            self.transitionMatrixDic).index(key)] += value * self.factorLegal
                         listkeys.append(key)
-                                        
-                gdata_sumrows = sum(gdata_device[currentIdxsstart:currentIdxsend])
-                c_cpu = 1/gdata_sumrows * gdata_device[currentIdxsstart:currentIdxsend]
+
+                gdata_sumrows = sum(
+                    gdata_device[currentIdxsstart:currentIdxsend])
+                c_cpu = 1/gdata_sumrows * \
+                    gdata_device[currentIdxsstart:currentIdxsend]
                 if action not in self.transitionMatrixDic[fromstatehash]:
                     self.transitionMatrixDic[fromstatehash][action] = {}
-                self.transitionMatrixDic[fromstatehash][action] = dict(zip(self.transitionMatrixDic.keys(), c_cpu)) 
+                self.transitionMatrixDic[fromstatehash][action] = dict(
+                    zip(self.transitionMatrixDic.keys(), c_cpu))
 
-            i+=self.nPossibleAcitons
-        
-        
+            i += self.nPossibleAcitons
+
         del gdata
-        
 
     def getLegalActions(self, fromstatehash, action):
         return self.transitionMatrixDic[fromstatehash][action]
@@ -356,22 +385,27 @@ class TransitionMatrixDicTree():
                 }
             }
         """
-        mod = SourceModule(code % {"NGENERATORS": self.N}, no_extern_c=True)
-        self.init_func = mod.get_function("initkernel")
-        self.fill_func = mod.get_function("randfillkernel")
-        self.change_elem = mod.get_function("changeelem")
+        # mod = SourceModule(code % {"NGENERATORS": self.N}, no_extern_c=True)
+        # self.init_func = mod.get_function("initkernel")
+        # self.fill_func = mod.get_function("randfillkernel")
+        # self.change_elem = mod.get_function("changeelem")
 
     def generateSuccessor(self, actionstostateshashdict):
         if actionstostateshashdict == {}:
             raise Exception('Can\'t generate a successor of a terminal state.')
         # random weighted choice
-        actiontostatehash = random.choices(population=list(actionstostateshashdict.keys()), weights=list(actionstostateshashdict.values()),k=1)
+        actiontostatehash = random.choices(population=list(
+            actionstostateshashdict.keys()), weights=list(actionstostateshashdict.values()), k=1)
         del actionstostateshashdict
         return actiontostatehash[0]
-    
+
     def moveToPosition(self, state, pacaction, actiontostate, agentId):
 
-        posingrid = self.keyDict[actiontostate].data.agentStates[agentId].getPosition()
-        newstate = state.movetoAnyState(pacaction, agentId, posingrid)
+        posingrid = self.keyDict[actiontostate].data.agentStates[agentId].getPosition(
+        )
+        newstate = state.movetoAnyState(
+            self.keyDict[actiontostate], pacaction, agentId, posingrid)
+        
+        PacmanRules.checkstatus(newstate)
 
         return newstate

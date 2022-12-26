@@ -1,19 +1,16 @@
 #!/bin/bash
 
 #SBATCH -c 1
-#SBATCH --time=12:00:00
-#SBATCH --gres=gpu:1
+#SBATCH --time=8:00:00
 #SBATCH --job-name=Boltz-learn
 
-#SBATCH -p gpu
-#SBATCH --mem=30G
+#SBATCH --mem=5G
 #SBATCH -o slurm_outputs_scripts/hostname_%j.out
 #SBATCH -e slurm_outputs_scripts/hostname_%j.err
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
-#SBATCH -w compute-g-16-176
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v2"
+layout="v3"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
 training_agents=500

@@ -135,7 +135,7 @@ class GameState:
         GameState.explored.add(state)
         return state
 
-    def movetoAnyState(self, action, agentIndex, nxtstatepos):
+    def movetoAnyState(self, nextstate, action, agentIndex, nxtstatepos):
         """
         SHOULD BE USED IN PLACE of generateSuccessor!
         Returns the successor state after the specified agent takes the action.
@@ -167,6 +167,7 @@ class GameState:
         state.data._agentMoved = agentIndex
         state.data.score += state.data.scoreChange
         state.data.action = action
+        state.data.food = nextstate.data.food
         GameState.explored.add(self)
         GameState.explored.add(state)
         return state
@@ -389,12 +390,13 @@ class PacmanRules:
         """
         Returns a list of possible actions.
         """
-        possibleActions =  Actions.getPossibleActions(state.getPacmanState().configuration, state.data.layout.walls)
+        possibleActions = Actions.getPossibleActions(
+            state.getPacmanState().configuration, state.data.layout.walls)
         if Directions.STOP in possibleActions:
             possibleActions.remove(Directions.STOP)
-        
+
         return possibleActions
-        
+
     getLegalActions = staticmethod(getLegalActions)
 
     def applyAction(state, action):
@@ -447,11 +449,8 @@ class PacmanRules:
             state.data.food = state.data.food.copy()
             state.data.food[x][y] = False
             state.data._foodEaten = position
-            # TODO: cache numFood?
-            numFood = state.getNumFood()
-            if numFood == 0 and not state.data._lose:
-                state.data.scoreChange += 500
-                state.data._win = True
+            
+            PacmanRules.checkstatus(state)
         # Eat capsule
         if(position in state.getCapsules()):
             state.data.capsules.remove(position)
@@ -460,6 +459,14 @@ class PacmanRules:
             for index in range(1, len(state.data.agentStates)):
                 state.data.agentStates[index].scaredTimer = SCARED_TIME
     consume = staticmethod(consume)
+
+    def checkstatus(state):
+        # TODO: cache numFood?
+        numFood = state.getNumFood()
+        if numFood == 0 and not state.data._lose:
+            state.data.scoreChange += 500
+            state.data._win = True
+    checkstatus = staticmethod(checkstatus)
 
 
 class GhostRules:
@@ -658,12 +665,11 @@ def readCommand(argv):
         args['numTraining'] = options.numTraining
         if 'numTraining' not in agentOpts:
             agentOpts['numTraining'] = options.numTraining
-        
+
     pacman = pacmanType(agentOpts)  # Instantiate Pacman with agentArgs
     args['pacman'] = pacman
     pacman.width = agentOpts['width']
     pacman.height = agentOpts['height']
-    
 
     # Don't display training games
     if 'numTrain' in agentOpts:
@@ -692,9 +698,8 @@ def readCommand(argv):
     args['timeout'] = options.timeout
     args['gameToReplay'] = options.gameToReplay
     args['saveHeatMap'] = options.recordHeatMap
-    
+
     # Special case: recorded games don't use the runGames method or args structure
-    
 
     return args
 
@@ -748,7 +753,7 @@ def replayGame(layout, actions, display):
     display.finish()
 
 
-def runGames(layout, pacman, ghosts, display, numGames, record, gameToReplay, saveHeatMap = False, numTraining=0, catchExceptions=False, timeout=30):
+def runGames(layout, pacman, ghosts, display, numGames, record, gameToReplay, saveHeatMap=False, numTraining=0, catchExceptions=False, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
 
@@ -758,12 +763,12 @@ def runGames(layout, pacman, ghosts, display, numGames, record, gameToReplay, sa
     # define transition function
     import time
     start_time = time.time()
-    tree = TransitionMatrixDicTree(pacman, ghosts, layout, noise={"std":0.00000000001,"mean":0})
+    tree = TransitionMatrixDicTree(pacman, ghosts, layout, swaps=0.1)
     tree.computeProbabilities()
     end_time = time.time()
 
     print("Compute Probabilities: ", end_time - start_time)
-    
+
     if gameToReplay != None:
         print('Replaying recorded game %s.' % gameToReplay)
         import pickle
@@ -803,8 +808,10 @@ def runGames(layout, pacman, ghosts, display, numGames, record, gameToReplay, sa
 
         print('Average Score:', sum(scores) / float(len(scores)))
         print('Scores:       ', ', '.join([str(score) for score in scores]))
-        print('Win Rate:      %d/%d (%.2f)' % (wins.count(True), len(wins), winRate))
-        print('Record:       ', ', '.join([['Loss', 'Win'][int(w)] for w in wins]))
+        print('Win Rate:      %d/%d (%.2f)' %
+              (wins.count(True), len(wins), winRate))
+        print('Record:       ', ', '.join(
+            [['Loss', 'Win'][int(w)] for w in wins]))
 
     return games
 
