@@ -424,8 +424,12 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
         [trained_agents, epochs // n_training_steps], dtype=np.float32)
 
     for i in range(trained_agents):
-        transitionMatrixTree = defineTransitionMatrix(
-            pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=applynoise, applyswaps=applyswaps)
+        if applynoise:
+            transitionMatrixTree = defineTransitionMatrix(
+                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyswaps=applyswaps)
+        if applyswaps:
+            transitionMatrixTree = defineTransitionMatrix(
+                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded,applyswaps=applyswaps)
         for j in range(epochs // n_training_steps):
             print(j)
             if pacman.__class__.__name__ != "KeyboardAgent":
