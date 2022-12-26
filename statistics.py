@@ -29,7 +29,7 @@ code to run a game.  This file is divided into three sections:
           environment uses to decide who can move where, who dies when
           things collide, etc.  You shouldn't need to read this section
           of code, but you can if you want.
-
+defineTransitionMatrix
   (iii) Framework to start a game:
           The final section contains the code for reading the command
           you use to set up the game, then starting up a new game, along with
@@ -203,8 +203,7 @@ def readCommand(argv):
 NOISY_ARGS = [{}, {"std": 0.1, "mean": 0}, {"std": 0.2, "mean": 0}, {
     "std": 0.3, "mean": 0}, {"std": 0.5, "mean": 0}, {"std": 0.7, "mean": 0}, {"std": 0.9, "mean": 0}]
 
-#NOISY_ARGS = [{},{"std":0.00000000001, "mean":0}]
-
+SWAP_LIST = [0,0.1,0.2,0.3,0.5,0.7,0.9]
 
 def saveRecordings(tree, game, layout, filepath):
     import time
@@ -350,10 +349,12 @@ def defineTransitionMatrix(pacman, ghosts, layout, file_to_be_loaded=None, file_
             print("starting a new agent from scratch ...")
 
     # only gaussian supported for now    
-    if applyswaps:
-        applyswaps = float(applyswaps
-    )
-    transitionMatrixTree = TransitionMatrixDicTree(pacman, ghosts, layout, noise=applynoise, swaps=applyswaps)
+    if applyswaps != None:
+        applyswaps = float(applyswaps)
+        transitionMatrixTree = TransitionMatrixDicTree(pacman, ghosts, layout, swaps=applyswaps)
+    if applynoise != None:
+        transitionMatrixTree = TransitionMatrixDicTree(pacman, ghosts, layout, noise=applynoise)
+
     transitionMatrixTree.computeProbabilities()
 
     return transitionMatrixTree
@@ -462,9 +463,16 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
 
     for i in range(trained_agents):
         transitionMatrixTreeList = []
-        for n in range(len(NOISY_ARGS)):
-            transitionMatrixTreeList.append(defineTransitionMatrix(
-                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=NOISY_ARGS[n], applyswaps=applyswaps))
+        if applynoise:
+            print("adding noise...")
+            for n in range(len(NOISY_ARGS)):
+                transitionMatrixTreeList.append(defineTransitionMatrix(
+                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=NOISY_ARGS[n]))
+        if applyswaps: 
+            print("adding permutations...")   
+            for n in range(len(SWAP_LIST)):
+                transitionMatrixTreeList.append(defineTransitionMatrix(
+                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyswaps=SWAP_LIST[n]))
         for j in range(epochs // n_training_steps):
 
             if record_range and j >= record_range["min_range"] and j < record_range["max_range"]:
