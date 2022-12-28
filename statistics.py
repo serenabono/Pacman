@@ -507,7 +507,7 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
             for k in range(len(SWAP_LIST)):
                 if not os.path.exists(args['outputStats'].split('/')[0]):
                     os.makedirs(args['outputStats'].split('/')[0])
-                np.savetxt(args['outputStats'] + f"_{SWAP_LIST[k]}_" +
+                np.savetxt(args['outputStats'] + "_{\"swaps\":"+f"{SWAP_LIST[k]}"+"}_" +
                         f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
 
         #   reinitialize pacman

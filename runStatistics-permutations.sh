@@ -25,6 +25,7 @@ epochs=1000
 agent="BoltzmannAgent"
 noise_args='{"mean":'$mean',"std":'$std'}'
 swaps=0
+swaps_args='{"swaps":'$swaps'}'
 
 min_range=0
 max_range=0
