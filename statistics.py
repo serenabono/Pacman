@@ -519,7 +519,7 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
 
     return np.mean(stats, 0)
 
-CURRICULUM_NOISE = [{"noise":{"mean":0, "std":0}, "epochs": 200},{"noise":{"mean":0, "std":0.1}, "epochs":1000}]
+CURRICULUM_NOISE = [{"noise":{"mean":0, "std":0}, "epochs": 200}]
 CURRICULUM_SWAPS = [{"swaps":0, "epochs": 200},{"swaps":0.1, "epochs":1000}]
 
 
@@ -542,12 +542,16 @@ def newTrainingMethod(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
             for n in CURRICULUM_NOISE:
                 transitionMatrixTreeList.append(defineTransitionMatrix(
                     pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=n["noise"]))
+            transitionMatrixTreeList.append(defineTransitionMatrix(
+                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=applynoise))
         if applyswaps: 
             print("adding permutations...")   
             current_list = CURRICULUM_NOISE.copy()
             for n in CURRICULUM_SWAP:
                 transitionMatrixTreeList.append(defineTransitionMatrix(
                     pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyswaps=n["swaps"]))
+            transitionMatrixTreeList.append(defineTransitionMatrix(
+                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyswaps=applyswaps))
         
         current_transition_fn = transitionMatrixTreeList[0]
         current_transition_fn_id = 0
