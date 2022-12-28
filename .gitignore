@@ -136,3 +136,5 @@ slurm_outputs_scripts/**
 generalization_**
 learnability_**
 learnabilty_**
+newTrainingMethod_v3_{"mean":0,"std":0}_BoltzmannAgent/**
+learnability/newTrainingMethod_v3_{"mean":0,"std":0}_BoltzmannAgent.pkl
