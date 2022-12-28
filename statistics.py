@@ -519,8 +519,8 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
 
     return np.mean(stats, 0)
 
-CURRICULUM = [{"noise":{"mean":0, "std":0}, "epochs": 200},{"noise":{"mean":0, "std":0.1}, "epochs":1000}]
-CURRICULUM = [{"swaps":0, "epochs": 200},{"swaps":0.1, "epochs":1000}]
+CURRICULUM_NOISE = [{"noise":{"mean":0, "std":0}, "epochs": 200},{"noise":{"mean":0, "std":0.1}, "epochs":1000}]
+CURRICULUM_SWAPS = [{"swaps":0, "epochs": 200},{"swaps":0.1, "epochs":1000}]
 
 
 def newTrainingMethod(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, applyswaps=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
@@ -562,7 +562,7 @@ def newTrainingMethod(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
 
             print(j)
             if pacman.__class__.__name__ != "KeyboardAgent":
-                if (j*n_testing_steps) >= current_list[current_transition_fn_id]["epochs"]
+                if (j*n_testing_steps) >= current_list[current_transition_fn_id]["epochs"]:
                     current_transition_fn_id+=1
                     current_transition_fn=transitionMatrixTreeList[current_transition_fn_id]
                 
@@ -570,7 +570,7 @@ def newTrainingMethod(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
                             rules, pacman, ghosts, layout, display)
                         
             score = np.mean(test_epoch(
-                transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, layout, display))
+                transitionMatrixTreeList[-1], n_testing_steps, rules, pacman, ghosts, layout, display))
             stats[i][j] = score
         print('trained agent ', i)
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
