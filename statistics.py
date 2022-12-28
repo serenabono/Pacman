@@ -426,7 +426,7 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
     for i in range(trained_agents):
         if applynoise:
             transitionMatrixTree = defineTransitionMatrix(
-                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyswaps=applyswaps)
+                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=applynoise)
         if applyswaps:
             transitionMatrixTree = defineTransitionMatrix(
                 pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded,applyswaps=applyswaps)
@@ -497,11 +497,18 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
         print('trained agent ', i)
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
 
-        for k in range(len(NOISY_ARGS)):
-            if not os.path.exists(args['outputStats'].split('/')[0]):
-                os.makedirs(args['outputStats'].split('/')[0])
-            np.savetxt(args['outputStats'] + f"_{NOISY_ARGS[k]}_" +
-                       f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
+        if applynoise:
+            for k in range(len(NOISY_ARGS)):
+                if not os.path.exists(args['outputStats'].split('/')[0]):
+                    os.makedirs(args['outputStats'].split('/')[0])
+                np.savetxt(args['outputStats'] + f"_{NOISY_ARGS[k]}_" +
+                        f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
+        if applyswaps:
+            for k in range(len(SWAP_LIST)):
+                if not os.path.exists(args['outputStats'].split('/')[0]):
+                    os.makedirs(args['outputStats'].split('/')[0])
+                np.savetxt(args['outputStats'] + f"_{SWAP_LIST[k]}_" +
+                        f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
 
         #   reinitialize pacman
         if pacman.__class__.__name__ == "KeyboardAgent":
@@ -512,6 +519,76 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
 
     return np.mean(stats, 0)
 
+CURRICULUM = [{"noise":{"mean":0, "std":0}, "epochs": 200},{"noise":{"mean":0, "std":0.1}, "epochs":1000}]
+CURRICULUM = [{"swaps":0, "epochs": 200},{"swaps":0.1, "epochs":1000}]
+
+
+def newTrainingMethod(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, applyswaps=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
+    import __main__
+    __main__.__dict__['_display'] = display
+
+    rules = ClassicGameRules(timeout)
+
+    stats = np.zeros(
+        [trained_agents, epochs // n_training_steps], dtype=np.float32)
+
+    for i in range(trained_agents):
+        transitionMatrixTreeList = []
+        current_list = []
+
+        if applynoise:
+            print("adding noise...")
+            current_list = CURRICULUM_NOISE.copy()
+            for n in CURRICULUM_NOISE:
+                transitionMatrixTreeList.append(defineTransitionMatrix(
+                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=n["noise"]))
+        if applyswaps: 
+            print("adding permutations...")   
+            current_list = CURRICULUM_NOISE.copy()
+            for n in CURRICULUM_SWAP:
+                transitionMatrixTreeList.append(defineTransitionMatrix(
+                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyswaps=n["swaps"]))
+        
+        current_transition_fn = transitionMatrixTreeList[0]
+        current_transition_fn_id = 0
+
+        for j in range(epochs // n_training_steps):
+
+            if record_range and j >= record_range["min_range"] and j < record_range["max_range"]:
+                recordpath = args['outputStats'] + \
+                    "-generalization-RECORDING-" + f"{j}_epoch"
+            else:
+                recordpath = None
+
+            print(j)
+            if pacman.__class__.__name__ != "KeyboardAgent":
+                if (j*n_testing_steps) >= current_list[current_transition_fn_id]["epochs"]
+                    current_transition_fn_id+=1
+                    current_transition_fn=transitionMatrixTreeList[current_transition_fn_id]
+                
+                train_epoch(current_transition_fn, n_training_steps,
+                            rules, pacman, ghosts, layout, display)
+                        
+            score = np.mean(test_epoch(
+                transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, layout, display))
+            stats[i][j] = score
+        print('trained agent ', i)
+        print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
+
+        if not os.path.exists(args['outputStats'].split('/')[0]):
+            os.makedirs(args['outputStats'].split('/')[0])
+        np.savetxt(args['outputStats'] +
+                   f"{i}_training_agent.pkl", stats[i],  delimiter=',')
+
+
+        #   reinitialize pacman
+        if pacman.__class__.__name__ == "KeyboardAgent":
+            pacmanType = loadAgent(pacmanName, 0)
+        else:
+            pacmanType = loadAgent(pacmanName, 1)
+        pacman = pacmanType(pacmanArgs)
+
+    return np.mean(stats, 0) 
 
 if __name__ == '__main__':
     """
@@ -531,6 +608,10 @@ if __name__ == '__main__':
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
     elif args['mode'] == 's':
         output = runStatistics(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
+                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applynoise=args['noiseOpts'],  applyswaps=args["swapsArg"], **args['statOpts'])
+        np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
+    elif args['mode'] == 'm':
+        output = newTrainingMethod(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
                                args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applynoise=args['noiseOpts'],  applyswaps=args["swapsArg"], **args['statOpts'])
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
     elif args['mode'] == 'g':
