@@ -557,7 +557,7 @@ class Game:
     The Game manages the control flow, soliciting actions from agents.
     """
 
-    def __init__(self, agents, display, rules, startingIndex=0, muteAgents=False, catchExceptions=False):
+    def __init__(self, agents, display, rules, startingIndex=0, muteAgents=False, catchExceptions=False, ensemble_agent=None):
         self.agentCrashed = False
         self.agents = agents
         self.display = display
@@ -609,7 +609,7 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
-    def run(self, game_number, total_games):
+    def run(self, game_number, total_games, ensemble_agent=None):
         """
         Main control loop for game play.
         """
@@ -693,14 +693,12 @@ class Game:
             if agentIndex == 0:
                 fromstatehash = self.transitionFunctionTree.getHashfromState(observation)
                 legal_actions = self.transitionFunctionTree.transitionMatrixDic[fromstatehash].keys()
-                try:
-                    pacaction = agent.getAction(observation, legal_actions, game_number, total_games, isInitial)
+                if len(legal_actions) != 0:
+                    pacaction = agent.getAction(observation, legal_actions, game_number, total_games, isInitial, ensemble_agent=ensemble_agent)
                     actionstostateshashdict = self.transitionFunctionTree.getLegalActions(
                         fromstatehash, pacaction)
                     nextstatehash = self.transitionFunctionTree.generateSuccessor(actionstostateshashdict)
                     isInitial = False
-                except:
-                    pass
             
             # Solicit an action
             self.mute(agentIndex)

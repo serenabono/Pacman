@@ -23,7 +23,7 @@ class GhostAgent( Agent ):
     def __init__( self, index ):
         self.index = index
 
-    def getAction( self, state, actlist):
+    def getAction( self, state, actlist, ensemble_agent = None):
         dist = {}
         for a in actlist.keys():
             dist[a] = sum(actlist[a].values())

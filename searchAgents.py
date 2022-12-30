@@ -79,7 +79,7 @@ class RandomAgent(Agent):
             prevStateScore = prevState.getScore()
         return state.getScore() - prevStateScore
 
-    def getAction(self, state, legalactions, game_number, total_games, isInitial):
+    def getAction(self, state, legalactions, game_number, total_games, isInitial, ensemble_agent = None):
         "The agent receives a GameState (defined in pacman.py)."
 
         ### DOMAIN SPECIFIC STUFF, DON'T NEED TO UNDERSTAND FOR HOW TO USE THE CODEBASE
@@ -107,7 +107,7 @@ class RandomAgent(Agent):
         self.agent.set_current_state(state_rep)
         self.agent.set_current_legal_actions(legalactions)
         self.agent.set_current_state_type(state_type)
-        action = self.agent.get_action()
+        action = self.agent.get_action(ensemble_agent)
 
         return action
 
@@ -126,7 +126,7 @@ class BoltzmannAgent(Agent):
             prevStateScore = prevState.getScore()
         return state.getScore() - prevStateScore
 
-    def getAction(self, state, legalactions, game_number, total_games, isInitial):
+    def getAction(self, state, legalactions, game_number, total_games, isInitial, ensemble_agent=None):
         "The agent receives a GameState (defined in pacman.py)."
 
         ### DOMAIN SPECIFIC STUFF, DON'T NEED TO UNDERSTAND FOR HOW TO USE THE CODEBASE
@@ -154,11 +154,17 @@ class BoltzmannAgent(Agent):
             pass
         
         # CODEBASE SPECIFIC STUFF. VERY IMPORTANT TO MAKE THE CALLS IN THE SAME ORDER
+        if ensemble_agent:
+            ensemble_agent.agent.set_current_state(state_rep)
+            ensemble_agent.agent.set_current_legal_actions(actions_rep)
+            ensemble_agent.agent.set_current_state_type(state_type)
+            ensemble_agent.agent.initialize_q_values_if_absent()
         self.agent.set_current_state(state_rep)
         self.agent.set_current_legal_actions(actions_rep)
         self.agent.set_current_state_type(state_type)
         self.agent.initialize_q_values_if_absent()
-        action = self.agent.get_action()
+        
+        action = self.agent.get_action(ensemble_agent=ensemble_agent)
         self.agent.update(reward)
 
 
