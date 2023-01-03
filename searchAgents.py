@@ -176,7 +176,13 @@ class BoltzmannAgent(Agent):
                 r = np.max((total_games - game_number)/total_games,0)
                 self.agent.EPSILON = (self.agent.EPSILON-0.1)*r + 0.1
                 # self.agent.EPSILON -= 0.025 # function of the game number
-
+        
+        if self.agent.current_state_type == "terminal" and self.agent.is_train:
+                r = np.max((total_games - game_number)/total_games,0)
+                self.agent.DISCOUNT_FACTOR = (self.agent.DISCOUNT_FACTOR -0.1)*r + 0.1
+        
+        #print(self.agent.DISCOUNT_FACTOR)
+        
         return action
 
 #######################################################
