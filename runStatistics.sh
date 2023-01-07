@@ -11,7 +11,7 @@
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v2"
+layout="v2bar"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
 training_agents=500
@@ -25,7 +25,7 @@ epochs=1000
 agent="BoltzmannAgent"
 noise_args='{"mean":'$mean',"std":'$std'}'
 swaps=0.1
-prob=0.8
+prob=0.6
 ghost="MoveMostlyWestGhost"
 ghostarg='{"prob":'$prob'}'
 agentprop='{"pacman":{},"ghost":'$ghostarg'}'

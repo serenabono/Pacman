@@ -494,7 +494,7 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
         else:
             ghostType = loadAgent("RandomGhost",1)
             transitionMatrixTree = defineTransitionMatrix(
-                perturbedenv_pacman, [ghostType(1)] , layout, file_to_be_loaded=file_to_be_loaded)
+                perturbedenv_pacman, [ghostType(index=i+1) for i in range(len(ghosts))] , layout, file_to_be_loaded=file_to_be_loaded)
             transitionMatrixTreeList.append(transitionMatrixTree)
         
         for j in range(epochs // n_training_steps):
