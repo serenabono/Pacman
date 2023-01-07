@@ -374,7 +374,7 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
         transitionMatrixTreeList.append(defineTransitionMatrix(
             pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=None, applyswaps=applyswaps))
         transitionMatrixTreeList.append(defineTransitionMatrix(
-            pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=applynoise, applyswaps=applyswaps))
+            pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=None, applyswaps=applyswaps))
 
         for j in range(epochs // n_training_steps):
 
@@ -455,7 +455,7 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
 
     return np.mean(stats, 0)
 
-def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, applyswaps=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
+def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, applyswaps=None,epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
 
@@ -482,9 +482,14 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
             transitionMatrixTree = defineTransitionMatrix(
                 perturbedenv_pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=applynoise)
             transitionMatrixTreeList.append(transitionMatrixTree)
-        if applyswaps:
+        elif applyswaps:
             transitionMatrixTree = defineTransitionMatrix(
                 perturbedenv_pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded,applyswaps=applyswaps)
+            transitionMatrixTreeList.append(transitionMatrixTree)
+        else:
+            ghostType = loadAgent("RandomGhost",1)
+            transitionMatrixTree = defineTransitionMatrix(
+                perturbedenv_pacman, [ghostType(1)] , layout, file_to_be_loaded=file_to_be_loaded)
             transitionMatrixTreeList.append(transitionMatrixTree)
         
         for j in range(epochs // n_training_steps):
@@ -512,8 +517,6 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
             pacmanType = loadAgent(pacmanName, 1)
         pacman = pacmanType(pacmanArgs)
         perturbedenv_pacman = pacmanType(pacmanArgs)
-        print(pacman.agent.DISCOUNT_FACTOR)
-        print(perturbedenv_pacman.agent.DISCOUNT_FACTOR)
 
     return np.mean(stats, 0)
 
