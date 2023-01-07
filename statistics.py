@@ -159,6 +159,8 @@ def readCommand(argv):
     agentOpts['width'] = layout.getLayout(options.layout).width
     agentOpts['height'] = layout.getLayout(options.layout).height
 
+    print(agentOpts)
+
     pacman = pacmanType(agentOpts["pacman"])  # Instantiate Pacman with agentArgs
     args['pacman'] = pacman
     pacman.width = agentOpts['width']
@@ -174,7 +176,7 @@ def readCommand(argv):
 
     # Choose a ghost agent
     ghostType = loadAgent(options.ghost, 1)
-    args['ghosts'] = [ghostType(**agentOpts["ghost"]) for i in range(options.numGhosts)]
+    args['ghosts'] = [ghostType(**agentOpts["ghost"], index=i+1) for i in range(options.numGhosts)]
     # Choose a display format
     if options.quietGraphics:
         import textDisplay
@@ -427,9 +429,12 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
         if applynoise:
             transitionMatrixTree = defineTransitionMatrix(
                 pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=applynoise)
-        if applyswaps:
+        elif applyswaps:
             transitionMatrixTree = defineTransitionMatrix(
                 pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded,applyswaps=applyswaps)
+        else:
+            transitionMatrixTree = defineTransitionMatrix(
+                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded)
         for j in range(epochs // n_training_steps):
             print(j)
             if pacman.__class__.__name__ != "KeyboardAgent":
