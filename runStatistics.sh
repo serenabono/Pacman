@@ -19,7 +19,7 @@ n_training_steps=10
 n_testing_steps=10
 
 mean=0
-std=0.1
+std=0
 
 epochs=1000
 agent="BoltzmannAgent"

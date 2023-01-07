@@ -5,7 +5,7 @@
 #SBATCH --job-name=Boltz-genr
 
 #SBATCH -p short
-#SBATCH --mem=5G
+#SBATCH --mem=20G
 #SBATCH -o slurm_outputs_scripts/hostname_%j.out
 #SBATCH -e slurm_outputs_scripts/hostname_%j.err
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
@@ -19,7 +19,7 @@ n_training_steps=10
 n_testing_steps=10
 
 mean=0
-std=0
+std=0.9
 
 ghosttype="MoveMostlyWestGhost"
 epochs=1000
@@ -31,7 +31,7 @@ max_range=0
 record_range='{"min_range":'$min_range',"max_range":'$max_range'}'
 
 run_untill=1000
-prob=0.8
+prob=0
 ghostarg='{}'
 agentprop='{"pacman":{},"ghost":'$ghostarg'}'
 
