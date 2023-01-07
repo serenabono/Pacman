@@ -45,6 +45,28 @@ class RandomGhost( GhostAgent ):
         dist.normalize()
         return dist
 
+class MoveMostlyWestGhost( GhostAgent ):
+    "A ghost that chooses a legal action uniformly at random."
+    def __init__( self, index, prob=0.7):
+        self.prob = prob
+        self.index = index
+
+    def getDistribution( self, state ):
+        dist = util.Counter()
+        legal_actions = GhostRules.getLegalActions(state, self.index) 
+        if Directions.WEST not in legal_actions:
+            for a in GhostRules.getLegalActions(state, self.index ): dist[a] = 1.0
+            dist.normalize()
+        elif len(legal_actions) == 1:
+            dist[Directions.WEST] = 1
+        else:
+            dist[Directions.WEST] = self.prob
+            other_prob = (1 -self.prob)/ (len(legal_actions)-1)
+            for a in GhostRules.getLegalActions(state, self.index ): 
+                if a!= Directions.WEST:
+                    dist[a] = other_prob
+        return dist
+
 class DirectionalGhost( GhostAgent ):
     "A ghost that prefers to rush Pacman, or flee when scared."
     def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8 ):

@@ -116,8 +116,8 @@ def readCommand(argv):
                       metavar='TYPE', default='.')
     parser.add_option('-n', '--noiseArgs', dest='noiseArgs',
                       help='Comma separated values sent to noise. e.g. "opt1=val1,opt2,opt3=val3,noise=\{arg1=val1,arg2=val2\}"')
-    parser.add_option('-x', '--numTraining', dest='numTraining', type='int',
-                      help=default('How many episodes are training (suppresses output)'), default=0)
+    parser.add_option('-y', '--ghostArgs', dest='noiseArgs',
+                      help='Comma separated values sent to noise. e.g. "opt1=val1,opt2,opt3=val3,noise=\{arg1=val1,arg2=val2\}"')
     parser.add_option('--frameTime', dest='frameTime', type='float',
                       help=default('Time to delay between frames; <0 means keyboard'), default=0.1)
 
@@ -159,7 +159,7 @@ def readCommand(argv):
     agentOpts['width'] = layout.getLayout(options.layout).width
     agentOpts['height'] = layout.getLayout(options.layout).height
 
-    pacman = pacmanType(agentOpts)  # Instantiate Pacman with agentArgs
+    pacman = pacmanType(agentOpts["pacman"])  # Instantiate Pacman with agentArgs
     args['pacman'] = pacman
     pacman.width = agentOpts['width']
     pacman.height = agentOpts['height']
@@ -174,8 +174,7 @@ def readCommand(argv):
 
     # Choose a ghost agent
     ghostType = loadAgent(options.ghost, 1)
-    args['ghosts'] = [ghostType(i+1) for i in range(options.numGhosts)]
-
+    args['ghosts'] = [ghostType(**agentOpts["ghost"]) for i in range(options.numGhosts)]
     # Choose a display format
     if options.quietGraphics:
         import textDisplay
@@ -513,6 +512,8 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
             pacmanType = loadAgent(pacmanName, 1)
         pacman = pacmanType(pacmanArgs)
         perturbedenv_pacman = pacmanType(pacmanArgs)
+        print(pacman.agent.DISCOUNT_FACTOR)
+        print(perturbedenv_pacman.agent.DISCOUNT_FACTOR)
 
     return np.mean(stats, 0)
 
