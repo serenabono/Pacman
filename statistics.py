@@ -480,24 +480,31 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
     for i in range(trained_agents):
 
         transitionMatrixTreeList = []
-        # normal environment agent
-        transitionMatrixTreeList.append(defineTransitionMatrix(
-                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded))
         
         # perturbed environment agent
         if applynoise:
+            # normal environment agent
+            transitionMatrixTreeList.append(defineTransitionMatrix(
+                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded))
             transitionMatrixTree = defineTransitionMatrix(
                 perturbedenv_pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=applynoise)
             transitionMatrixTreeList.append(transitionMatrixTree)
         elif applyswaps:
+            # normal environment agent
+            transitionMatrixTreeList.append(defineTransitionMatrix(
+                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded))
             transitionMatrixTree = defineTransitionMatrix(
                 perturbedenv_pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded,applyswaps=applyswaps)
             transitionMatrixTreeList.append(transitionMatrixTree)
         else:
+            # easier environment agent
             ghostType = loadAgent("MoveMostlyWestGhost",1)
             transitionMatrixTree = defineTransitionMatrix(
-                perturbedenv_pacman, [ghostType(index=i+1, prob=0.5) for i in range(len(ghosts))] , layout, file_to_be_loaded=file_to_be_loaded)
+                perturbedenv_pacman, [ghostType(index=i+1, prob=0.9) for i in range(len(ghosts))] , layout, file_to_be_loaded=file_to_be_loaded)
             transitionMatrixTreeList.append(transitionMatrixTree)
+            # harder
+            transitionMatrixTreeList.append(defineTransitionMatrix(
+                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded))
         
         for j in range(epochs // n_training_steps):
             print(j)
