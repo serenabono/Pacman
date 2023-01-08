@@ -694,7 +694,7 @@ class Game:
                 fromstatehash = self.transitionFunctionTree.getHashfromState(observation)
                 legal_actions = self.transitionFunctionTree.transitionMatrixDic[fromstatehash].keys()
                 if len(legal_actions) != 0:
-                    pacaction = agent.getAction(observation, legal_actions, game_number, total_games, isInitial)
+                    pacaction = agent.getAction(observation, legal_actions, game_number, total_games, isInitial,ensemble_agent=ensemble_agent)
                     actionstostateshashdict = self.transitionFunctionTree.getLegalActions(
                         fromstatehash, pacaction)
                     nextstatehash = self.transitionFunctionTree.generateSuccessor(actionstostateshashdict)
