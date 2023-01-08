@@ -25,15 +25,15 @@ epochs=1000
 agent="BoltzmannAgent"
 noise_args='{"mean":'$mean',"std":'$std'}'
 swaps=0
-prob=0.9
+prob=0.5
 
 ghost="MoveMostlyWestGhost"
 ghostarg='{"prob":'$prob'}'
 agentprop='{"pacman":{},"ghost":'$ghostarg'}'
 
-# ghost="RandomGhost"
-# ghostarg='{}'
-# agentprop='{"pacman":{},"ghost":'$ghostarg'}'
+#ghost="RandomGhost"
+#ghostarg='{}'
+#agentprop='{"pacman":{},"ghost":'$ghostarg'}'
 
 min_range=0
 max_range=0
@@ -43,4 +43,4 @@ run_untill=1000
 
 folder="generalization_${layout}_ghost_${ghostarg}_${agent}"
 
-python statistics.py -q -m g -p $agent -g $ghost -a $agentprop -l $layout -s '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}''' -o ''''$folder'/saved_agent_'$layout'_'$agent'_'$semanticDistribution'_'$noiseType'-'$training_agents'-'$noise_args'-test-'$RANDOM'-'$DATE''''
+python statistics.py -q -m e -p $agent -g $ghost -a $agentprop -l $layout -s '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}''' -o ''''$folder'/saved_agent_'$layout'_'$agent'_'$semanticDistribution'_'$noiseType'-'$training_agents'-'$noise_args'-test-'$RANDOM'-'$DATE''''
