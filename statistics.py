@@ -156,15 +156,15 @@ def readCommand(argv):
     except:
         args['noiseOpts'] = {}
 
-    agentOpts['width'] = layout.getLayout(options.layout).width
-    agentOpts['height'] = layout.getLayout(options.layout).height
+    agentOpts["pacman"]['width'] = layout.getLayout(options.layout).width
+    agentOpts["pacman"]['height'] = layout.getLayout(options.layout).height
 
     print(agentOpts)
 
     pacman = pacmanType(agentOpts["pacman"])  # Instantiate Pacman with agentArgs
     args['pacman'] = pacman
-    pacman.width = agentOpts['width']
-    pacman.height = agentOpts['height']
+    pacman.width = agentOpts["pacman"]['width']
+    pacman.height = agentOpts["pacman"]['height']
 
     # Don't display training games
     if 'numTrain' in agentOpts:
