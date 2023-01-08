@@ -90,7 +90,7 @@ class PacmanDQN(game.Agent):
             self.Q_pred = self.qnet.sess.run(
                 self.qnet.y,
                 feed_dict = {self.qnet.x: np.reshape(self.current_state,
-                                                     (1, self.params['width'], self.params['height'], 4)), 
+                                                     (1, self.params['width'], self.params['height'], 6)), 
                              self.qnet.q_t: np.zeros(1),
                              self.qnet.actions: np.zeros((1, 4)),
                              self.qnet.terminals: np.zeros(1),
@@ -226,7 +226,7 @@ class PacmanDQN(game.Agent):
         stateMatrices = np.swapaxes(stateMatrices, 0, 2)
         total = np.zeros((7, 7))
         for i in range(len(stateMatrices)):
-            total += (i + 1) * stateMatrices[i] / 4
+            total += (i + 1) * stateMatrices[i] / 6
         return total
 
     def getStateMatrices(self, state):
@@ -314,12 +314,14 @@ class PacmanDQN(game.Agent):
         # wall, pacman, ghost, food and capsule matrices
         # width, height = state.data.layout.width, state.data.layout.height 
         width, height = self.params['width'], self.params['height']
-        observation = np.zeros((4, height, width))
+        observation = np.zeros((6, height, width))
 
         observation[0] = getWallMatrix(state)
         observation[1] = getPacmanMatrix(state)
         observation[2] = getGhostMatrix(state)
-        observation[3] = getFoodMatrix(state)
+        observation[3] = getScaredGhostMatrix(state)
+        observation[4] = getFoodMatrix(state)
+        observation[5] = getCapsulesMatrix(state)
 
         observation = np.swapaxes(observation, 0, 2)
 
