@@ -47,7 +47,7 @@ class RandomGhost( GhostAgent ):
 
 class MoveMostlyWestGhost( GhostAgent ):
     "A ghost that chooses a legal action uniformly at random."
-    def __init__( self, index, prob=0.9):
+    def __init__( self, index, prob=0.5):
         self.prob = prob
         self.index = index
 

@@ -206,6 +206,8 @@ NOISY_ARGS = [{}, {"std": 0.1, "mean": 0}, {"std": 0.2, "mean": 0}, {
 
 SWAP_LIST = [0,0.1,0.2,0.3,0.5,0.7,0.9]
 
+GHOST_PROB_LIST = [{"prob":0.9},{"prob":0.5},{"prob":0.6},{"prob":0.7},{"prob":0.8}]
+
 def saveRecordings(tree, game, layout, filepath):
     import time
     import pickle
@@ -296,7 +298,7 @@ def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, lay
 def test_noisy_agents_epoch(transitionMatrixTreeList, n_testing_steps, rules, pacman, ghosts, layout, gameDisplay, record=None):
 
     across_agents_scores = []
-    for n in range(len(NOISY_ARGS)):
+    for n in range(len(transitionMatrixTreeList)):
         scores = []
         for i in range(n_testing_steps):
             import textDisplay
@@ -492,9 +494,9 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
                 perturbedenv_pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded,applyswaps=applyswaps)
             transitionMatrixTreeList.append(transitionMatrixTree)
         else:
-            ghostType = loadAgent("RandomGhost",1)
+            ghostType = loadAgent("MoveMostlyWestGhost",1)
             transitionMatrixTree = defineTransitionMatrix(
-                perturbedenv_pacman, [ghostType(index=i+1) for i in range(len(ghosts))] , layout, file_to_be_loaded=file_to_be_loaded)
+                perturbedenv_pacman, [ghostType(index=i+1, prob=0.5) for i in range(len(ghosts))] , layout, file_to_be_loaded=file_to_be_loaded)
             transitionMatrixTreeList.append(transitionMatrixTree)
         
         for j in range(epochs // n_training_steps):
@@ -547,6 +549,12 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
             for n in range(len(SWAP_LIST)):
                 transitionMatrixTreeList.append(defineTransitionMatrix(
                     pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyswaps=SWAP_LIST[n]))
+        else:
+            for n in range(len(GHOST_PROB_LIST)):
+                ghostType = loadAgent("MoveMostlyWestGhost",1)
+                transitionMatrixTreeList.append(defineTransitionMatrix(
+                    pacman, [ghostType(index=i+1, **GHOST_PROB_LIST[n]) for i in range(len(ghosts))] , layout, file_to_be_loaded=file_to_be_loaded))
+                
         for j in range(epochs // n_training_steps):
 
             if record_range and j >= record_range["min_range"] and j < record_range["max_range"]:
@@ -579,7 +587,12 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
                     os.makedirs(args['outputStats'].split('/')[0])
                 np.savetxt(args['outputStats'] + "_{\"swaps\":"+f"{SWAP_LIST[k]}"+"}_" +
                         f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
-
+        else:
+            for k in range(len(GHOST_PROB_LIST)):
+                if not os.path.exists(args['outputStats'].split('/')[0]):
+                    os.makedirs(args['outputStats'].split('/')[0])
+                np.savetxt(args['outputStats'] + f"_{GHOST_PROB_LIST[k]}_" +
+                        f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
         #   reinitialize pacman
         if pacman.__class__.__name__ == "KeyboardAgent":
             pacmanType = loadAgent(pacmanName, 0)
