@@ -9,8 +9,6 @@ class QLearningAgent:
 
     def __init__(self, args, exploration_strategy="BOLTZMANN", T=None, epsilon=None, on_policy=False, initialization_value=0, gamma=0.9, alpha=0.05, is_train=False, load_existing_agent=True):
         ##################q learning hyperparameters#############################
-        self.DISCOUNT_FACTOR = 0.99
-
         self.is_train = is_train
 
         if self.is_train:
@@ -98,9 +96,7 @@ class QLearningAgent:
         if ensemble_agent:
             q_value_to_prob_map = {}
             for action in self.current_legal_actions:
-                q_value_to_prob_map[action] = (1-self.DISCOUNT_FACTOR)*self.q_values[self.current_state][action] + \
-                    self.DISCOUNT_FACTOR * \
-                    ensemble_agent.agent.q_values[ensemble_agent.agent.current_state][action]
+                q_value_to_prob_map[action] = self.q_values[self.current_state][action] + ensemble_agent.agent.q_values[ensemble_agent.agent.current_state][action]
 
             summation = sum(q_value_to_prob_map.values())
 
@@ -156,9 +152,7 @@ class QLearningAgent:
         q_value_to_prob_map = {}
         for action in self.current_legal_actions:
             if ensemble_agent:
-                q_val = (1 - self.DISCOUNT_FACTOR)*self.q_values[self.current_state][action] + \
-                    self.DISCOUNT_FACTOR * \
-                    ensemble_agent.agent.q_values[ensemble_agent.agent.current_state][action]
+                q_val = self.q_values[self.current_state][action] + ensemble_agent.agent.q_values[ensemble_agent.agent.current_state][action]
             else:
                 q_val = self.q_values[self.current_state][action]
             q_value_to_prob_map[action] = math.e**(q_val/self.T)
