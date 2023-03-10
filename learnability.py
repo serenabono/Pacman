@@ -5,7 +5,7 @@ import numpy as np
 
 outfiles = {}
 
-for folder in glob.glob('./learnability_*'):
+for folder in glob.glob('./ensemble_v3_RandomGhost_{}_BoltzmannAgent*'):
     try:
         os.chdir(f"{folder}")
         print(folder)
@@ -13,6 +13,7 @@ for folder in glob.glob('./learnability_*'):
         continue
     values = []
     values_list = []
+    
     for filename in glob.glob("./*"):
         values = []
         with open(filename, newline='') as csvfile:
@@ -20,11 +21,15 @@ for folder in glob.glob('./learnability_*'):
             for row in reader:
                 values.append(float(row[0]))
         values_list.append(values)
-    values_list = np.sum(np.asarray(values_list),0)/len(np.asarray(values_list))
-    outfiles[folder] = values_list
-    os.chdir("../")
+    try:
+        values_list = np.sum(np.asarray(values_list),0)/len(np.asarray(values_list))
+        outfiles[folder] = values_list
+        os.chdir("../")
+    except:
+        print(filename)
+        continue
 
-    os.chdir("learnability/")
+    os.chdir("ensemble/")
     for folder in outfiles:
         np.savetxt(f"{folder}.pkl" ,outfiles[folder],  delimiter=',')
     os.chdir("../")

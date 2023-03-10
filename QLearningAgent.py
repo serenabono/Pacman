@@ -96,7 +96,7 @@ class QLearningAgent:
         if ensemble_agent:
             q_value_to_prob_map = {}
             for action in self.current_legal_actions:
-                q_value_to_prob_map[action] = self.q_values[self.current_state][action] + ensemble_agent.agent.q_values[ensemble_agent.agent.current_state][action] 
+                q_value_to_prob_map[action] = self.q_values[self.current_state][action]*ensemble_agent.agent.q_values[ensemble_agent.agent.current_state][action] 
 
             summation = sum(q_value_to_prob_map.values())
 

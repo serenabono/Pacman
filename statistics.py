@@ -551,7 +551,7 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
             for n in range(len(NOISY_ARGS)):
                 transitionMatrixTreeList.append(defineTransitionMatrix(
                     pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=NOISY_ARGS[n]))
-        if applyswaps: 
+        elif applyswaps: 
             print("adding permutations...")   
             for n in range(len(SWAP_LIST)):
                 transitionMatrixTreeList.append(defineTransitionMatrix(
@@ -588,7 +588,7 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
                     os.makedirs(args['outputStats'].split('/')[0])
                 np.savetxt(args['outputStats'] + f"_{NOISY_ARGS[k]}_" +
                         f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
-        if applyswaps:
+        elif applyswaps:
             for k in range(len(SWAP_LIST)):
                 if not os.path.exists(args['outputStats'].split('/')[0]):
                     os.makedirs(args['outputStats'].split('/')[0])
