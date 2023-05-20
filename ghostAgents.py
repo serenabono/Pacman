@@ -21,6 +21,7 @@ import util
 
 class GhostAgent( Agent ):
     def __init__( self, index ):
+        self.prob = prob
         self.index = index
 
     def getAction( self, state, actlist, ensemble_agent = None):
@@ -38,6 +39,9 @@ class GhostAgent( Agent ):
         util.raiseNotDefined()
 
 class RandomGhost( GhostAgent ):
+    def __init__( self, index, prob=0.5):
+        self.prob = prob
+        self.index = index
     "A ghost that chooses a legal action uniformly at random."
     def getDistribution( self, state ):
         dist = util.Counter()
@@ -69,9 +73,9 @@ class MoveMostlyWestGhost( GhostAgent ):
 
 class DirectionalGhost( GhostAgent ):
     "A ghost that prefers to rush Pacman, or flee when scared."
-    def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8 ):
+    def __init__( self, index, prob=0.8, prob_scaredFlee=0.8 ):
         self.index = index
-        self.prob_attack = prob_attack
+        self.prob = prob
         self.prob_scaredFlee = prob_scaredFlee
 
     def getDistribution( self, state ):
@@ -95,7 +99,7 @@ class DirectionalGhost( GhostAgent ):
             bestProb = self.prob_scaredFlee
         else:
             bestScore = min( distancesToPacman )
-            bestProb = self.prob_attack
+            bestProb = self.prob
         bestActions = [action for action, distance in zip( legalActions, distancesToPacman ) if distance == bestScore]
 
         # Construct distribution

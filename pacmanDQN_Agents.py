@@ -22,7 +22,7 @@ import game
 from collections import deque
 import pickle
 # Neural nets
-import tensorflow as tf
+#import tensorflow as tf
 from DQN import *
 
 params = {

@@ -2,40 +2,40 @@
 
 #SBATCH -c 1
 #SBATCH --time=10:00:00
-#SBATCH --job-name=Boltz-genr
+#SBATCH --job-name=ensemble
 
 #SBATCH -p short
-#SBATCH --mem=10G
+#SBATCH --mem=15G
 #SBATCH -o slurm_outputs_scripts/hostname_%j.out
 #SBATCH -e slurm_outputs_scripts/hostname_%j.err
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v4"
+layout="v2"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
-training_agents=200
+training_agents=500
 n_training_steps=10
 n_testing_steps=10
 
-mean=0
-std=0
-
 epochs=1000
 agent="BoltzmannAgent"
-noise_args='{"mean":'$mean',"std":'$std'}'
 
-min_range=0
-max_range=0
-record_range='{"min_range":'$min_range',"max_range":'$max_range'}'
+testingenv_mean=0
+testingenv_std=0
+testingenv_ghost_name="RandomGhost" 
+testingenv_ghost_args='{"index":1,"prob":{}}'
+testingenv_ghostarg='[{"name":"'$testingenv_ghost_name'","args":'$testingenv_ghost_args'}]'
+testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
+testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
+echo $testingenv_ghostarg
+
+
+agentprop='{"test":{"pacman":{},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'}}'
 
 run_untill=1000
-prob=0
-ghost="RandomGhost"
-ghostarg='{}'
-agentprop='{"pacman":{},"ghost":'$ghostarg'}'
 
-folder="generalization_${layout}_${noise_args}_${agent}"
-outputname=''''$folder'/saved_agent_'$layout'_'$agent'_'$semanticDistribution'_'$noiseType'-'$training_agents'-'$noise_args'-test-'$RANDOM'-'$DATE''''
+folder="generalization_${layout}_${agent}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}}"
+outputname=''''$folder'/saved_agent_'$layout'_'$agent'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-test'''
 
-python statistics.py -q -m g -p $agent -a $agentprop -n $noise_args -g $ghost -l $layout -s '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}''' -o  $outputname
+python statistics.py -q -m g -p $agent -a $agentprop -l $layout -s '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}''' -o  $outputname

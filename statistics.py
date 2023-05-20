@@ -61,6 +61,17 @@ import json
 def default(str):
     return str + ' [Default: %default]'
 
+def defineAgents(agentOpts, pacmanName, noKeyboard):
+    
+    pacmanType = loadAgent(pacmanName, noKeyboard)
+    pacman = pacmanType(agentOpts["pacman"])
+
+    ghost_list = []
+    for ghost in agentOpts["ghosts"]:
+        ghostType = loadAgent(ghost["name"], 1)
+        ghost_list.append(ghostType(index = ghost["args"]["index"],prob = ghost["args"]["prob"]))
+
+    return pacman, ghost_list
 
 def readCommand(argv):
     """
@@ -138,8 +149,7 @@ def readCommand(argv):
     # Choose a Pacman agent
     noKeyboard = options.quietGraphics
 
-    pacmanAgentName = options.pacman
-    pacmanType = loadAgent(pacmanAgentName, noKeyboard)
+    print(options.agentArgs)
 
     try:
         agentOpts = json.loads(options.agentArgs)
@@ -150,21 +160,24 @@ def readCommand(argv):
         args['statOpts'] = json.loads(options.statArgs)
     except:
         args['statOpts'] = {}
+    
+    args["ghosts"] = {}
+    args['pacman'] = {}
+    args["perturbOpts"] = {}
 
-    try:
-        args['noiseOpts'] = json.loads(options.noiseArgs)
-    except:
-        args['noiseOpts'] = {}
+      # Instantiate Pacman with agentArgs
+    pacman, ghosts = defineAgents(agentOpts["test"], options.pacman, noKeyboard) 
+    args['pacman']["test"] = pacman
+    args["ghosts"]["test"] = []
+    args["ghosts"]["test"] = ghosts
+    args["perturbOpts"]["test"] = agentOpts["test"]["perturb"]
 
-    agentOpts["pacman"]['width'] = layout.getLayout(options.layout).width
-    agentOpts["pacman"]['height'] = layout.getLayout(options.layout).height
-
-    print(agentOpts)
-
-    pacman = pacmanType(agentOpts["pacman"])  # Instantiate Pacman with agentArgs
-    args['pacman'] = pacman
-    pacman.width = agentOpts["pacman"]['width']
-    pacman.height = agentOpts["pacman"]['height']
+    if "ensemble" in agentOpts:
+        pacman, ghosts = defineAgents(agentOpts["test"], options.pacman, noKeyboard) 
+        args['pacman']["ensemble"] = pacman
+        args["ghosts"]["ensemble"] = []
+        args["ghosts"]["ensemble"] = ghosts
+        args["perturbOpts"]["ensemble"] = agentOpts["ensemble"]["perturb"]
 
     # Don't display training games
     if 'numTrain' in agentOpts:
@@ -174,9 +187,6 @@ def readCommand(argv):
     if 'savedFolder' in agentOpts:
         args['savedFolder'] = options.savedFolder
 
-    # Choose a ghost agent
-    ghostType = loadAgent(options.ghost, 1)
-    args['ghosts'] = [ghostType(**agentOpts["ghost"], index=i+1) for i in range(options.numGhosts)]
     # Choose a display format
     if options.quietGraphics:
         import textDisplay
@@ -188,7 +198,7 @@ def readCommand(argv):
 
     args['timeout'] = options.timeout
     args['agentOpts'] = agentOpts
-    args['pacmanAgentName'] = pacmanAgentName
+    args['pacmanAgentName'] = options.pacman
     args['pretrainedAgentName'] = options.pretrainedAgent
     args['outputStats'] = options.outputStats
     args['swapsArg'] = options.swapsArg
@@ -197,16 +207,10 @@ def readCommand(argv):
 
     return args
 
-
-# NOISY_ARGS = [{},{"std":0.1, "mean":0}, {"std":0.2, "mean":0},{"std":0.3, "mean":0},{"std":0.4, "mean":0},{"std":0.5, "mean":0},{"std":0.6, "mean":0},{"std":0.7, "mean":0},{"std":0.8, "mean":0},{"std":0.9, "mean":0},
-#    {"std":0.1, "mean":0.1}, {"std":0.1, "mean":0.2},{"std":0.1, "mean":0.3},{"std":0.1, "mean":0.4},{"std":0.1, "mean":0.5},{"std":0.1, "mean":0.6},{"std":0.1, "mean":0.7},{"std":0.1, "mean":0.8},{"std":0.1, "mean":0.9}]
-
-NOISY_ARGS = [{}, {"std": 0.1, "mean": 0}, {"std": 0.2, "mean": 0}, {
-    "std": 0.3, "mean": 0}, {"std": 0.5, "mean": 0}, {"std": 0.7, "mean": 0}, {"std": 0.9, "mean": 0}]
+GENERALIZATION_WORLDS = [{"pacman":{},"ghosts":[{"name":"RandomGhost","args":{"index":1,"prob":{}}}],"perturb":{"noise":{"mean":0,"std":0.1},"perm":{}}}, 
+    {"pacman":{},"ghosts":[{"name":"RandomGhost","args":{"index":1,"prob":{}}}],"perturb":{"noise":{"mean":0,"std":0.2},"perm":{}}}]
 
 SWAP_LIST = [0,0.1,0.2,0.3,0.5,0.7,0.9]
-
-GHOST_PROB_LIST = [{"prob":0.9},{"prob":0.5},{"prob":0.6},{"prob":0.7},{"prob":0.8}]
 
 def saveRecordings(tree, game, layout, filepath):
     import time
@@ -324,9 +328,8 @@ def test_noisy_agents_epoch(transitionMatrixTreeList, n_testing_steps, rules, pa
     return across_agents_scores
 
 
-def defineTransitionMatrix(pacman, ghosts, layout, file_to_be_loaded=None, file_to_be_saved=None, applynoise=None, applyswaps=None):
+def defineTransitionMatrix(pacman, ghost, layout, file_to_be_loaded=None, file_to_be_saved=None, applyperturb=None):
     # define transition function
-
     if pacman.__class__.__name__ == "BoltzmannAgent":
         # semanticDistribution, noiseType, noiseArgs
         try:
@@ -351,20 +354,19 @@ def defineTransitionMatrix(pacman, ghosts, layout, file_to_be_loaded=None, file_
             print("starting a new agent from scratch ...")
 
     # only gaussian supported for now    
-    if applyswaps != None:
-        applyswaps = float(applyswaps)
-        transitionMatrixTree = TransitionMatrixDicTree(pacman, ghosts, layout, swaps=applyswaps)
-    if applynoise != None:
-        transitionMatrixTree = TransitionMatrixDicTree(pacman, ghosts, layout, noise=applynoise)
+    if applyperturb["perm"] != {}:
+        transitionMatrixTree = TransitionMatrixDicTree(pacman, ghost, layout, swaps=float(applyperturb["perm"]))
+    if applyperturb["noise"] != {}:
+        transitionMatrixTree = TransitionMatrixDicTree(pacman, ghost, layout, noise=applyperturb["noise"])
     else:
-        transitionMatrixTree = TransitionMatrixDicTree(pacman, ghosts, layout)
+        transitionMatrixTree = TransitionMatrixDicTree(pacman, ghost, layout)
 
     transitionMatrixTree.computeProbabilities()
 
     return transitionMatrixTree
 
 
-def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, applyswaps=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
+def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None,  applyperturb=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
 
@@ -376,9 +378,9 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
     for i in range(trained_agents):
         transitionMatrixTreeList = []
         transitionMatrixTreeList.append(defineTransitionMatrix(
-            pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=None, applyswaps=applyswaps))
+            pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded,  applyperturb=applyperturb))
         transitionMatrixTreeList.append(defineTransitionMatrix(
-            pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=None, applyswaps=applyswaps))
+            pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded,  applyperturb=applyperturb))
 
         for j in range(epochs // n_training_steps):
 
@@ -418,7 +420,7 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
     return np.mean(stats, 0)
 
 
-def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, applyswaps=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
+def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None,  applyperturb=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
 
@@ -428,22 +430,15 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
         [trained_agents, epochs // n_training_steps], dtype=np.float32)
 
     for i in range(trained_agents):
-        if applynoise:
-            transitionMatrixTree = defineTransitionMatrix(
-                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=applynoise)
-        elif applyswaps:
-            transitionMatrixTree = defineTransitionMatrix(
-                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded,applyswaps=applyswaps)
-        else:
-            transitionMatrixTree = defineTransitionMatrix(
-                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded)
+        transitionMatrixTree = defineTransitionMatrix(
+                pacman["test"], ghosts["test"], layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["test"])
+
         for j in range(epochs // n_training_steps):
             print(j)
-            if pacman.__class__.__name__ != "KeyboardAgent":
-                train_epoch(transitionMatrixTree, n_training_steps,
-                            rules, pacman, ghosts, layout, display)
+            train_epoch(transitionMatrixTree, n_training_steps,
+                            rules, pacman["test"], ghosts["test"], layout, display)
             score = np.mean(test_epoch(
-                transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, layout, display))
+                transitionMatrixTree, n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display))
             stats[i][j] = score
         print('trained agent ', i)
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
@@ -453,16 +448,12 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
         np.savetxt(args['outputStats'] +
                    f"{i}_training_agent.pkl", stats[i],  delimiter=',')
 
-        #   reinitialize pacman
-        if pacman.__class__.__name__ == "KeyboardAgent":
-            pacmanType = loadAgent(pacmanName, 0)
-        else:
-            pacmanType = loadAgent(pacmanName, 1)
-        pacman = pacmanType(pacmanArgs)
+        pacmanType = loadAgent(pacmanName, 1)
+        pacman["test"] = pacmanType(pacmanArgs)
 
     return np.mean(stats, 0)
 
-def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, applyswaps=None,epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
+def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applyperturb=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
 
@@ -471,50 +462,32 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
     stats = np.zeros(
         [trained_agents, epochs // n_training_steps], dtype=np.float32)
     
-    if pacman.__class__.__name__ == "KeyboardAgent":
-        pacmanType = loadAgent(pacmanName, 0)
-    else:
-        pacmanType = loadAgent(pacmanName, 1)
-    perturbedenv_pacman = pacmanType(pacmanArgs)
+    env_pacman = pacman["test"]
+    env_ghosts = ghosts["test"]
+    perturbedenv_pacman = pacman["ensemble"]
+    perturbedenv_ghosts = ghosts["ensemble"]
 
     for i in range(trained_agents):
 
-        transitionMatrixTreeList = []
+        transitionMatrixTreeList = {}
+        # normal environment agent
+        transitionMatrixTree = defineTransitionMatrix(
+                env_pacman, env_ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["test"])
+        transitionMatrixTreeList["test"] = transitionMatrixTree
         
-        # perturbed environment agent
-        if applynoise:
-            # normal environment agent
-            transitionMatrixTreeList.append(defineTransitionMatrix(
-                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded))
-            transitionMatrixTree = defineTransitionMatrix(
-                perturbedenv_pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=applynoise)
-            transitionMatrixTreeList.append(transitionMatrixTree)
-        elif applyswaps:
-            # normal environment agent
-            transitionMatrixTreeList.append(defineTransitionMatrix(
-                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded))
-            transitionMatrixTree = defineTransitionMatrix(
-                perturbedenv_pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded,applyswaps=applyswaps)
-            transitionMatrixTreeList.append(transitionMatrixTree)
-        else:
-            # easier environment agent
-            ghostType = loadAgent("MoveMostlyWestGhost",1)
-            transitionMatrixTree = defineTransitionMatrix(
-                perturbedenv_pacman, [ghostType(index=i+1, prob=0.9) for i in range(len(ghosts))] , layout, file_to_be_loaded=file_to_be_loaded)
-            transitionMatrixTreeList.append(transitionMatrixTree)
-            # harder
-            transitionMatrixTreeList.append(defineTransitionMatrix(
-                pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded))
+        transitionMatrixTree = defineTransitionMatrix(
+                perturbedenv_pacman, perturbedenv_ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["ensemble"])
+        transitionMatrixTreeList["ensemble"] = transitionMatrixTree
         
         for j in range(epochs // n_training_steps):
             print(j)
-            if pacman.__class__.__name__ != "KeyboardAgent":
-                train_epoch(transitionMatrixTreeList[0], n_training_steps,
-                            rules, pacman, ghosts, layout, display)
-                train_epoch(transitionMatrixTreeList[1], n_training_steps,
-                            rules, perturbedenv_pacman, ghosts, layout, display)
+            if env_pacman.__class__.__name__ != "KeyboardAgent":
+                train_epoch(transitionMatrixTreeList["test"], n_training_steps,
+                            rules, env_pacman, env_ghosts, layout, display)
+                train_epoch(transitionMatrixTreeList["ensemble"], n_training_steps,
+                            rules, perturbedenv_pacman, perturbedenv_ghosts, layout, display)
             score = np.mean(test_epoch(
-                transitionMatrixTreeList[1], n_testing_steps, rules, perturbedenv_pacman, ghosts, layout, display, ensemble_agent=pacman))
+                transitionMatrixTreeList["test"], n_testing_steps, rules, env_pacman, env_ghosts, layout, display, ensemble_agent=perturbedenv_pacman))
             stats[i][j] = score
         print('trained agent ', i)
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
@@ -524,88 +497,65 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
         np.savetxt(args['outputStats'] +
                    f"{i}_training_agent.pkl", stats[i],  delimiter=',')
 
-        #   reinitialize pacman
-        if pacman.__class__.__name__ == "KeyboardAgent":
-            pacmanType = loadAgent(pacmanName, 0)
-        else:
-            pacmanType = loadAgent(pacmanName, 1)
-        pacman = pacmanType(pacmanArgs)
-        perturbedenv_pacman = pacmanType(pacmanArgs)
+        # reinitialize agents
+        perturbedenv_pacmanType = loadAgent(pacmanName, 1) 
+        perturbedenv_pacman = perturbedenv_pacmanType(pacmanArgs)
+        pacmanType = loadAgent(pacmanName, 1) 
+        env_pacman = pacmanType(pacmanArgs)
 
     return np.mean(stats, 0)
 
 
-def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, applyswaps=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
+def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applyperturb=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
 
     rules = ClassicGameRules(timeout)
 
     stats = np.zeros(
-        [trained_agents, len(NOISY_ARGS), epochs // n_training_steps], dtype=np.float32)
+        [trained_agents, len(GENERALIZATION_WORLDS) + 1, epochs // n_training_steps], dtype=np.float32)
 
     for i in range(trained_agents):
         transitionMatrixTreeList = []
-        if applynoise:
+        transitionMatrixTree = defineTransitionMatrix(
+                pacman["test"], ghosts["test"], layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["test"])
+        transitionMatrixTreeList.append(transitionMatrixTree)
+        if applyperturb:
             print("adding noise...")
-            for n in range(len(NOISY_ARGS)):
+            for n in range(len(GENERALIZATION_WORLDS)):
+                newworld_pacman, newworld_ghosts = defineAgents(GENERALIZATION_WORLDS[n], pacmanName, 1) 
                 transitionMatrixTreeList.append(defineTransitionMatrix(
-                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=NOISY_ARGS[n]))
-        elif applyswaps: 
-            print("adding permutations...")   
-            for n in range(len(SWAP_LIST)):
-                transitionMatrixTreeList.append(defineTransitionMatrix(
-                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyswaps=SWAP_LIST[n]))
-        else:
-            for n in range(len(GHOST_PROB_LIST)):
-                ghostType = loadAgent("MoveMostlyWestGhost",1)
-                transitionMatrixTreeList.append(defineTransitionMatrix(
-                    pacman, [ghostType(index=i+1, **GHOST_PROB_LIST[n]) for i in range(len(ghosts))] , layout, file_to_be_loaded=file_to_be_loaded))
-                
+                    newworld_pacman, newworld_ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=GENERALIZATION_WORLDS[n]["perturb"]))
+
         for j in range(epochs // n_training_steps):
 
-            if record_range and j >= record_range["min_range"] and j < record_range["max_range"]:
-                recordpath = args['outputStats'] + \
-                    "-generalization-RECORDING-" + f"{j}_epoch"
-            else:
-                recordpath = None
-
             print(j)
-            if pacman.__class__.__name__ != "KeyboardAgent":
-                train_epoch(transitionMatrixTreeList[0], n_training_steps,
-                            rules, pacman, ghosts, layout, display)
+            train_epoch(transitionMatrixTreeList[0], n_training_steps,
+                            rules, pacman["test"], ghosts["test"], layout, display)
             scores = test_noisy_agents_epoch(
-                transitionMatrixTreeList, n_testing_steps, rules, pacman, ghosts, layout, display, record=recordpath)
+                transitionMatrixTreeList, n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display)
             for k in range(len(scores)):
                 stats[i][k][j] = np.mean(scores[k])
 
         print('trained agent ', i)
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
+        
+        for k in range(len(GENERALIZATION_WORLDS)):
+            ghost_list=[]
+            for ghost in GENERALIZATION_WORLDS[k]["ghosts"]:
+                string = str(ghost["name"]) + "_" + str(ghost["args"])
+                ghost_list.append(string)
+            nameghosts = "_".join(ghost_list)
+            print(nameghosts)
+            if not os.path.exists(args['outputStats'].split('/')[0]):
+                os.makedirs(args['outputStats'].split('/')[0])
+            np.savetxt(args['outputStats'] + f'_{nameghosts}_' 
+            + f'{GENERALIZATION_WORLDS[k]["perturb"]["noise"]}_end_' 
+            + f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
 
-        if applynoise:
-            for k in range(len(NOISY_ARGS)):
-                if not os.path.exists(args['outputStats'].split('/')[0]):
-                    os.makedirs(args['outputStats'].split('/')[0])
-                np.savetxt(args['outputStats'] + f"_{NOISY_ARGS[k]}_" +
-                        f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
-        elif applyswaps:
-            for k in range(len(SWAP_LIST)):
-                if not os.path.exists(args['outputStats'].split('/')[0]):
-                    os.makedirs(args['outputStats'].split('/')[0])
-                np.savetxt(args['outputStats'] + "_{\"swaps\":"+f"{SWAP_LIST[k]}"+"}_" +
-                        f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
-        else:
-            for k in range(len(GHOST_PROB_LIST)):
-                if not os.path.exists(args['outputStats'].split('/')[0]):
-                    os.makedirs(args['outputStats'].split('/')[0])
-                np.savetxt(args['outputStats'] + f"_{GHOST_PROB_LIST[k]}_" +
-                        f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
-        #   reinitialize pacman
-        if pacman.__class__.__name__ == "KeyboardAgent":
-            pacmanType = loadAgent(pacmanName, 0)
-        else:
-            pacmanType = loadAgent(pacmanName, 1)
-        pacman = pacmanType(pacmanArgs)
+        pacmanType = loadAgent(pacmanName, 1)
+        pacman["test"] = pacmanType(pacmanArgs)
+        
 
     return np.mean(stats, 0)
 
@@ -613,7 +563,7 @@ CURRICULUM_NOISE = [{"noise":{"mean":0, "std":0}, "epochs": 650}]
 CURRICULUM_SWAPS = [{"swaps":0, "epochs": 200}]
 
 
-def newTrainingMethod(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applynoise=None, applyswaps=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
+def newTrainingMethod(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None,  applyperturb=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
 
@@ -626,24 +576,24 @@ def newTrainingMethod(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
         transitionMatrixTreeList = []
         current_list = []
 
-        if applynoise:
+        if applyperturb:
             print("adding noise...")
             current_list = CURRICULUM_NOISE.copy()
             for n in CURRICULUM_NOISE:
                 transitionMatrixTreeList.append(defineTransitionMatrix(
-                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=n["noise"]))
+                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=n["noise"]))
             transitionMatrixTreeList.append(defineTransitionMatrix(
-                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applynoise=applynoise))
-            current_list.append({"noise":applynoise, "epochs":epochs})
-        if applyswaps: 
+                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb))
+            current_list.append({"noise":applyperturb, "epochs":epochs})
+        if applyperturb: 
             print("adding permutations...")   
             current_list = CURRICULUM_SWAPS.copy()
             for n in CURRICULUM_SWAPS:
                 transitionMatrixTreeList.append(defineTransitionMatrix(
-                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyswaps=n["swaps"]))
+                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=n["swaps"]))
             transitionMatrixTreeList.append(defineTransitionMatrix(
-                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyswaps=applyswaps))
-            current_list.append({"swaps":applyswaps, "epochs":epochs})
+                    pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb))
+            current_list.append({"swaps":applyperturb, "epochs":epochs})
         
         current_transition_fn = transitionMatrixTreeList[0]
         current_transition_fn_id = 0
@@ -700,25 +650,25 @@ if __name__ == '__main__':
     args = readCommand(sys.argv[1:])  # Get game components based on input
     if args['mode'] == 'l':
         output = runLearnability(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
-                                 args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applynoise=args['noiseOpts'], applyswaps=args["swapsArg"], **args['statOpts'])
+                                 args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], **args['statOpts'])
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
     elif args['mode'] == 's':
         output = runStatistics(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
-                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applynoise=args['noiseOpts'],  applyswaps=args["swapsArg"], **args['statOpts'])
+                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], **args['statOpts'])
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
     elif args['mode'] == 'm':
         output = newTrainingMethod(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
-                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applynoise=args['noiseOpts'],  applyswaps=args["swapsArg"], **args['statOpts'])
+                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], **args['statOpts'])
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
     elif args['mode'] == 'e':
         output = runEnsembleAgents(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
-                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applynoise=args['noiseOpts'],  applyswaps=args["swapsArg"], **args['statOpts'])
+                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], **args['statOpts'])
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
     elif args['mode'] == 'g':
         output = runGenralization(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
-                                  args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applynoise=args['noiseOpts'],  applyswaps=args["swapsArg"], **args['statOpts'])
-        for n in range(len(NOISY_ARGS)):
+                                  args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], **args['statOpts'])
+        for n in range(len(GENERALIZATION_WORLDS)):
             np.savetxt(args['outputStats'] +
-                       f"_{NOISY_ARGS[n]}"+".pkl", output[n],  delimiter=',')
+                       f"_{GENERALIZATION_WORLDS[n]}"+".pkl", output[n],  delimiter=',')
 
     pass
