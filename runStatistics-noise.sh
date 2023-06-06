@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #SBATCH -c 1
-#SBATCH --time=10:00:00
-#SBATCH --job-name=ensemble
+#SBATCH --time=5:00:00
+#SBATCH --job-name=generalization
 
 #SBATCH -p short
-#SBATCH --mem=15G
+#SBATCH --mem=5G
 #SBATCH -o slurm_outputs_scripts/hostname_%j.out
 #SBATCH -e slurm_outputs_scripts/hostname_%j.err
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
@@ -23,8 +23,8 @@ agent="BoltzmannAgent"
 
 testingenv_mean=0
 testingenv_std=0
-testingenv_ghost_name="RandomGhost" 
-testingenv_ghost_args='{"index":1,"prob":{}}'
+testingenv_ghost_name="MoveMostlyWestGhost" 
+testingenv_ghost_args='{"index":1,"prob":0.1}'
 testingenv_ghostarg='[{"name":"'$testingenv_ghost_name'","args":'$testingenv_ghost_args'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
 testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
@@ -32,8 +32,6 @@ echo $testingenv_ghostarg
 
 
 agentprop='{"test":{"pacman":{},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'}}'
-
-run_untill=1000
 
 folder="generalization_${layout}_${agent}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}}"
 outputname=''''$folder'/saved_agent_'$layout'_'$agent'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-test'''

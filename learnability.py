@@ -5,7 +5,7 @@ import numpy as np
 
 outfiles = {}
 
-for folder in glob.glob('./ensemble-trial*'):
+for folder in glob.glob('./ensemble_v2_BoltzmannAgent_RandomGhost_{"index":1,"prob*'):
     try:
         os.chdir(f"{folder}")
         print(folder)

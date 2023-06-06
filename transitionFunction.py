@@ -205,6 +205,8 @@ class TransitionMatrixDicTree():
             for throughaction in self.transitionMatrixDic[fromstate]:
                 np.testing.assert_almost_equal(
                     sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
+        
+        print("numstates: ", len(self.transitionMatrixDic))
 
     def createMatrixrecursively(self, agentid, lastpacmanstate, throughactions, currentelementhash, prob):
         if currentelementhash not in self.helperDic[agentid]:
@@ -254,12 +256,8 @@ class TransitionMatrixDicTree():
         game = rules.newGame(layout, agents[0], agents[1:], display)
         state = game.state
         display.initialize(state.data)
-        for agentIndex, actiontostatehash, direction in actions:
-            listpos = self.fromBaseTen(
-                actiontostatehash, self.state.data.layout.width*self.state.data.layout.height, digits=np.zeros((self.numAgents), dtype=int))
-            posingrid = self.getPositionInGridCoord(listpos[agentIndex])
-            state = state.movetoAnyState(1, agentIndex, posingrid)
-
+        for agentId, actiontostate, pacaction in actions:
+            state = self.moveToPosition(pacaction, actiontostate, agentId)
             # Change the display
             display.update(state.data)
 
