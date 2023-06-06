@@ -689,17 +689,21 @@ class Game:
                 self.unmute()
             else:
                 observation = self.state.deepCopy()
-            
+
             if agentIndex == 0:
-                fromstatehash = self.transitionFunctionTree.getHashfromState(observation)
-                legal_actions = self.transitionFunctionTree.transitionMatrixDic[fromstatehash].keys()
+                fromstatehash = self.transitionFunctionTree.getHashfromState(
+                    observation)
+                legal_actions = self.transitionFunctionTree.transitionMatrixDic[fromstatehash].keys(
+                )
                 if len(legal_actions) != 0:
-                    pacaction = agent.getAction(observation, legal_actions, game_number, total_games, isInitial,ensemble_agent=ensemble_agent)
+                    pacaction = agent.getAction(
+                        observation, legal_actions, game_number, total_games, isInitial, ensemble_agent=ensemble_agent)
                     actionstostateshashdict = self.transitionFunctionTree.getLegalActions(
                         fromstatehash, pacaction)
-                    nextstatehash = self.transitionFunctionTree.generateSuccessor(actionstostateshashdict)
+                    nextstatehash = self.transitionFunctionTree.generateSuccessor(
+                        actionstostateshashdict)
                     isInitial = False
-            
+
             # Solicit an action
             self.mute(agentIndex)
             if self.catchExceptions:
@@ -749,7 +753,7 @@ class Game:
 
             self.unmute()
             # Execute the action
-            
+
             if self.catchExceptions:
                 try:
                     self.state = self.transitionFunctionTree.moveToPosition(
@@ -761,8 +765,8 @@ class Game:
                     return
             else:
                 self.state = self.transitionFunctionTree.moveToPosition(
-                        self.state, pacaction, nextstatehash, agentIndex)
-      
+                    self.state, pacaction, nextstatehash, agentIndex)
+
             # Change the display
             self.moveHistory.append((pacaction, nextstatehash, agentIndex))
             self.display.update(self.state.data)
@@ -777,9 +781,10 @@ class Game:
 
             if _BOINC_ENABLED:
                 boinc.set_fraction_done(self.getProgress())
-            
+
         if self.gameOver or self.transitionFunctionTree.transitionMatrixDic[nextstatehash] == {}:
-            self.agents[0].getAction(self.state, [], game_number, total_games, isInitial)
+            self.agents[0].getAction(
+                self.state, [], game_number, total_games, isInitial)
         # inform a learning agent of the game result
         for agentIndex, agent in enumerate(self.agents):
             if "final" in dir(agent):
