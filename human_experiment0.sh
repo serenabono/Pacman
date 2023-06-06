@@ -39,7 +39,7 @@ do
   layout=$(echo "$line" | cut -d "," -f 1)
   
   folder="recordings_${layout}_${agent}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}}"
-  outputname=''''$folder'/saved_agent_'$layout'_'$agent'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-test'''
+  outputname=''''$folder'/saved_agent_'$layout'_'$agent'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$DATE'-test'''
 
   agentprop='{"test":{"pacman":{},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'}}'
   echo $testingenv_ghostarg

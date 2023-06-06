@@ -609,7 +609,7 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
-    def run(self, game_number, total_games, ensemble_agent=None):
+    def run(self, game_number, total_games, ensemble_agent=None, record=None):
         """
         Main control loop for game play.
         """
@@ -703,6 +703,10 @@ class Game:
                     nextstatehash = self.transitionFunctionTree.generateSuccessor(
                         actionstostateshashdict)
                     isInitial = False
+                    
+                    if record:
+                        import graphicsDisplay
+                        graphicsDisplay.saveFrame()
 
             # Solicit an action
             self.mute(agentIndex)

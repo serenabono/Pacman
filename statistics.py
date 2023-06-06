@@ -58,6 +58,8 @@ from transitionFunction import *
 from pacman import ClassicGameRules
 import noise
 import json
+from pathlib import Path
+
 def default(str):
     return str + ' [Default: %default]'
 
@@ -293,6 +295,8 @@ def train_epoch(transitionMatrixTree, n_training_steps, rules, pacman, ghosts, l
             pacman.set_trainable(trainable=True)
         game.run(i, n_training_steps)
 
+def shellquote(s):
+    return "'" + s.replace("'", "'\\''") + "'"
 
 def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, layout, gameDisplay, ensemble_agent=None, record=None):
     scores = []
@@ -301,6 +305,13 @@ def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, lay
         import textDisplay
         game = rules.newGame(layout, pacman, ghosts,
                              gameDisplay, 1, catchExceptions=False)
+        if record:
+            import graphicsDisplay
+            grapDisplay = graphicsDisplay.PacmanGraphics(
+            1, frameTime=0.1)
+            game.display = grapDisplay
+            game.display.initialize(game.state.data)
+
         transitionMatrixTree.state = game.state
         game.transitionFunctionTree = transitionMatrixTree.copy()
         if 'Boltzmann' in pacman.__class__.__name__:
@@ -308,11 +319,13 @@ def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, lay
         elif 'PacmanDQN' in pacman.__class__.__name__:
             pacman.set_trainable(trainable=False)
 
-        game.run(i, n_testing_steps, ensemble_agent=ensemble_agent)
-        if record:
-            saveRecordings(transitionMatrixTree, game,
-                           layout, record + f"-{i}_round.pkl")
+        game.run(i, n_testing_steps, ensemble_agent=ensemble_agent, record=record)
         scores.append(game.state.getScore())
+
+        gifname = shellquote(f'./{record}_agent_{i}.gif')
+        if record:
+            os.system(f"convert -delay 7 -loop 1 -compress lzw -layers optimize ./frames/* {gifname}")
+            os.system(f"rm -r frames/**")
 
     return np.asarray(scores)
 
@@ -326,6 +339,14 @@ def test_noisy_agents_epoch(transitionMatrixTreeList, n_testing_steps, rules, pa
             import textDisplay
             game = rules.newGame(layout, pacman, ghosts,
                                  gameDisplay, 1, catchExceptions=False)
+            
+            if record:
+                import graphicsDisplay
+                grapDisplay = graphicsDisplay.PacmanGraphics(
+                1, frameTime=0.1)
+                game.display = grapDisplay
+                game.display.initialize(game.state.data)
+
             transitionMatrixTreeList[n].state = game.state
             game.transitionFunctionTree = transitionMatrixTreeList[n].copy()
 
@@ -334,12 +355,8 @@ def test_noisy_agents_epoch(transitionMatrixTreeList, n_testing_steps, rules, pa
             elif 'PacmanDQN' in pacman.__class__.__name__:
                 pacman.set_trainable(trainable=False)
 
-            game.run(i, n_testing_steps)
+            game.run(i, n_testing_steps, record=record)
             scores.append(game.state.getScore())
-
-            if record:
-                saveRecordings(transitionMatrixTree, game,
-                               layout, record + f"_{GENERALIZATION_WORLDS[n]}" + f"-{i}_round.pkl")
 
         across_agents_scores.append(np.asarray(scores))
 
@@ -408,7 +425,8 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
         for j in range(epochs // n_training_steps):
 
             if record_range and j >= record_range["min_range"] and j < record_range["max_range"]:
-                recordpath = args['outputStats'] + \
+                os.makedirs(args['outputStats'].split('/')[0] + "/record/")
+                recordpath = args['outputStats'].split('/')[0] + "/record/" + args['outputStats'].split('/')[1] + \
                     "-learnability-RECORDING-" + f"{j}_epoch"
             else:
                 recordpath = None
@@ -453,6 +471,10 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
 
+    if record:
+        if not os.path.exists(record.split('/')[0] + "/record/"):
+            os.makedirs(record.split('/')[0] + "/record/")
+
     for i in range(trained_agents):
         transitionMatrixTree = defineTransitionMatrix(
             pacman["test"], ghosts["test"], layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["test"])
@@ -462,7 +484,9 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
 
             recordpath = None
             if record:
-                recordpath = record + f"{j}_epoch_{i}_agent"
+                recordpath = record.split(
+                    '/')[0] + "/record/" + record.split('/')[1] + f"{i}_training_agent_{j}_epoch"
+
             train_epoch(transitionMatrixTree, n_training_steps,
                         rules, pacman["test"], ghosts["test"], layout, display)
             score = np.mean(test_epoch(
@@ -497,6 +521,10 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
 
+    if record:
+        if not os.path.exists(record.split('/')[0] + "/record/"):
+            os.makedirs(record.split('/')[0] + "/record/")
+
     for i in range(trained_agents):
 
         transitionMatrixTreeList = {}
@@ -513,7 +541,9 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
             print(j)
             recordpath = None
             if record:
-                recordpath = record + f"{j}_epoch_{i}_agent"
+                recordpath = record.split(
+                    '/')[0] + "/record/" + record.split('/')[1] + f"{i}_training_agent_{j}_epoch"
+
             if env_pacman.__class__.__name__ != "KeyboardAgent":
                 train_epoch(transitionMatrixTreeList["test"], n_training_steps,
                             rules, env_pacman, env_ghosts, layout, display)
@@ -549,6 +579,10 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
 
+    if record:
+        if not os.path.exists(record.split('/')[0] + "/record/"):
+            os.makedirs(record.split('/')[0] + "/record/")
+
     for i in range(trained_agents):
         transitionMatrixTreeList = []
         transitionMatrixTree = defineTransitionMatrix(
@@ -565,8 +599,10 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
         for j in range(epochs // n_training_steps):
 
             recordpath = None
+
             if record:
-                recordpath = record + f"{j}_epoch_{i}_agent"
+                recordpath = record.split(
+                    '/')[0] + "/record/" + record.split('/')[1] + f"{i}_training_agent_{j}_epoch"
 
             print(j)
             train_epoch(transitionMatrixTreeList[0], n_training_steps,
