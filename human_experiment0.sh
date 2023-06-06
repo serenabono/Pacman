@@ -25,7 +25,7 @@ testingenv_std=0
 testingenv_ghost_name="MoveMostlyWestGhost" 
 testingenv_ghost_args='{"index":1,"prob":0.1}'
 
-input="./experiment.csv"
+input="/home/serena/Documents/thesis/QLearningAgentTransitionFunction/experiment1.csv"
 userID=$$
 echo "userID: $userID"
 

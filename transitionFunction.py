@@ -256,8 +256,8 @@ class TransitionMatrixDicTree():
         game = rules.newGame(layout, agents[0], agents[1:], display)
         state = game.state
         display.initialize(state.data)
-        for agentId, actiontostate, pacaction in actions:
-            state = self.moveToPosition(pacaction, actiontostate, agentId)
+        for pacaction, actiontostate, agentId in actions:
+            state = self.moveToPosition(state, pacaction, actiontostate, agentId)
             # Change the display
             display.update(state.data)
 

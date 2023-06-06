@@ -753,7 +753,7 @@ class Game:
             if self.catchExceptions:
                 try:
                     self.state = self.transitionFunctionTree.moveToPosition(
-                        self.state, nextstatehash, agentIndex)
+                        self.state, pacaction, nextstatehash, agentIndex)
                 except Exception as data:
                     self.mute(agentIndex)
                     self._agentCrash(agentIndex)
@@ -764,7 +764,7 @@ class Game:
                         self.state, pacaction, nextstatehash, agentIndex)
       
             # Change the display
-            self.moveHistory.append((agentIndex, nextstatehash, self.transitionFunctionTree.toactions[pacaction]))
+            self.moveHistory.append((pacaction, nextstatehash, agentIndex))
             self.display.update(self.state.data)
 
             self.rules.process(self.state, self)
