@@ -17,7 +17,10 @@ noiseType="GaussianNoise"
 training_agents=500
 n_training_steps=10
 n_testing_steps=10
-
+max_record=1000
+min_record=990
+record_range='{"max":'$max_record',"min":'$min_record'}'
+run_untill=1000
 epochs=1000
 agent="BoltzmannAgent"
 
@@ -30,6 +33,8 @@ testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
 testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 echo $testingenv_ghostarg
 
+
+echo '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}'''
 
 agentprop='{"test":{"pacman":{},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'}}'
 

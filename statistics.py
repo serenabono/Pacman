@@ -167,6 +167,8 @@ def readCommand(argv):
         args['statOpts'] = json.loads(options.statArgs)
     except:
         args['statOpts'] = {}
+    
+    print(args['statOpts'])
 
     args["ghosts"] = {}
     args['pacman'] = {}
@@ -230,6 +232,12 @@ GENERALIZATION_WORLDS = [{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args
 
 
 SWAP_LIST = [0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9]
+
+def recordRange(index, range):
+    if index < range["max"] and index >= range["min"]: 
+        return True
+    else:
+        return False
 
 
 def saveRecordings(tree, game, layout, filepath):
@@ -414,7 +422,9 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
 
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
-
+    
+    os.system("rm frames/**")
+    
     for i in range(trained_agents):
         transitionMatrixTreeList = []
         transitionMatrixTreeList.append(defineTransitionMatrix(
@@ -465,11 +475,15 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
 
     rules = ClassicGameRules(timeout)
 
+    print("record_range: ",record_range)
+
     stats = np.zeros(
         [trained_agents, epochs // n_training_steps], dtype=np.float32)
 
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
+    
+    os.system("rm frames/**")
 
     if record:
         if not os.path.exists(record.split('/')[0] + "/record/"):
@@ -483,7 +497,7 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
             print(j)
 
             recordpath = None
-            if record:
+            if record and recordRange(j*n_training_steps, record_range):
                 recordpath = record.split(
                     '/')[0] + "/record/" + record.split('/')[1] + f"{i}_training_agent_{j}_epoch"
 
@@ -520,6 +534,8 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
 
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
+    
+    os.system("rm frames/**")
 
     if record:
         if not os.path.exists(record.split('/')[0] + "/record/"):
@@ -540,7 +556,7 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
         for j in range(epochs // n_training_steps):
             print(j)
             recordpath = None
-            if record:
+            if record and recordRange(j*n_training_steps, record_range):
                 recordpath = record.split(
                     '/')[0] + "/record/" + record.split('/')[1] + f"{i}_training_agent_{j}_epoch"
 
@@ -578,6 +594,8 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
 
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
+    
+    os.system("rm frames/**")
 
     if record:
         if not os.path.exists(record.split('/')[0] + "/record/"):
@@ -600,7 +618,7 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
 
             recordpath = None
 
-            if record:
+            if record and recordRange(j*n_training_steps, record_range):
                 recordpath = record.split(
                     '/')[0] + "/record/" + record.split('/')[1] + f"{i}_training_agent_{j}_epoch"
 
