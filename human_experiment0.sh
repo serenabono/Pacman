@@ -16,8 +16,13 @@ noiseType="GaussianNoise"
 training_agents=500
 n_training_steps=10
 n_testing_steps=10
-
 epochs=1000
+
+max_record=$epochs
+min_record=0
+record_range='{"max":'$max_record',"min":'$min_record'}'
+run_untill=$epochs
+
 agent="BoltzmannAgent"
 
 testingenv_mean=0
@@ -25,7 +30,7 @@ testingenv_std=0
 testingenv_ghost_name="MoveMostlyWestGhost" 
 testingenv_ghost_args='{"index":1,"prob":0.1}'
 
-input="/home/serena/Documents/thesis/QLearningAgentTransitionFunction/experiment1.csv"
+input="./experiment.csv"
 userID=$$
 echo "userID: $userID"
 

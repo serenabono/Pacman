@@ -20,6 +20,10 @@ n_testing_steps=10
 
 epochs=1000
 agent="BoltzmannAgent"
+max_record=1000
+min_record=990
+record_range='{"max":'$max_record',"min":'$min_record'}'
+run_untill=1000
 
 testingenv_mean=0
 testingenv_std=0.1
