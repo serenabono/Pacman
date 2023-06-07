@@ -13,7 +13,7 @@
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
-training_agents=2
+training_agents=1
 n_training_steps=0
 n_testing_steps=10
 epochs=10
@@ -42,7 +42,7 @@ do
   testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
   testingenv_ghostarg='[{"name":"'$testingenv_ghost_name'","args":'$testingenv_ghost_args'}]'
   layout=$(echo "$line" | cut -d "," -f 1)
-  
+  echo $layout
   folder="human_experiments_${layout}_${agent}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}}"
   outputname=''''$folder'/saved_agent_'$layout'_'$agent'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$DATE'-test'''
 
