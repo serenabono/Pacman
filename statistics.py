@@ -418,7 +418,7 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
     rules = ClassicGameRules(timeout)
 
     stats = np.zeros(
-        [trained_agents, epochs // n_training_steps], dtype=np.float32)
+        [trained_agents, epochs // n_testing_steps], dtype=np.float32)
 
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
@@ -432,7 +432,7 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
         transitionMatrixTreeList.append(defineTransitionMatrix(
             pacman, ghosts, layout, file_to_be_loaded=file_to_be_loaded,  applyperturb=applyperturb))
 
-        for j in range(epochs // n_training_steps):
+        for j in range(epochs // n_testing_steps):
 
             if record_range and j >= record_range["min_range"] and j < record_range["max_range"]:
                 os.makedirs(args['outputStats'].split('/')[0] + "/record/")
@@ -447,7 +447,7 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
                 transitionMatrixTree = transitionMatrixTreeList[0]
 
             print(j)
-            if pacman.__class__.__name__ != "KeyboardAgent":
+            if pacman["test"].__class__.__name__ != "KeyboardAgent":
                 train_epoch(transitionMatrixTree, n_training_steps,
                             rules, pacman, ghosts, layout, display)
             score = np.mean(test_epoch(
@@ -460,7 +460,7 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
                    f"{i}_training_agent.pkl", stats[i],  delimiter=',')
 
         #   reinitialize pacman
-        if pacman.__class__.__name__ == "KeyboardAgent":
+        if pacman["test"].__class__.__name__ == "KeyboardAgent":
             pacmanType = loadAgent(pacmanName, 0)
         else:
             pacmanType = loadAgent(pacmanName, 1)
@@ -478,22 +478,24 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
     print("record_range: ",record_range)
 
     stats = np.zeros(
-        [trained_agents, epochs // n_training_steps], dtype=np.float32)
+        [trained_agents, epochs // n_testing_steps], dtype=np.float32)
 
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
     
     os.system("rm frames/**")
 
+    print(pacman["test"].__class__.__name__)
+
     if record:
         if not os.path.exists(record.split('/')[0] + "/record/"):
             os.makedirs(record.split('/')[0] + "/record/")
-
+    
     for i in range(trained_agents):
         transitionMatrixTree = defineTransitionMatrix(
             pacman["test"], ghosts["test"], layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["test"])
 
-        for j in range(epochs // n_training_steps):
+        for j in range(epochs // n_testing_steps):
             print(j)
 
             recordpath = None
@@ -511,9 +513,12 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
 
         np.savetxt(args['outputStats'] +
                    f"{i}_training_agent.pkl", stats[i],  delimiter=',')
-
-        pacmanType = loadAgent(pacmanName, 1)
-        pacman["test"] = pacmanType(pacmanArgs)
+    
+        if pacman["test"].__class__.__name__ == "KeyboardAgent":
+            pacmanType = loadAgent(pacmanName, 0)
+        else:
+            pacmanType = loadAgent(pacmanName, 1)
+            pacman["test"] = pacmanType(pacmanArgs)
 
     return np.mean(stats, 0)
 
@@ -525,7 +530,7 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
     rules = ClassicGameRules(timeout)
 
     stats = np.zeros(
-        [trained_agents, epochs // n_training_steps], dtype=np.float32)
+        [trained_agents, epochs // n_testing_steps], dtype=np.float32)
 
     env_pacman = pacman["test"]
     env_ghosts = ghosts["test"]
@@ -553,14 +558,14 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
             perturbedenv_pacman, perturbedenv_ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["ensemble"])
         transitionMatrixTreeList["ensemble"] = transitionMatrixTree
 
-        for j in range(epochs // n_training_steps):
+        for j in range(epochs // n_testing_steps):
             print(j)
             recordpath = None
             if record and recordRange(j*n_training_steps, record_range):
                 recordpath = record.split(
                     '/')[0] + "/record/" + record.split('/')[1] + f"{i}_training_agent_{j}_epoch"
 
-            if env_pacman.__class__.__name__ != "KeyboardAgent":
+            if env_pacman["test"].__class__.__name__ != "KeyboardAgent":
                 train_epoch(transitionMatrixTreeList["test"], n_training_steps,
                             rules, env_pacman, env_ghosts, layout, display)
                 train_epoch(transitionMatrixTreeList["ensemble"], n_training_steps,
@@ -590,7 +595,7 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
     rules = ClassicGameRules(timeout)
 
     stats = np.zeros(
-        [trained_agents, len(GENERALIZATION_WORLDS) + 1, epochs // n_training_steps], dtype=np.float32)
+        [trained_agents, len(GENERALIZATION_WORLDS) + 1, epochs // n_testing_steps], dtype=np.float32)
 
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
@@ -614,7 +619,7 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
                 transitionMatrixTreeList.append(defineTransitionMatrix(
                     newworld_pacman, newworld_ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=GENERALIZATION_WORLDS[n]["perturb"]))
 
-        for j in range(epochs // n_training_steps):
+        for j in range(epochs // n_testing_steps):
 
             recordpath = None
 

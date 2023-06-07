@@ -13,10 +13,10 @@
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
-training_agents=500
-n_training_steps=10
+training_agents=2
+n_training_steps=0
 n_testing_steps=10
-epochs=1000
+epochs=10
 
 max_record=$epochs
 min_record=0
@@ -43,11 +43,11 @@ do
   testingenv_ghostarg='[{"name":"'$testingenv_ghost_name'","args":'$testingenv_ghost_args'}]'
   layout=$(echo "$line" | cut -d "," -f 1)
   
-  folder="recordings_${layout}_${agent}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}}"
+  folder="human_experiments_${layout}_${agent}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}}"
   outputname=''''$folder'/saved_agent_'$layout'_'$agent'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$DATE'-test'''
 
   agentprop='{"test":{"pacman":{},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'}}'
   echo $testingenv_ghostarg
-  python statistics.py -r -m l -p $agent -a $agentprop -l $layout -s '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}''' -o  $outputname
+  python statistics.py -m l -p $agent -a $agentprop -l $layout -s '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}''' -o  $outputname
 
 done < "$input"
