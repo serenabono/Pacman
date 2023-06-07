@@ -129,7 +129,6 @@ dmypy.json
 .pyre/
 
 # generated output files
-*.csv
 ql-smallClassic-**
 saves_smallClassic/**
 slurm_outputs_scripts/**
