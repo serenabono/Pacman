@@ -7,10 +7,11 @@ import pickle
 
 class QLearningAgent:
 
-    def __init__(self, exploration_strategy="BOLTZMANN", T=None, epsilon=None, on_policy=False, initialization_value=0, gamma=0.9, alpha=0.05, is_train=False, load_existing_agent=False):
+    def __init__(self, args, exploration_strategy="BOLTZMANN", T=None, epsilon=None, on_policy=False, initialization_value=0, gamma=0.9, alpha=0.05, is_train=False, load_existing_agent=True):
         ##################q learning hyperparameters#############################
         if is_train:
-            self.EXPLORATION_STRATEGY = "BOLTZMANN"  # {E_GREEDY, BOLTZMANN}
+            # {E_GREEDY, BOLTZMANN}
+            self.EXPLORATION_STRATEGY = exploration_strategy
             self.ON_POLICY = on_policy
             self.INITIALIZE_VALUE = initialization_value
             self.GAMMA = gamma
@@ -45,17 +46,22 @@ class QLearningAgent:
                 else:
                     self.EPSILON = epsilon
 
-        if (not is_train) or (load_existing_agent):
+        if load_existing_agent:
             try:
-                loaded_agent = pickle.load(open("agent.pkl", "rb"))
+                loaded_agent = pickle.load(
+                    open("ql-smallClassic-300000.pkl", "rb"))
             except:
                 raise(
                     "Object pickle file not present. Please train and write the agent to disk first.")
             self.__class__ = loaded_agent.__class__
             self.__dict__ = loaded_agent.__dict__
 
+        if not is_train:
             if not is_train:
                 self.train = False
+
+    def set_trainable(self, trainable):
+        self.train = trainable
 
     def save_agent_to_disk(self, filename):
         pickle.dump(self, open(filename, "wb"))
@@ -72,6 +78,9 @@ class QLearningAgent:
     def initialize_q_values_if_absent(self):
         try:
             self.q_values[self.current_state]
+            for action in self.current_legal_actions:
+                if action not in self.q_values[self.current_state]:
+                    self.q_values[self.current_state][action] = self.INITIALIZE_VALUE
         except KeyError:
             self.q_values[self.current_state] = {}
             actions_q = {}
@@ -79,17 +88,32 @@ class QLearningAgent:
                 actions_q[action] = self.INITIALIZE_VALUE
             self.q_values[self.current_state] = actions_q
 
-    def sample_from_current_actions_epsilon_greedy(self):
+    def sample_from_current_actions_epsilon_greedy(self, ensemble_agent=None):
         exploration_action = None
         max_action = None
 
-        # find max val
         max_action_temp = None
         max_val = float("-inf")
-        for action in self.current_legal_actions:
-            if self.q_values[self.current_state][action] >= max_val:
-                max_val = self.q_values[self.current_state][action]
-                max_action_temp = action
+
+        if ensemble_agent:
+            q_value_to_prob_map = {}
+            for action in self.current_legal_actions:
+                q_value_to_prob_map[action] = self.q_values[self.current_state][action] * \
+                    ensemble_agent.agent.q_values[ensemble_agent.agent.current_state][action]
+
+            summation = sum(q_value_to_prob_map.values())
+
+            for action in self.current_legal_actions:
+                q_value_to_prob_map[action] /= summation
+                if q_value_to_prob_map[action] >= max_val:
+                    max_val = q_value_to_prob_map[action]
+                    max_action_temp = action
+        else:
+            # find max val
+            for action in self.current_legal_actions:
+                if self.q_values[self.current_state][action] >= max_val:
+                    max_val = self.q_values[self.current_state][action]
+                    max_action_temp = action
 
         # find max actions and other actions
         max_actions_arr = []
@@ -102,14 +126,14 @@ class QLearningAgent:
                 other_actions_arr.append(action)
 
         ############################################
-
-        max_action = np.random.choice(max_actions_arr)
-        exploration_action = np.random.choice(self.current_legal_actions)
+        max_action = np.random.choice(np.asarray(max_actions_arr))
+        exploration_action = np.random.choice(list(self.current_legal_actions))
 
         return exploration_action, max_action
 
-    def epsilon_greedy_actions(self):
-        exploration_action, max_action = self.sample_from_current_actions_epsilon_greedy()
+    def epsilon_greedy_actions(self, ensemble_agent=None):
+        exploration_action, max_action = self.sample_from_current_actions_epsilon_greedy(
+            ensemble_agent)
         if self.train:
             if np.random.uniform(0, 1) < self.EPSILON:
                 return exploration_action
@@ -126,11 +150,15 @@ class QLearningAgent:
             if rand_val <= total:
                 return k
 
-    def sample_from_current_actions_boltzmann(self):
+    def sample_from_current_actions_boltzmann(self, ensemble_agent=None):
 
         q_value_to_prob_map = {}
         for action in self.current_legal_actions:
-            q_val = self.q_values[self.current_state][action]
+            if ensemble_agent:
+                q_val = self.q_values[self.current_state][action] + \
+                    ensemble_agent.agent.q_values[ensemble_agent.agent.current_state][action]
+            else:
+                q_val = self.q_values[self.current_state][action]
             q_value_to_prob_map[action] = math.e**(q_val/self.T)
 
         summation = sum(q_value_to_prob_map.values())
@@ -139,7 +167,6 @@ class QLearningAgent:
             q_value_to_prob_map[action] /= summation
 
         # find max action
-
         max_action_temp = None
         max_val = float("-inf")
         for action in self.current_legal_actions:
@@ -163,22 +190,23 @@ class QLearningAgent:
 
         return exploration_action, max_action
 
-    def boltzmann_exploration_actions(self):
-        exploration_action, max_action = self.sample_from_current_actions_boltzmann()
+    def boltzmann_exploration_actions(self, ensemble_agent=None):
+        exploration_action, max_action = self.sample_from_current_actions_boltzmann(
+            ensemble_agent)
         if self.train:
             return exploration_action
         else:
             return max_action
 
-    def get_action(self):
+    def get_action(self, ensemble_agent=None):
         if self.current_state_type == "terminal":
             return None, None
 
         if self.EXPLORATION_STRATEGY == "E_GREEDY":
-            action = self.epsilon_greedy_actions()
+            action = self.epsilon_greedy_actions(ensemble_agent)
 
         if self.EXPLORATION_STRATEGY == "BOLTZMANN":
-            action = self.boltzmann_exploration_actions()
+            action = self.boltzmann_exploration_actions(ensemble_agent)
 
         self.current_recommended_action = action
 
