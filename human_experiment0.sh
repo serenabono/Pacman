@@ -23,7 +23,7 @@ min_record=0
 record_range='{"max":'$max_record',"min":'$min_record'}'
 run_untill=$epochs
 
-agent="BoltzmannAgent"
+agent="KeyboardAgent"
 
 testingenv_mean=0
 testingenv_std=0
@@ -48,6 +48,6 @@ do
 
   agentprop='{"test":{"pacman":{},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'}}'
   echo $testingenv_ghostarg
-  python statistics.py -q -r -m l -p $agent -a $agentprop -l $layout -s '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}''' -o  $outputname
+  python statistics.py -r -m l -p $agent -a $agentprop -l $layout -s '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}''' -o  $outputname
 
 done < "$input"
