@@ -13,7 +13,7 @@
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
-training_agents=2
+training_agents=1
 n_training_steps=0
 n_testing_steps=10
 epochs=10
