@@ -557,7 +557,7 @@ class Game:
     The Game manages the control flow, soliciting actions from agents.
     """
 
-    def __init__(self, agents, display, rules, startingIndex=0, muteAgents=False, catchExceptions=False):
+    def __init__(self, agents, display, rules, startingIndex=0, muteAgents=False, catchExceptions=False, ensemble_agent=None):
         self.agentCrashed = False
         self.agents = agents
         self.display = display
@@ -609,7 +609,7 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
-    def run(self, game_number, total_games):
+    def run(self, game_number, total_games, ensemble_agent=None, record=None):
         """
         Main control loop for game play.
         """
@@ -689,16 +689,25 @@ class Game:
                 self.unmute()
             else:
                 observation = self.state.deepCopy()
-                
+
             if agentIndex == 0:
-                fromstatehash = self.transitionFunctionTree.getHashfromState(observation)
-                legal_actions = self.transitionFunctionTree.transitionMatrixDic[fromstatehash].keys()
-                pacaction = agent.getAction(observation, legal_actions, game_number, total_games, isInitial)
-                actionstostateshashdict = self.transitionFunctionTree.getLegalActions(
-                    fromstatehash, pacaction)
-                nextstatehash = self.transitionFunctionTree.generateSuccessor(actionstostateshashdict)
-                isInitial = False
-            
+                fromstatehash = self.transitionFunctionTree.getHashfromState(
+                    observation)
+                legal_actions = self.transitionFunctionTree.transitionMatrixDic[fromstatehash].keys(
+                )
+                if len(legal_actions) != 0:
+                    pacaction = agent.getAction(
+                        observation, legal_actions, game_number, total_games, isInitial, ensemble_agent=ensemble_agent)
+                    actionstostateshashdict = self.transitionFunctionTree.getLegalActions(
+                        fromstatehash, pacaction)
+                    nextstatehash = self.transitionFunctionTree.generateSuccessor(
+                        actionstostateshashdict)
+                    isInitial = False
+                    
+                    if record:
+                        import graphicsDisplay
+                        graphicsDisplay.saveFrame()
+
             # Solicit an action
             self.mute(agentIndex)
             if self.catchExceptions:
@@ -748,11 +757,11 @@ class Game:
 
             self.unmute()
             # Execute the action
-            
+
             if self.catchExceptions:
                 try:
                     self.state = self.transitionFunctionTree.moveToPosition(
-                        self.state, nextstatehash, agentIndex)
+                        self.state, pacaction, nextstatehash, agentIndex)
                 except Exception as data:
                     self.mute(agentIndex)
                     self._agentCrash(agentIndex)
@@ -760,12 +769,14 @@ class Game:
                     return
             else:
                 self.state = self.transitionFunctionTree.moveToPosition(
-                        self.state, pacaction, nextstatehash, agentIndex)
-      
+                    self.state, pacaction, nextstatehash, agentIndex)
+
             # Change the display
-            self.moveHistory.append((agentIndex, nextstatehash, self.transitionFunctionTree.toactions[pacaction]))
+            self.moveHistory.append((pacaction, nextstatehash, agentIndex))
             self.display.update(self.state.data)
+
             self.rules.process(self.state, self)
+
             # Track progress
             if agentIndex == numAgents + 1:
                 self.numMoves += 1
@@ -774,9 +785,10 @@ class Game:
 
             if _BOINC_ENABLED:
                 boinc.set_fraction_done(self.getProgress())
-            
-        if self.gameOver:
-            self.agents[0].getAction(self.state, [], game_number, total_games, isInitial)
+
+        if self.gameOver or self.transitionFunctionTree.transitionMatrixDic[nextstatehash] == {}:
+            self.agents[0].getAction(
+                self.state, [], game_number, total_games, isInitial)
         # inform a learning agent of the game result
         for agentIndex, agent in enumerate(self.agents):
             if "final" in dir(agent):
