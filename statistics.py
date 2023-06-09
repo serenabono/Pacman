@@ -228,7 +228,11 @@ def readCommand(argv):
 
 
 GENERALIZATION_WORLDS = [{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}]
+    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.2}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.9}, "perm": {}}}]
 
 
 SWAP_LIST = [0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9]
@@ -330,9 +334,9 @@ def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, lay
         game.run(i, n_testing_steps, ensemble_agent=ensemble_agent, record=record)
         scores.append(game.state.getScore())
 
-        gifname = shellquote(f'./{record}_agent_{i}.gif')
         if record:
-            os.system(f"convert -delay 7 -loop 1 -compress lzw -layers optimize ./frames/* {gifname}")
+            gifname = shellquote(f'./{record}_agent_{i}.gif')
+            os.system(f"convert -delay 15 -loop 1 -compress lzw -layers optimize ./frames/* {gifname}")
             os.system(f"rm -r frames/**")
 
     return np.asarray(scores)
@@ -365,6 +369,11 @@ def test_noisy_agents_epoch(transitionMatrixTreeList, n_testing_steps, rules, pa
 
             game.run(i, n_testing_steps, record=record)
             scores.append(game.state.getScore())
+            
+            if record:
+                gifname = shellquote(f'./{record[n]}_agent_{i}.gif')
+                os.system(f"convert -delay 15 -loop 1 -compress lzw -layers optimize ./frames/* {gifname}")
+                os.system(f"rm -r frames/**")
 
         across_agents_scores.append(np.asarray(scores))
 
@@ -605,7 +614,7 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
     if record:
         if not os.path.exists(record.split('/')[0] + "/record/"):
             os.makedirs(record.split('/')[0] + "/record/")
-
+    
     for i in range(trained_agents):
         transitionMatrixTreeList = []
         transitionMatrixTree = defineTransitionMatrix(
@@ -620,18 +629,20 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
                     newworld_pacman, newworld_ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=GENERALIZATION_WORLDS[n]["perturb"]))
 
         for j in range(epochs // n_testing_steps):
-
-            recordpath = None
+            
+            recordpaths = None
 
             if record and recordRange(j*n_training_steps, record_range):
-                recordpath = record.split(
-                    '/')[0] + "/record/" + record.split('/')[1] + f"{i}_training_agent_{j}_epoch"
+                recordpaths = []
+                for k in range(len(GENERALIZATION_WORLDS)):
+                    token = "".join([f'_ghost{["name"]}_' + f'{ghost["args"]}' for ghost in GENERALIZATION_WORLDS[k]["ghosts"]])
+                    recordpaths.append(record.split('/')[0] + "/record/" + record.split('/')[1] + token + f'_{GENERALIZATION_WORLDS[k]["perturb"]["noise"]}_'+ f"{i}_training_agent_{j}_epoch")
 
             print(j)
             train_epoch(transitionMatrixTreeList[0], n_training_steps,
                         rules, pacman["test"], ghosts["test"], layout, display)
             scores = test_noisy_agents_epoch(
-                transitionMatrixTreeList, n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display, record=recordpath)
+                transitionMatrixTreeList[1:], n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display, record=recordpaths)
             for k in range(len(scores)):
                 stats[i][k][j] = np.mean(scores[k])
 
@@ -639,8 +650,7 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
 
         for k in range(len(GENERALIZATION_WORLDS)):
-            token = "".join(
-                [f'_ghost{["name"]}_' + f'{ghost["args"]}' for ghost in GENERALIZATION_WORLDS[k]["ghosts"]])
+            token = "".join([f'_ghost{["name"]}_' + f'{ghost["args"]}' for ghost in GENERALIZATION_WORLDS[k]["ghosts"]])
             np.savetxt(args['outputStats'] + token + f'_{GENERALIZATION_WORLDS[k]["perturb"]["noise"]}_end_'
                        + f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
 

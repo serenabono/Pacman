@@ -236,6 +236,20 @@ class Grid:
     def count(self, item=True):
         return sum([x.count(item) for x in self.data])
 
+    def diff(self, prev):
+
+        foodEaten = []
+        foodRestored = []
+        for xNum, x in enumerate(self.data):
+            for yNum, y in enumerate(x):
+                if self.data[xNum][yNum] == True and prev.data[xNum][yNum] == False:
+                    foodRestored.append((xNum, yNum))
+                if self.data[xNum][yNum] == False and prev.data[xNum][yNum] == True:
+                    foodEaten.append((xNum, yNum))
+                
+        return foodEaten, foodRestored
+
+
     def asList(self, key=True):
         list = []
         for x in range(self.width):
@@ -406,6 +420,7 @@ class GameStateData:
         """
         if prevState != None:
             self.food = prevState.food.shallowCopy()
+            self.prev_food = prevState.prev_food.shallowCopy()
             self.capsules = prevState.capsules[:]
             self.agentStates = self.copyAgentStates(prevState.agentStates)
             self.layout = prevState.layout
@@ -413,6 +428,7 @@ class GameStateData:
             self.score = prevState.score
 
         self._foodEaten = None
+        self._foodRestored = None
         self._foodAdded = None
         self._capsuleEaten = None
         self._agentMoved = None
@@ -423,9 +439,11 @@ class GameStateData:
     def deepCopy(self):
         state = GameStateData(self)
         state.food = self.food.deepCopy()
+        state.prev_food = self.prev_food.deepCopy()
         state.layout = self.layout.deepCopy()
         state._agentMoved = self._agentMoved
         state._foodEaten = self._foodEaten
+        state._foodRestored = self._foodRestored
         state._foodAdded = self._foodAdded
         state._capsuleEaten = self._capsuleEaten
         return state
@@ -526,6 +544,7 @@ class GameStateData:
         Creates an initial game state from a layout array (see layout.py).
         """
         self.food = layout.food.copy()
+        self.prev_food = self.food
         #self.capsules = []
         self.capsules = layout.capsules[:]
         self.layout = layout
@@ -608,6 +627,15 @@ class Game:
         # Revert stdout/stderr to originals
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
+    
+    def update(self):
+        
+        self.state.data._foodEaten, self.state.data._foodRestored = self.state.getDiffStates()
+        self.state.data.prev_food = self.state.data.food.copy()
+
+        self.display.update(self.state.data)
+        self.state.data._foodEaten = []
+        self.state.data._foodRestored = []
 
     def run(self, game_number, total_games, ensemble_agent=None, record=None):
         """
@@ -773,9 +801,10 @@ class Game:
 
             # Change the display
             self.moveHistory.append((pacaction, nextstatehash, agentIndex))
-            self.display.update(self.state.data)
 
             self.rules.process(self.state, self)
+
+            self.update()
 
             # Track progress
             if agentIndex == numAgents + 1:
@@ -786,9 +815,13 @@ class Game:
             if _BOINC_ENABLED:
                 boinc.set_fraction_done(self.getProgress())
 
-        if self.gameOver or self.transitionFunctionTree.transitionMatrixDic[nextstatehash] == {}:
+        if self.state.isWin() or self.state.isLose():
             self.agents[0].getAction(
                 self.state, [], game_number, total_games, isInitial)
+            print(self.state.data.score)
+            if record:
+                import graphicsDisplay
+                graphicsDisplay.saveFrame()
         # inform a learning agent of the game result
         for agentIndex, agent in enumerate(self.agents):
             if "final" in dir(agent):

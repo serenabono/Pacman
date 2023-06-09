@@ -245,8 +245,12 @@ class PacmanGraphics:
             self.moveGhost(agentState, agentIndex, prevState, prevImage)
         self.agentImages[agentIndex] = (agentState, prevImage)
 
-        if newState._foodEaten != None:
+        if newState._foodEaten != []:
             self.removeFood(newState._foodEaten, self.food)
+        if newState._foodRestored != []:
+            self.food = self.addFood(newState._foodRestored, self.food)
+        
+            
         if newState._capsuleEaten != None:
             self.removeCapsule(newState._capsuleEaten, self.capsules)
         self.infoPane.updateScore(newState.score)
@@ -553,10 +557,27 @@ class PacmanGraphics:
             capsuleImages[capsule] = dot
         return capsuleImages
 
-    def removeFood(self, cell, foodImages ):
-        x, y = cell
-        remove_from_screen(foodImages[x][y])
+    def removeFood(self, cells, foodMatrix ):
+        for cell in cells:
+            x, y = cell
+            remove_from_screen(foodMatrix[x][y])
+    
 
+    def addFood(self, cells, foodImages):
+        color = FOOD_COLOR
+        for cell in cells:
+            x, y = cell
+            if self.capture and (x * 2) <= foodImages.width: color = TEAM_COLORS[0]
+            if self.capture and (x * 2) > foodImages.width: color = TEAM_COLORS[1]
+            
+            screen = self.to_screen((x, y ))
+            foodImages[x][y] = circle( screen,
+                            FOOD_SIZE * self.gridSize,
+                            outlineColor = color, fillColor = color,
+                            width = 1)
+        
+        return foodImages
+    
     def removeCapsule(self, cell, capsuleImages ):
         x, y = cell
         remove_from_screen(capsuleImages[(x, y)])
