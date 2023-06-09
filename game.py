@@ -801,10 +801,10 @@ class Game:
 
             # Change the display
             self.moveHistory.append((pacaction, nextstatehash, agentIndex))
-            
-            self.update()
 
             self.rules.process(self.state, self)
+
+            self.update()
 
             # Track progress
             if agentIndex == numAgents + 1:
@@ -815,9 +815,13 @@ class Game:
             if _BOINC_ENABLED:
                 boinc.set_fraction_done(self.getProgress())
 
-        if self.gameOver or self.transitionFunctionTree.transitionMatrixDic[nextstatehash] == {}:
+        if self.state.isWin() or self.state.isLose():
             self.agents[0].getAction(
                 self.state, [], game_number, total_games, isInitial)
+            print(self.state.data.score)
+            if record:
+                import graphicsDisplay
+                graphicsDisplay.saveFrame()
         # inform a learning agent of the game result
         for agentIndex, agent in enumerate(self.agents):
             if "final" in dir(agent):

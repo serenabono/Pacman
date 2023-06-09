@@ -464,11 +464,7 @@ class PacmanRules:
             state.data.scoreChange += 10
             state.data.food = state.data.food.copy()
             state.data.food[x][y] = False
-            # state.data._foodEaten += [position]
-            numFood = state.getNumFood()
-            if numFood == 0 and not state.data._lose:
-                state.data.scoreChange += 500
-            PacmanRules.checkstatus(state)
+      
         # Eat capsule
         if(position in state.getCapsules()):
             state.data.capsules.remove(position)
@@ -481,9 +477,10 @@ class PacmanRules:
     def checkstatus(state):
         # TODO: cache numFood?
         numFood = state.getNumFood()
-
         if numFood == 0 and not state.data._lose:
             state.data._win = True
+            state.data.scoreChange += 500
+        
     checkstatus = staticmethod(checkstatus)
 
 

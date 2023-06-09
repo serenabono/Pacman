@@ -404,6 +404,4 @@ class TransitionMatrixDicTree():
         newstate = state.movetoAnyState(
             self.keyDict[actiontostate], pacaction, agentId, posingrid)
         
-        PacmanRules.checkstatus(newstate)
-
         return newstate
