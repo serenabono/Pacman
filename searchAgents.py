@@ -636,6 +636,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         "Stores information from the gameState.  You don't need to change this."
         # Store the food for later reference
         self.food = gameState.getFood()
+        self.prev_food = self.food
 
         # Store info for the PositionSearchProblem (no need to change this)
         self.walls = gameState.getWalls()
