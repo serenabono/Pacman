@@ -247,9 +247,7 @@ class PacmanGraphics:
 
         if newState._foodEaten != []:
             self.removeFood(newState._foodEaten, self.food)
-            print("removing ", newState._foodEaten)
         if newState._foodRestored != []:
-            print("adding ", newState._foodRestored)
             self.food = self.addFood(newState._foodRestored, self.food)
         
             
@@ -571,10 +569,9 @@ class PacmanGraphics:
             x, y = cell
             if self.capture and (x * 2) <= foodImages.width: color = TEAM_COLORS[0]
             if self.capture and (x * 2) > foodImages.width: color = TEAM_COLORS[1]
-            imageRow = []
-            foodImages.append(imageRow)
+            
             screen = self.to_screen((x, y ))
-            circle( screen,
+            foodImages[x][y] = circle( screen,
                             FOOD_SIZE * self.gridSize,
                             outlineColor = color, fillColor = color,
                             width = 1)

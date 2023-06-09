@@ -630,7 +630,6 @@ class Game:
     
     def update(self):
         
-        print("current food: ", self.state.getNumFood())
         self.state.data._foodEaten, self.state.data._foodRestored = self.state.getDiffStates()
         self.state.data.prev_food = self.state.data.food.copy()
 
