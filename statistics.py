@@ -574,7 +574,7 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
                 recordpath = record.split(
                     '/')[0] + "/record/" + record.split('/')[1] + f"{i}_training_agent_{j}_epoch"
 
-            if env_pacman["test"].__class__.__name__ != "KeyboardAgent":
+            if env_pacman.__class__.__name__ != "KeyboardAgent":
                 train_epoch(transitionMatrixTreeList["test"], n_training_steps,
                             rules, env_pacman, env_ghosts, layout, display)
                 train_epoch(transitionMatrixTreeList["ensemble"], n_training_steps,
