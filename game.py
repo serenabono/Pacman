@@ -818,7 +818,6 @@ class Game:
         if self.state.isWin() or self.state.isLose():
             self.agents[0].getAction(
                 self.state, [], game_number, total_games, isInitial)
-            print(self.state.data.score)
             if record:
                 import graphicsDisplay
                 graphicsDisplay.saveFrame()
