@@ -26,7 +26,7 @@ record_range='{"max":'$max_record',"min":'$min_record'}'
 run_untill=1000
 
 testingenv_mean=0
-testingenv_std=0.1
+testingenv_std=0
 testingenv_ghost_name="RandomGhost" 
 testingenv_ghost_args='{"index":1,"prob":{}}'
 testingenv_ghostarg='[{"name":"'$testingenv_ghost_name'","args":'$testingenv_ghost_args'}]'
@@ -35,8 +35,8 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 echo $testingenv_ghostarg
 
 ensebleenv_mean=0
-ensebleenv_std=0.1
-ensebleenv_ghost_name="RandomGhost" 
+ensebleenv_std=0
+ensebleenv_ghost_name="MoveMostlyWestGhost" 
 ensebleenv_ghost_args='{"index":1,"prob":{}}'
 ensebleenv_ghostarg='[{"name":"'$ensebleenv_ghost_name'","args":'$ensebleenv_ghost_args'}]'
 ensebleingenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
