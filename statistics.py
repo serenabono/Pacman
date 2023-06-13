@@ -232,6 +232,7 @@ GENERALIZATION_WORLDS = [{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args
     "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.2}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
     "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
     "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.7}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
     "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.9}, "perm": {}}}]
 
 
@@ -650,7 +651,7 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
 
         for k in range(len(GENERALIZATION_WORLDS)):
-            token = "".join([f'_ghost{["name"]}_' + f'{ghost["args"]}' for ghost in GENERALIZATION_WORLDS[k]["ghosts"]])
+            token = "".join([f'_{ghost["name"]}_' + f'{ghost["args"]}' for ghost in GENERALIZATION_WORLDS[k]["ghosts"]])
             np.savetxt(args['outputStats'] + token + f'_{GENERALIZATION_WORLDS[k]["perturb"]["noise"]}_end_'
                        + f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
 

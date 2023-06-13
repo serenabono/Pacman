@@ -11,7 +11,7 @@
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v3"
+layout="v2"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
 training_agents=500
@@ -25,7 +25,7 @@ epochs=1000
 agent="BoltzmannAgent"
 
 trainingenv_mean=0
-trainingenv_std=0.1
+trainingenv_std=0
 trainingenv_ghost_name="RandomGhost" 
 trainingenv_ghost_args='{"index":1,"prob":{}}'
 trainingenv_ghostarg='[{"name":"'$trainingenv_ghost_name'","args":'$trainingenv_ghost_args'}]'
