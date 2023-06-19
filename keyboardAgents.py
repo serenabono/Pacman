@@ -35,6 +35,7 @@ class KeyboardAgent(Agent):
         self.actions = {Directions.NORTH: 0, Directions.SOUTH: 1,
                         Directions.EAST: 2, Directions.WEST: 3, Directions.STOP: 4}
 
+
     def getAction(self, state, legalactions, game_number, total_games, isInitial,  ensemble_agent=None):
         from graphicsUtils import keys_waiting
         from graphicsUtils import keys_pressed

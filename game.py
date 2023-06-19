@@ -592,6 +592,7 @@ class Game:
         self.transitionFunctionTree = None
         from io import StringIO
         self.agentOutput = [StringIO() for agent in agents]
+        self.key_presses = []
 
     def getProgress(self):
         if self.gameOver:
@@ -637,6 +638,13 @@ class Game:
         self.state.data._foodEaten = []
         self.state.data._foodRestored = []
 
+    # Define a function to save key press information
+    def save_key_press(self, timestamp, key):
+        self.key_presses.append({'Timestamp': timestamp, 'Key': key})
+
+    def get_key_presses(self):
+        return self.key_presses
+    
     def run(self, game_number, total_games, ensemble_agent=None, record=None):
         """
         Main control loop for game play.
@@ -645,6 +653,7 @@ class Game:
         self.display.initialize(self.state.data)
         self.numMoves = 0
         actionstostateshashdict = {}
+        
 
         # self.display.initialize(self.state.makeObservation(1).data)
         # inform learning agents of the game start
@@ -735,6 +744,12 @@ class Game:
                     if record:
                         import graphicsDisplay
                         graphicsDisplay.saveFrame()
+                    
+                    # Save the key press information
+                    timestamp = time.time()
+                    self.save_key_press(timestamp, pacaction)
+                    # print("Key History: ", self.key_presses)
+
 
             # Solicit an action
             self.mute(agentIndex)
