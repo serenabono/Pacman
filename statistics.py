@@ -229,12 +229,12 @@ def readCommand(argv):
 
 GENERALIZATION_WORLDS = [{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
     "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.01}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.02}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.03}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.05}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.07}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.09}, "perm": {}}}]
+    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.2}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.7}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.9}, "perm": {}}}]
 
 
 SWAP_LIST = [0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9]
@@ -705,10 +705,10 @@ def runCurriculum(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
                     recordpaths.append(record.split('/')[0] + "/record/" + record.split('/')[1] + token + f'_{GENERALIZATION_WORLDS[k]["perturb"]["noise"]}_'+ f"{i}_training_agent_{j}_epoch")
 
             print(j)
-            train_epoch(transitionMatrixTreeList[j // epoch_per_world], n_training_steps,
+            train_epoch(transitionMatrixTreeList[j * n_testing_steps// epoch_per_world], n_training_steps,
                         rules, pacman["test"], ghosts["test"], layout, display)
             scores = test_noisy_agents_epoch(
-                transitionMatrixTreeList[0], n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display, record=recordpaths)
+                transitionMatrixTreeList[1:], n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display, record=recordpaths)
             for k in range(len(scores)):
                 stats[i][k][j] = np.mean(scores[k])
 
