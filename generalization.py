@@ -17,8 +17,7 @@ for folder in glob.glob('./generalization_*'):
     outfiles = {}
     for filename in glob.glob("./*"):
         values = []
-        pattern = re.findall(r'-test.*?_end', filename)[0]
-        print(pattern)
+        pattern = re.findall(r'_RandomGhost.*?_end', filename)[0]
     
         with open(filename, newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter='\n', quotechar='|')

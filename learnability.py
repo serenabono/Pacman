@@ -5,7 +5,7 @@ import numpy as np
 
 outfiles = {}
 
-for folder in glob.glob('./ensemble_v2_BoltzmannAgent_RandomGhost_{"index":1,"prob*'):
+for folder in glob.glob('./trial-learnability_*'):
     try:
         os.chdir(f"{folder}")
         print(folder)
@@ -29,7 +29,7 @@ for folder in glob.glob('./ensemble_v2_BoltzmannAgent_RandomGhost_{"index":1,"pr
         print(filename)
         continue
 
-    os.chdir("ensemble/")
+    os.chdir("learnability/")
     for folder in outfiles:
         np.savetxt(f"{folder}.pkl" ,outfiles[folder],  delimiter=',')
     os.chdir("../")
