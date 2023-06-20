@@ -639,8 +639,8 @@ class Game:
         self.state.data._foodRestored = []
 
     # Define a function to save key press information
-    def save_key_press(self, timestamp, key):
-        self.key_presses.append({'Timestamp': timestamp, 'Key': key})
+    def save_key_press(self, timestamp, key, source):
+        self.key_presses.append({'Timestamp': timestamp, 'Key': key, 'Source': source})
 
     def get_key_presses(self):
         return self.key_presses
@@ -747,7 +747,8 @@ class Game:
                     
                     # Save the key press information
                     timestamp = time.time()
-                    self.save_key_press(timestamp, pacaction)
+                    #print(agent.source)
+                    self.save_key_press(timestamp, pacaction, agent.source )
                     # print("Key History: ", self.key_presses)
 
 

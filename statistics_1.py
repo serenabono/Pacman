@@ -320,22 +320,6 @@ def train_epoch(transitionMatrixTree, n_training_steps, rules, pacman, ghosts, l
 def shellquote(s):
     return "'" + s.replace("'", "'\\''") + "'"
 
-def capture_key_press(key_presses):
-    key_mapping = {
-        'left': 'left',
-        'right': 'right',
-        'up': 'up',
-        'down': 'down',
-        'a': 'left',
-        'd': 'right',
-        'w': 'up',
-        's': 'down'
-    }
-    key = input()
-    timestamp = time.time()
-    key_presses[timestamp] = key_mapping.get(key, 'unknown')
-
-
 def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, layout, gameDisplay, ensemble_agent=None, record=None):
     scores = []
     key_historys = []
@@ -367,7 +351,6 @@ def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, lay
             gifname = shellquote(f'./{record}_agent_{i}.gif')
             os.system(f"convert -delay 15 -loop 1 -compress lzw -layers optimize ./frames/* {gifname}")
             os.system(f"rm -r frames/**")
-
     return np.asarray(scores), key_historys
 
 def test_noisy_agents_epoch(transitionMatrixTreeList, n_testing_steps, rules, pacman, ghosts, layout, gameDisplay, record=None):
@@ -587,7 +570,9 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
         else:
             pacmanType = loadAgent(pacmanName, 1)
             pacman["test"] = pacmanType(pacmanArgs)
-        
+    
+    #print("q value: ", pacman.q_values)
+
     # print("STATS IS ", stats)
         
 

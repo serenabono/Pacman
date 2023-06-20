@@ -31,14 +31,14 @@ class QLearningAgent:
 
             ################## exploration strategy hyperparameters ##################
 
-            # E-GREEDY hyperparameters
+            # Boltzmann exploration hyperparameters
             if exploration_strategy == "BOLTZMANN":
                 if T == None:
                     raise("Please specify Hyperparameter T for boltzmann exploration")
                 else:
                     self.T = T
-
-            # Boltzmann exploration hyperparameters
+            
+            # E-GREEDY hyperparameters
             elif exploration_strategy == "E_GREEDY":
                 if epsilon == None:
                     raise(

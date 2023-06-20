@@ -34,6 +34,7 @@ class KeyboardAgent(Agent):
         self.keys = []
         self.actions = {Directions.NORTH: 0, Directions.SOUTH: 1,
                         Directions.EAST: 2, Directions.WEST: 3, Directions.STOP: 4}
+        self.source = None  # Tracks the source of the action
 
 
     def getAction(self, state, legalactions, game_number, total_games, isInitial,  ensemble_agent=None):
@@ -50,11 +51,16 @@ class KeyboardAgent(Agent):
             # Try to move in the same direction as before
             if self.lastMove in legal:
                 move = self.lastMove
+                self.source = 'Habit'
         
         if (self.STOP_KEY in self.keys) and self.actions[Directions.STOP] in legal: move = self.actions[Directions.STOP]
 
         if move not in legal and legal != []:
             move = random.choice(legal)
+            self.source = 'Random'  # Set the source to indicate random action
+        elif self.source == None:
+            self.source = 'Keyboard'  # Set the source to indicate keyboard input
+
 
         self.lastMove = move
         return move
