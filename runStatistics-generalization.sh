@@ -39,6 +39,6 @@ echo '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_step
 agentprop='{"test":{"pacman":{},"ghosts":'$trainingenv_ghostarg',"perturb":'$trainingenv_perturb'}}'
 
 folder="generalization_${layout}_${agent}_${trainingenv_ghost_name}_${trainingenv_ghost_args}_${trainingenv_noise_args}}"
-outputname=''''$folder'/saved_agent_'$layout'_'$agent'_'$trainingenv_ghost_name'_'$trainingenv_ghost_args'_'$trainingenv_noise_args'_'$training_agents'-'$DATE'-train'''
+outputname=''''$folder'/saved_agent_'$layout'_'$agent'_'$trainingenv_ghost_name'_'$trainingenv_ghost_args'_'$trainingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
 python statistics.py -q -m g -p $agent -a $agentprop -l $layout -s '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}''' -o  $outputname
