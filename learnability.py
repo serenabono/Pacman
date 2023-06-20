@@ -5,7 +5,7 @@ import numpy as np
 
 outfiles = {}
 
-for folder in glob.glob('./curriculum_*'):
+for folder in glob.glob('./learnability_*'):
     try:
         os.chdir(f"{folder}")
         print(folder)
@@ -29,7 +29,7 @@ for folder in glob.glob('./curriculum_*'):
         print(filename)
         continue
 
-    os.chdir("curriculum/")
+    os.chdir("learnability/")
     for folder in outfiles:
         np.savetxt(f"{folder}.pkl" ,outfiles[folder],  delimiter=',')
     os.chdir("../")

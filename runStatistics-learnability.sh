@@ -11,7 +11,7 @@
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v3"
+layout="v3_nog"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
 training_agents=500

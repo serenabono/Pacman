@@ -17,7 +17,7 @@ for folder in glob.glob('./generalization_*'):
     outfiles = {}
     for filename in glob.glob("./*"):
         values = []
-        pattern = re.findall(r'_RandomGhost.*?_end', filename)[0]
+        pattern = re.findall(r'-train.*?_end', filename)[0]
     
         with open(filename, newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter='\n', quotechar='|')
@@ -34,7 +34,6 @@ for folder in glob.glob('./generalization_*'):
     os.chdir("generalization/")
     for pattern in outfiles:
         values = np.sum(np.asarray(outfiles[pattern]),0)/len(np.asarray(outfiles[pattern]))
-        np.savetxt(f"{folder}{pattern}.pkl" ,values,  delimiter=',')
-    
+        modifyied_pattern = pattern.replace("'","\"").replace(" ", "").replace("-train","").replace("_end", "")
+        np.savetxt(f"{folder}{modifyied_pattern}.pkl" ,values,  delimiter=',')
     os.chdir("../")
-        

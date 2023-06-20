@@ -229,8 +229,17 @@ def readCommand(argv):
 GENERALIZATION_WORLDS = [{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
                 "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
                 "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.01}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.02}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.03}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
                 "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.05}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.07}, "perm": {}}}]
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.07}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.09}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.2}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.7}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.9}, "perm": {}}}, ]
 
 
 SWAP_LIST = [0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9]
