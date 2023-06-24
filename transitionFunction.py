@@ -283,7 +283,6 @@ class TransitionMatrixDicTree():
 
         list_pos = []
         seed = np.random.seed()
-        print(seed)
         for fromstatehash in self.transitionMatrixDic:
             for throughaction in self.transitionMatrixDic[fromstatehash].keys():
                 n_states = len(self.transitionMatrixDic.keys())
