@@ -200,7 +200,6 @@ class TransitionMatrixDicTree():
         if self.noise:
             self.computeCompleteMatrix()
         
-        print(self.transitionMatrixDic)
         # check correctness
         for fromstate in self.transitionMatrixDic:
             for throughaction in self.transitionMatrixDic[fromstate]:
