@@ -35,5 +35,5 @@ for folder in glob.glob('./generalization_*'):
     for pattern in outfiles:
         values = np.sum(np.asarray(outfiles[pattern]),0)/len(np.asarray(outfiles[pattern]))
         modifyied_pattern = pattern.replace("'","\"").replace(" ", "").replace("-train","").replace("_end", "")
-        np.savetxt(f"{folder}{modifyied_pattern}.pkl" ,values,  delimiter=',')
+        np.savetxt(f"{folder[:-1]}{modifyied_pattern}.pkl" ,values,  delimiter=',')
     os.chdir("../")

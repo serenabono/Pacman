@@ -11,7 +11,7 @@
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v3_nog"
+layout="v3"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
 training_agents=500
@@ -20,14 +20,14 @@ n_testing_steps=10
 max_record=1000
 min_record=990
 record_range='{"max":'$max_record',"min":'$min_record'}'
-run_untill=5000
-epochs=5000
+run_untill=1000
+epochs=1000
 agent="BoltzmannAgent"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name="RandomGhost" 
-testingenv_ghost_args='{"index":1,"prob":{}}'
+testingenv_ghost_name="MoveMostlyWestGhost" 
+testingenv_ghost_args='{"index":1,"prob":0.5}'
 testingenv_ghostarg='[{"name":"'$testingenv_ghost_name'","args":'$testingenv_ghost_args'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
 testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'

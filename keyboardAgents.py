@@ -41,6 +41,8 @@ class KeyboardAgent(Agent):
         keys = keys_waiting() + keys_pressed()
         if keys != []:
             self.keys = keys
+        else:
+            self.keys = 'Stop'
         
         legal = list(legalactions)
         move = self.getMove(legal)

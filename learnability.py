@@ -31,6 +31,6 @@ for folder in glob.glob('./learnability_*'):
 
     os.chdir("learnability/")
     for folder in outfiles:
-        np.savetxt(f"{folder}.pkl" ,outfiles[folder],  delimiter=',')
+        np.savetxt(f"{folder[:-1]}.pkl" ,outfiles[folder],  delimiter=',')
     os.chdir("../")
         
