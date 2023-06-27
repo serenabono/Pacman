@@ -23,6 +23,7 @@ from pacman import GameState, PacmanRules, GhostRules, ClassicGameRules
 # from pycuda.elementwise import ElementwiseKernel
 import random
 import time
+from scipy.stats import wasserstein_distance
 
 ##############################
 #  TRANSITION FUNCTION CODE  #
@@ -405,3 +406,24 @@ class TransitionMatrixDicTree():
             self.keyDict[actiontostate], pacaction, agentId, posingrid)
         
         return newstate
+
+
+    def compute_wasserstein_distance(self, pacman_perturbedenv):
+        sig_one = []
+        sig_two = []
+        pacmanenv = self.currentAgents[0]
+        for fromstatehash in self.transitionMatrixDic:
+            for throughaction in self.actions.values():
+                fromstate = str(self.keyDict[fromstatehash])
+                if fromstate in pacmanenv.agent.q_values:
+                    if throughaction in pacmanenv.agent.q_values[fromstate]:
+                        sig_one.append(pacmanenv.agent.q_values[fromstate][throughaction])
+                    else:
+                        sig_one.append(0)
+                if fromstate in pacman_perturbedenv.agent.q_values:
+                    if throughaction in pacman_perturbedenv.agent.q_values[fromstate]:
+                        sig_two.append(pacman_perturbedenv.agent.q_values[fromstate][throughaction])
+                    else:
+                        sig_two.append(0)
+                    
+        return wasserstein_distance(sig_one, sig_two)

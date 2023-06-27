@@ -35,8 +35,8 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 echo $testingenv_ghostarg
 
 ensebleenv_mean=0
-ensebleenv_std=0
-ensebleenv_ghost_name="MoveMostlyWestGhost" 
+ensebleenv_std=0.2
+ensebleenv_ghost_name="RandomGhost" 
 ensebleenv_ghost_args='{"index":1,"prob":{}}'
 ensebleenv_ghostarg='[{"name":"'$ensebleenv_ghost_name'","args":'$ensebleenv_ghost_args'}]'
 ensebleingenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
