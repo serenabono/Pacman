@@ -2,7 +2,7 @@
 
 #SBATCH -c 1
 #SBATCH --time=5:00:00
-#SBATCH --job-name=generalization
+#SBATCH --job-name=distance
 
 #SBATCH -p short
 #SBATCH --mem=10G
@@ -21,7 +21,7 @@ max_record=1000
 min_record=1000
 record_range='{"max":'$max_record',"min":'$min_record'}'
 run_untill=1000
-epochs=100
+epochs=1000
 agent="BoltzmannAgent"
 
 echo '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}'''

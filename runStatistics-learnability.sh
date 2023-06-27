@@ -2,7 +2,7 @@
 
 #SBATCH -c 1
 #SBATCH --time=5:00:00
-#SBATCH --job-name=generalization
+#SBATCH --job-name=learnability
 
 #SBATCH -p short
 #SBATCH --mem=5G
