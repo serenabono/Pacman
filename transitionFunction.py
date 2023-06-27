@@ -200,7 +200,7 @@ class TransitionMatrixDicTree():
 
         if self.noise:
             self.computeCompleteMatrix()
-
+        
         # check correctness
         for fromstate in self.transitionMatrixDic:
             for throughaction in self.transitionMatrixDic[fromstate]:
@@ -282,9 +282,9 @@ class TransitionMatrixDicTree():
     def computeCompleteMatrix(self):
 
         list_pos = []
+        seed = np.random.seed()
         for fromstatehash in self.transitionMatrixDic:
             for throughaction in self.transitionMatrixDic[fromstatehash].keys():
-                np.random.seed()
                 n_states = len(self.transitionMatrixDic.keys())
                 noise_generated = np.absolute(
                     np.random.normal(self.MEAN, self.STD, n_states))
