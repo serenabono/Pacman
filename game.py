@@ -593,6 +593,7 @@ class Game:
         from io import StringIO
         self.agentOutput = [StringIO() for agent in agents]
         self.key_presses = []
+        self.key_input = []
 
     def getProgress(self):
         if self.gameOver:
@@ -644,6 +645,10 @@ class Game:
 
     def get_key_presses(self):
         return self.key_presses
+    
+    def save_key_input(self, keyboard_inputs, t_inputs):
+        for t in range(len(t_inputs)):
+            self.key_input.append({'Timestamp': t_inputs[t], 'Key': keyboard_inputs[t]})
     
     def run(self, game_number, total_games, ensemble_agent=None, record=None):
         """
@@ -733,7 +738,7 @@ class Game:
                 legal_actions = self.transitionFunctionTree.transitionMatrixDic[fromstatehash].keys(
                 )
                 if len(legal_actions) != 0:
-                    pacaction = agent.getAction(
+                    pacaction, key_input, time_keyinput = agent.getAction(
                         observation, legal_actions, game_number, total_games, isInitial, ensemble_agent=ensemble_agent)
                     actionstostateshashdict = self.transitionFunctionTree.getLegalActions(
                         fromstatehash, pacaction)
@@ -750,6 +755,7 @@ class Game:
                     #print(agent.source)
                     self.save_key_press(timestamp, pacaction, agent.source )
                     # print("Key History: ", self.key_presses)
+                    self.save_key_input(key_input, time_keyinput)
 
 
             # Solicit an action

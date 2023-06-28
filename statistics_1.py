@@ -323,6 +323,8 @@ def shellquote(s):
 def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, layout, gameDisplay, ensemble_agent=None, record=None):
     scores = []
     key_historys = []
+    key_inputs = []
+    state_list = []
 
     for i in range(n_testing_steps):
         #capture_key_press(key_presses)
@@ -342,16 +344,19 @@ def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, lay
             pacman.agent.set_trainable(trainable=False)
         elif 'PacmanDQN' in pacman.__class__.__name__:
             pacman.set_trainable(trainable=False)
-        game.get_key_presses().append({'Timestamp': time.time(), 'Key': "NEWGAME"})
+        game.get_key_presses().append({'Timestamp': time.time(), 'Key': "NEWGAME", 'Source': "NEWGAME"})
         game.run(i, n_testing_steps, ensemble_agent=ensemble_agent, record=record)
+        
         scores.append(game.state.getScore())
         key_historys.append(game.get_key_presses())
+        key_inputs.append(game.key_input)
+        state_list.append(game.state)
 
         if record:
             gifname = shellquote(f'./{record}_agent_{i}.gif')
             os.system(f"convert -delay 15 -loop 1 -compress lzw -layers optimize ./frames/* {gifname}")
             os.system(f"rm -r frames/**")
-    return np.asarray(scores), key_historys
+    return np.asarray(scores), key_historys, key_inputs, state_list
 
 def test_noisy_agents_epoch(transitionMatrixTreeList, n_testing_steps, rules, pacman, ghosts, layout, gameDisplay, record=None):
 
@@ -495,6 +500,12 @@ def append_text_to_csv(file_path, text):
         writer.writerow(text)
     csvfile.close()
 
+def append_df_to_csv(file_path, data):
+    df = pd.DataFrame(data[0])
+    for i in range(1, len(data)):
+        df = df.append(pd.DataFrame(data[i]), ignore_index=True)
+    df.to_csv(file_path, index=False)
+
 def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None,  applyperturb=None, record=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
@@ -515,7 +526,6 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
     os.system("rm frames/**")
 
     print(pacman["test"].__class__.__name__) #keyboardagent
-
     
 
     if record:
@@ -527,13 +537,22 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
    
         
     for i in range(trained_agents):
-        output_filename1  =  args['outputStats'] + f"{i}_training_agent" + ".csv"
+        output_filename1  =  args['outputStats'] + f"{i}_training_agent" + "_score" + ".csv"
         output_filename2  =  args['outputStats'] + f"{i}_training_agent" + "_key"+".csv"
+        output_filename3 = args['outputStats'] + f"{i}_training_agent" + "_seed"+".csv"
+        output_filename4 = args['outputStats'] + f"{i}_training_agent" + "_keyinput"+".csv"
+        output_filename5 = args['outputStats'] + f"{i}_training_agent" + "_state"+".pickle"
 
 
         transitionMatrixTree = defineTransitionMatrix(
             pacman["test"], ghosts["test"], layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["test"])
         
+        #save the randomness of the transition matrix
+        #print("Randomeness: ", transitionMatrixTree.noise_list)
+        #append_text_to_csv(output_filename3, transitionMatrixTree.noise_list)
+
+        append_text_to_csv(output_filename3, transitionMatrixTree.seeds)
+
         for j in range(epochs // n_testing_steps):
             print(j, "th epochs now")
 
@@ -545,12 +564,17 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
             train_epoch(transitionMatrixTree, n_training_steps,
                         rules, pacman["test"], ghosts["test"], layout, display)
             #score:np array
-            score, key_history = test_epoch(
+            score, key_history, key_inputs, state_list = test_epoch(
                 transitionMatrixTree, n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display, record=recordpath)
             
             print("Saving the trained output to the file....")
             append_text_to_csv(output_filename1, score)
-            append_text_to_csv(output_filename2, key_history)
+            append_df_to_csv(output_filename2, key_history)
+            append_df_to_csv(output_filename4, key_inputs)
+            with open (output_filename5, "wb") as file:
+                pickle.dump(state_list, file)
+            
+
             # # Create a DataFrame from the collected key press information
             # df = pd.DataFrame.from_records(key_history)
             # # Save the key press information to a CSV file

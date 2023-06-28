@@ -15,8 +15,8 @@ semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
 training_agents=1
 n_training_steps=0
-n_testing_steps=10
-epochs=10
+n_testing_steps=5
+epochs=5
 
 max_record=$epochs
 min_record=0

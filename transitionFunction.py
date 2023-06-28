@@ -81,6 +81,9 @@ class TransitionMatrixDicTree():
 
         print("Computational overload: [", self.nStates, " x ",
               self.nPossibleAcitons, " x ", self.nStates, "]")
+        
+        #self.noise_list = []
+        self.seeds = []
 
     def copy(self):
         tree = self
@@ -199,7 +202,7 @@ class TransitionMatrixDicTree():
 
         if self.noise:
             self.computeCompleteMatrix()
-
+        
         # check correctness
         for fromstate in self.transitionMatrixDic:
             for throughaction in self.transitionMatrixDic[fromstate]:
@@ -278,12 +281,13 @@ class TransitionMatrixDicTree():
 
         return heatmap
 
+    
     def computeCompleteMatrix(self):
-
-        list_pos = []
+        #list_pos = []
+        seed = random.randint(1,100)
+        np.random.seed(seed)
         for fromstatehash in self.transitionMatrixDic:
             for throughaction in self.transitionMatrixDic[fromstatehash].keys():
-                np.random.seed()
                 n_states = len(self.transitionMatrixDic.keys())
                 noise_generated = np.absolute(
                     np.random.normal(self.MEAN, self.STD, n_states))
@@ -294,6 +298,8 @@ class TransitionMatrixDicTree():
                 probabilities = noise_generated / sum(noise_generated)
                 self.transitionMatrixDic[fromstatehash][throughaction] = dict(
                     zip(self.transitionMatrixDic.keys(), probabilities))
+                self.seeds.append(seed)
+        
 
         # for el in list_pos:
         #     print(self.transitionMatrixDic[el["fromstatehash"]][el["throughaction"]][el["key"]])
