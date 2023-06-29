@@ -219,6 +219,7 @@ class GameState:
 
     def getScore(self):
         return float(self.data.score)
+    
 
     def getCapsules(self):
         """

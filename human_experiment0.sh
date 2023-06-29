@@ -15,8 +15,8 @@ semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
 training_agents=1
 n_training_steps=0
-n_testing_steps=10
-epochs=10
+n_testing_steps=5
+epochs=5
 
 max_record=$epochs
 min_record=0
@@ -48,6 +48,6 @@ do
 
   agentprop='{"test":{"pacman":{},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'}}'
   echo $testingenv_ghostarg
-  python statistics.py -m l -p $agent -a $agentprop -l $layout -s '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}''' -o  $outputname
+  python statistics_1.py -m l -p $agent -a $agentprop -l $layout -s '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}''' -o  $outputname
 
 done < "$input"

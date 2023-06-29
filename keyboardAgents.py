@@ -15,6 +15,7 @@
 from game import Agent
 from game import Directions
 import random
+import time
 
 class KeyboardAgent(Agent):
     """
@@ -34,13 +35,24 @@ class KeyboardAgent(Agent):
         self.keys = []
         self.actions = {Directions.NORTH: 0, Directions.SOUTH: 1,
                         Directions.EAST: 2, Directions.WEST: 3, Directions.STOP: 4}
+        self.source = None  # Tracks the source of the action
+        self.keyboard_inputs_saved = None
+        self.keyboard_input_times_saved = None
+
 
     def getAction(self, state, legalactions, game_number, total_games, isInitial,  ensemble_agent=None):
         from graphicsUtils import keys_waiting
         from graphicsUtils import keys_pressed
         keys = keys_waiting() + keys_pressed()
+        
+        keyboard_inputs = []  # Added list to store keyboard inputs and times
+
         if keys != []:
             self.keys = keys
+
+            self.move = 0
+            keyboard_inputs.append((keys, time.time()))
+
         else:
             self.keys = 'Stop'
         
@@ -51,14 +63,27 @@ class KeyboardAgent(Agent):
             # Try to move in the same direction as before
             if self.lastMove in legal:
                 move = self.lastMove
+                self.source = 'Habit'
+                
         
-        if (self.STOP_KEY in self.keys) and self.actions[Directions.STOP] in legal: move = self.actions[Directions.STOP]
+        
+        if (self.STOP_KEY in self.keys) and self.actions[Directions.STOP] in legal: 
+            move = self.actions[Directions.STOP]
+            self.source = 'Habit'
+            
 
         if move not in legal and legal != []:
             move = random.choice(legal)
+            self.source = 'Random'
+        elif keyboard_inputs:
+            self.source = 'Keyboard'
+            
+            #print("Keyboard")
 
+        self.keyboard_inputs_saved = keyboard_inputs  # Save the keyboard inputs
+        self.keyboard_input_times_saved = [t for _, t in keyboard_inputs]  # Save the keyboard input times
         self.lastMove = move
-        return move
+        return move, keyboard_inputs, [t for _, t in keyboard_inputs]
 
     def getMove(self, legal):
         move = self.actions[Directions.STOP] 
@@ -67,6 +92,7 @@ class KeyboardAgent(Agent):
         if   (self.NORTH_KEY in self.keys or 'Up' in self.keys) and self.actions[Directions.NORTH] in legal:   move =self.actions[Directions.NORTH]
         if   (self.SOUTH_KEY in self.keys or 'Down' in self.keys) and self.actions[Directions.SOUTH] in legal: move =self.actions[Directions.SOUTH]
         return move
+
 
 class KeyboardAgent2(KeyboardAgent):
     """
