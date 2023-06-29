@@ -74,6 +74,9 @@ class QLearningAgent:
 
     def set_current_state_type(self, state_type):
         self.current_state_type = state_type
+    
+    def compute_wasserstein_distance(self, othertransitionMatrixDic):
+        self.q_values
 
     def initialize_q_values_if_absent(self):
         try:

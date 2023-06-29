@@ -167,7 +167,7 @@ def readCommand(argv):
         args['statOpts'] = json.loads(options.statArgs)
     except:
         args['statOpts'] = {}
-    
+
     print(args['statOpts'])
 
     args["ghosts"] = {}
@@ -175,12 +175,13 @@ def readCommand(argv):
     args["perturbOpts"] = {}
 
     # Instantiate Pacman with agentArgs
-    pacman, ghosts = defineAgents(
-        agentOpts["test"], options.pacman, noKeyboard)
-    args['pacman']["test"] = pacman
-    args["ghosts"]["test"] = []
-    args["ghosts"]["test"] = ghosts
-    args["perturbOpts"]["test"] = agentOpts["test"]["perturb"]
+    if "test" in agentOpts:
+        pacman, ghosts = defineAgents(
+            agentOpts["test"], options.pacman, noKeyboard)
+        args['pacman']["test"] = pacman
+        args["ghosts"]["test"] = []
+        args["ghosts"]["test"] = ghosts
+        args["perturbOpts"]["test"] = agentOpts["test"]["perturb"]
 
     if "ensemble" in agentOpts:
         pacman, ghosts = defineAgents(
@@ -227,19 +228,30 @@ def readCommand(argv):
 #     {"pacman":{},"ghosts":[{"name":"RandomGhost","args":{"index":1,"prob":{}}}],"perturb":{"noise":{"mean":0,"std":0.2},"perm":{}}}]
 
 
-GENERALIZATION_WORLDS = [{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.2}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.7}, "perm": {}}},{"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-    "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.9}, "perm": {}}}]
+GENERALIZATION_WORLDS = [{ "pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}, 
+                # {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.01}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.02}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.03}, "perm": {}}},]
+                #  {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.05}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.07}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.09}, "perm": {}}}, 
+                {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}],"perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.2}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.7}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.9}, "perm": {}}}, ]
 
 
 SWAP_LIST = [0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9]
 
+
 def recordRange(index, range):
-    if index < range["max"] and index >= range["min"]: 
+    if index < range["max"] and index >= range["min"]:
         return True
     else:
         return False
@@ -308,8 +320,10 @@ def train_epoch(transitionMatrixTree, n_training_steps, rules, pacman, ghosts, l
             pacman.set_trainable(trainable=True)
         game.run(i, n_training_steps)
 
+
 def shellquote(s):
     return "'" + s.replace("'", "'\\''") + "'"
+
 
 def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, layout, gameDisplay, ensemble_agent=None, record=None):
     scores = []
@@ -321,7 +335,7 @@ def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, lay
         if record:
             import graphicsDisplay
             grapDisplay = graphicsDisplay.PacmanGraphics(
-            1, frameTime=0.1)
+                1, frameTime=0.1)
             game.display = grapDisplay
             game.display.initialize(game.state.data)
 
@@ -332,12 +346,14 @@ def test_epoch(transitionMatrixTree, n_testing_steps, rules, pacman, ghosts, lay
         elif 'PacmanDQN' in pacman.__class__.__name__:
             pacman.set_trainable(trainable=False)
 
-        game.run(i, n_testing_steps, ensemble_agent=ensemble_agent, record=record)
+        game.run(i, n_testing_steps,
+                 ensemble_agent=ensemble_agent, record=record)
         scores.append(game.state.getScore())
 
         if record:
             gifname = shellquote(f'./{record}_agent_{i}.gif')
-            os.system(f"convert -delay 15 -loop 1 -compress lzw -layers optimize ./frames/* {gifname}")
+            os.system(
+                f"convert -delay 15 -loop 1 -compress lzw -layers optimize ./frames/* {gifname}")
             os.system(f"rm -r frames/**")
 
     return np.asarray(scores)
@@ -352,11 +368,11 @@ def test_noisy_agents_epoch(transitionMatrixTreeList, n_testing_steps, rules, pa
             import textDisplay
             game = rules.newGame(layout, pacman, ghosts,
                                  gameDisplay, 1, catchExceptions=False)
-            
+
             if record:
                 import graphicsDisplay
                 grapDisplay = graphicsDisplay.PacmanGraphics(
-                1, frameTime=0.1)
+                    1, frameTime=0.1)
                 game.display = grapDisplay
                 game.display.initialize(game.state.data)
 
@@ -370,10 +386,11 @@ def test_noisy_agents_epoch(transitionMatrixTreeList, n_testing_steps, rules, pa
 
             game.run(i, n_testing_steps, record=record)
             scores.append(game.state.getScore())
-            
+
             if record:
                 gifname = shellquote(f'./{record[n]}_agent_{i}.gif')
-                os.system(f"convert -delay 15 -loop 1 -compress lzw -layers optimize ./frames/* {gifname}")
+                os.system(
+                    f"convert -delay 15 -loop 1 -compress lzw -layers optimize ./frames/* {gifname}")
                 os.system(f"rm -r frames/**")
 
         across_agents_scores.append(np.asarray(scores))
@@ -432,9 +449,9 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
 
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
-    
+
     os.system("rm frames/**")
-    
+
     for i in range(trained_agents):
         transitionMatrixTreeList = []
         transitionMatrixTreeList.append(defineTransitionMatrix(
@@ -485,14 +502,14 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
 
     rules = ClassicGameRules(timeout)
 
-    print("record_range: ",record_range)
+    print("record_range: ", record_range)
 
     stats = np.zeros(
         [trained_agents, epochs // n_testing_steps], dtype=np.float32)
 
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
-    
+
     os.system("rm frames/**")
 
     print(pacman["test"].__class__.__name__)
@@ -500,7 +517,7 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
     if record:
         if not os.path.exists(record.split('/')[0] + "/record/"):
             os.makedirs(record.split('/')[0] + "/record/")
-    
+
     for i in range(trained_agents):
         transitionMatrixTree = defineTransitionMatrix(
             pacman["test"], ghosts["test"], layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["test"])
@@ -523,7 +540,7 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
 
         np.savetxt(args['outputStats'] +
                    f"{i}_training_agent.pkl", stats[i],  delimiter=',')
-    
+
         if pacman["test"].__class__.__name__ == "KeyboardAgent":
             pacmanType = loadAgent(pacmanName, 0)
         else:
@@ -549,7 +566,7 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
 
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
-    
+
     os.system("rm frames/**")
 
     if record:
@@ -583,6 +600,7 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
             score = np.mean(test_epoch(
                 transitionMatrixTreeList["test"], n_testing_steps, rules, env_pacman, env_ghosts, layout, display, ensemble_agent=perturbedenv_pacman, record=recordpath))
             stats[i][j] = score
+        
         print('trained agent ', i)
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
 
@@ -597,6 +615,57 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
 
     return np.mean(stats, 0)
 
+def checkDistanceBetweenEnvironments(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applyperturb=None, record=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
+    import __main__
+    __main__.__dict__['_display'] = display
+
+    rules = ClassicGameRules(timeout)
+
+    stats = np.zeros(
+        [trained_agents, len(GENERALIZATION_WORLDS), len(GENERALIZATION_WORLDS), epochs // n_testing_steps], dtype=np.float32)
+
+    if not os.path.exists(args['outputStats'].split('/')[0]):
+        os.makedirs(args['outputStats'].split('/')[0])
+
+    os.system("rm frames/**")
+
+    if record:
+        if not os.path.exists(record.split('/')[0] + "/record/"):
+            os.makedirs(record.split('/')[0] + "/record/")
+
+    for i in range(trained_agents):
+        transitionMatrixTreeList = []
+        for n in range(len(GENERALIZATION_WORLDS)):
+            newworld_pacman, newworld_ghosts = defineAgents(
+                GENERALIZATION_WORLDS[n], pacmanName, 1)
+            transitionMatrixTreeList.append(defineTransitionMatrix(
+                newworld_pacman, newworld_ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=GENERALIZATION_WORLDS[n]["perturb"]))
+
+        for j in range(epochs // n_testing_steps):
+            print(j)
+            recordpath = None
+            if record and recordRange(j*n_training_steps, record_range):
+                recordpath = record.split(
+                    '/')[0] + "/record/" + record.split('/')[1] + f"{i}_training_agent_{j}_epoch"
+            
+            for n in range(len(GENERALIZATION_WORLDS)):
+                train_epoch(transitionMatrixTreeList[n], n_training_steps,
+                            rules, transitionMatrixTreeList[n].currentAgents[0], transitionMatrixTreeList[n].currentAgents[1:], layout, display)
+                
+            for n in range(len(GENERALIZATION_WORLDS)):  
+                for m in range(len(GENERALIZATION_WORLDS)):  
+                    stats[i][n][m][j] = transitionMatrixTreeList[n].compute_wasserstein_distance(transitionMatrixTreeList[m].currentAgents[0])
+    
+        print('trained agent ', i)
+        print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
+
+        for k in range(len(GENERALIZATION_WORLDS)):
+            token = "".join(
+                [f'_{ghost["name"]}_' + f'{ghost["args"]}' for ghost in GENERALIZATION_WORLDS[k]["ghosts"]])
+            np.savetxt(args['outputStats'] + token + f'_{GENERALIZATION_WORLDS[k]["perturb"]["noise"]}_end_'
+                       + f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
+
+    return np.mean(stats, 0)
 
 def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applyperturb=None, record=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
     import __main__
@@ -609,13 +678,13 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
 
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
-    
+
     os.system("rm frames/**")
 
     if record:
         if not os.path.exists(record.split('/')[0] + "/record/"):
             os.makedirs(record.split('/')[0] + "/record/")
-    
+
     for i in range(trained_agents):
         transitionMatrixTreeList = []
         transitionMatrixTree = defineTransitionMatrix(
@@ -630,14 +699,16 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
                     newworld_pacman, newworld_ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=GENERALIZATION_WORLDS[n]["perturb"]))
 
         for j in range(epochs // n_testing_steps):
-            
+
             recordpaths = None
 
             if record and recordRange(j*n_training_steps, record_range):
                 recordpaths = []
                 for k in range(len(GENERALIZATION_WORLDS)):
-                    token = "".join([f'_ghost{["name"]}_' + f'{ghost["args"]}' for ghost in GENERALIZATION_WORLDS[k]["ghosts"]])
-                    recordpaths.append(record.split('/')[0] + "/record/" + record.split('/')[1] + token + f'_{GENERALIZATION_WORLDS[k]["perturb"]["noise"]}_'+ f"{i}_training_agent_{j}_epoch")
+                    token = "".join(
+                        [f'_ghost{["name"]}_' + f'{ghost["args"]}' for ghost in GENERALIZATION_WORLDS[k]["ghosts"]])
+                    recordpaths.append(record.split('/')[0] + "/record/" + record.split('/')[
+                                       1] + token + f'_{GENERALIZATION_WORLDS[k]["perturb"]["noise"]}_' + f"{i}_training_agent_{j}_epoch")
 
             print(j)
             train_epoch(transitionMatrixTreeList[0], n_training_steps,
@@ -651,12 +722,79 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
 
         for k in range(len(GENERALIZATION_WORLDS)):
-            token = "".join([f'_{ghost["name"]}_' + f'{ghost["args"]}' for ghost in GENERALIZATION_WORLDS[k]["ghosts"]])
+            token = "".join(
+                [f'_{ghost["name"]}_' + f'{ghost["args"]}' for ghost in GENERALIZATION_WORLDS[k]["ghosts"]])
             np.savetxt(args['outputStats'] + token + f'_{GENERALIZATION_WORLDS[k]["perturb"]["noise"]}_end_'
                        + f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
 
         pacmanType = loadAgent(pacmanName, 1)
         pacman["test"] = pacmanType(pacmanArgs)
+
+    return np.mean(stats, 0)
+
+
+def runCurriculum(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None,  applyperturb=None, record=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
+    import __main__
+    __main__.__dict__['_display'] = display
+
+    rules = ClassicGameRules(timeout)
+
+    print("record_range: ", record_range)
+
+    stats = np.zeros(
+        [trained_agents, epochs // n_testing_steps], dtype=np.float32)
+
+    if not os.path.exists(args['outputStats'].split('/')[0]):
+        os.makedirs(args['outputStats'].split('/')[0])
+
+    os.system("rm frames/**")
+
+    print(pacman["test"].__class__.__name__)
+
+    if record:
+        if not os.path.exists(record.split('/')[0] + "/record/"):
+            os.makedirs(record.split('/')[0] + "/record/")
+
+    n_epochs_per_world = epochs // (len(GENERALIZATION_WORLDS) + 1)
+
+    for i in range(trained_agents):
+        transitionMatrixTreeList = []
+        if applyperturb:
+            print("adding noise...")
+            for n in range(len(GENERALIZATION_WORLDS)):
+                newworld_pacman, newworld_ghosts = defineAgents(
+                    GENERALIZATION_WORLDS[n], pacmanName, 1)
+                transitionMatrixTreeList.append(defineTransitionMatrix(
+                    newworld_pacman, newworld_ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=GENERALIZATION_WORLDS[n]["perturb"]))
+            
+        transitionMatrixTree = defineTransitionMatrix(
+        pacman["test"], ghosts["test"], layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["test"])
+        transitionMatrixTreeList.append(transitionMatrixTree)
+
+        for j in range(epochs // n_testing_steps):
+            print(j)
+
+            recordpath = None
+            if record and recordRange(j*n_training_steps, record_range):
+                recordpath = record.split(
+                    '/')[0] + "/record/" + record.split('/')[1] + f"{i}_training_agent_{j}_epoch"
+
+            train_epoch(transitionMatrixTreeList[j*n_testing_steps // n_epochs_per_world], n_training_steps,
+                        rules, pacman["test"], ghosts["test"], layout, display)
+            score = np.mean(test_epoch(
+                transitionMatrixTreeList[-1], n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display, record=recordpath))
+            stats[i][j] = score
+        print('trained agent ', i)
+        print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
+
+        np.savetxt(args['outputStats'] +
+                   f"{i}_training_agent.pkl", stats[i],  delimiter=',')
+
+        if pacman["test"].__class__.__name__ == "KeyboardAgent":
+            pacmanType = loadAgent(pacmanName, 0)
+        else:
+            pacmanType = loadAgent(pacmanName, 1)
+            pacman["test"] = pacmanType(pacmanArgs)
 
     return np.mean(stats, 0)
 
@@ -691,5 +829,13 @@ if __name__ == '__main__':
         for n in range(len(GENERALIZATION_WORLDS)):
             np.savetxt(args['outputStats'] +
                        f"_{GENERALIZATION_WORLDS[n]}"+".pkl", output[n],  delimiter=',')
+    elif args['mode'] == 'c':
+        output = runCurriculum(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
+                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], record=args['recording'], **args['statOpts'])
+        np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
+    elif args['mode'] == 'd':
+        output = checkDistanceBetweenEnvironments(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
+                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], record=args['recording'], **args['statOpts'])
+        np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
 
     pass

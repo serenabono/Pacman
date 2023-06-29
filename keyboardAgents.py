@@ -49,6 +49,7 @@ class KeyboardAgent(Agent):
 
         if keys != []:
             self.keys = keys
+
             self.move = 0
             keyboard_inputs.append((keys, time.time()))
 
