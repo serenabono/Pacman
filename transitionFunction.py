@@ -82,9 +82,6 @@ class TransitionMatrixDicTree():
 
         print("Computational overload: [", self.nStates, " x ",
               self.nPossibleAcitons, " x ", self.nStates, "]")
-        
-        #self.noise_list = []
-        self.seeds = []
 
     def copy(self):
         tree = self
@@ -282,12 +279,10 @@ class TransitionMatrixDicTree():
 
         return heatmap
 
-    
     def computeCompleteMatrix(self):
-        #list_pos = []
-        seed = random.randint(1,100)
-        np.random.seed(seed)
 
+        list_pos = []
+        seed = np.random.seed()
         for fromstatehash in self.transitionMatrixDic:
             for throughaction in self.transitionMatrixDic[fromstatehash].keys():
                 n_states = len(self.transitionMatrixDic.keys())
@@ -300,8 +295,6 @@ class TransitionMatrixDicTree():
                 probabilities = noise_generated / sum(noise_generated)
                 self.transitionMatrixDic[fromstatehash][throughaction] = dict(
                     zip(self.transitionMatrixDic.keys(), probabilities))
-                self.seeds.append(seed)
-        
 
         # for el in list_pos:
         #     print(self.transitionMatrixDic[el["fromstatehash"]][el["throughaction"]][el["key"]])
@@ -412,9 +405,7 @@ class TransitionMatrixDicTree():
         newstate = state.movetoAnyState(
             self.keyDict[actiontostate], pacaction, agentId, posingrid)
         
-
         return newstate
-
 
 
     def compute_wasserstein_distance(self, pacman_perturbedenv):
@@ -436,4 +427,3 @@ class TransitionMatrixDicTree():
                         sig_two.append(0)
                     
         return wasserstein_distance(sig_one, sig_two)
-
