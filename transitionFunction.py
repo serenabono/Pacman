@@ -411,6 +411,32 @@ class TransitionMatrixDicTree():
     def compute_wasserstein_distance(self, pacman_perturbedenv):
         sig_one = []
         sig_two = []
+        for fromstatehash in self.transitionMatrixDic:
+            for throughaction in self.actions.values():
+                for tostatehash in self.transitionMatrixDic:
+                    if fromstatehash in self.transitionMatrixDic:
+                        if throughaction in self.transitionMatrixDic[fromstatehash]:
+                            if tostatehash in self.transitionMatrixDic[fromstatehash][throughaction]:
+                                sig_one.append(self.transitionMatrixDic[fromstatehash][throughaction][tostatehash])
+                            else:
+                                sig_one.append(0)
+                        else:
+                            sig_one.append(0)
+                    if fromstatehash in pacman_perturbedenv.transitionMatrixDic:
+                        if throughaction in pacman_perturbedenv.transitionMatrixDic[fromstatehash]:
+                            if tostatehash in pacman_perturbedenv.transitionMatrixDic[fromstatehash][throughaction]:
+                                sig_two.append(pacman_perturbedenv.transitionMatrixDic[fromstatehash][throughaction][tostatehash])
+                            else:
+                                sig_two.append(0)
+                        else:
+                            sig_two.append(0)
+                    
+        return wasserstein_distance(sig_one, sig_two)
+
+    
+    def compute_wasserstein_distance_qtables(self, pacman_perturbedenv):
+        sig_one = []
+        sig_two = []
         pacmanenv = self.currentAgents[0]
         for fromstatehash in self.transitionMatrixDic:
             for throughaction in self.actions.values():

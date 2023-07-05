@@ -58,6 +58,7 @@ from transitionFunction import *
 from pacman import ClassicGameRules
 import noise
 import json
+import pickle as pkl
 from pathlib import Path
 
 def default(str):
@@ -228,8 +229,9 @@ def readCommand(argv):
 #     {"pacman":{},"ghosts":[{"name":"RandomGhost","args":{"index":1,"prob":{}}}],"perturb":{"noise":{"mean":0,"std":0.2},"perm":{}}}]
 
 
-GENERALIZATION_WORLDS = [{ "pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}, 
+GENERALIZATION_WORLDS = [
+                { "pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                 "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}, ]
                 # {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
                 # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.01}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
                 # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.02}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
@@ -238,13 +240,14 @@ GENERALIZATION_WORLDS = [{ "pacman": {}, "ghosts": [{"name": "RandomGhost", "arg
                 # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.05}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
                 # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.07}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
                 # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.09}, "perm": {}}}, 
-                {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                "index": 1, "prob": {}}}],"perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.2}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.7}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.9}, "perm": {}}}, ]
+                # {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                # "index": 1, "prob": {}}}],"perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}},
+                # {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.2}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.7}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.9}, "perm": {}}} ]
 
 
 SWAP_LIST = [0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9]
@@ -540,6 +543,10 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
 
         np.savetxt(args['outputStats'] +
                    f"{i}_training_agent.pkl", stats[i],  delimiter=',')
+        
+        # filename = args['outputStats'] + f"{i}_training_agent.txt"
+        # with open(filename, 'w') as file:
+        #     file.write(str(pacman["test"].agent.q_values.values()))
 
         if pacman["test"].__class__.__name__ == "KeyboardAgent":
             pacmanType = loadAgent(pacmanName, 0)
@@ -621,8 +628,11 @@ def checkDistanceBetweenEnvironments(pacman, pacmanName, pacmanArgs, ghosts, lay
 
     rules = ClassicGameRules(timeout)
 
-    stats = np.zeros(
+    stats_Qlearning = np.zeros(
         [trained_agents, len(GENERALIZATION_WORLDS), len(GENERALIZATION_WORLDS), epochs // n_testing_steps], dtype=np.float32)
+    
+    stats_transition_function = np.zeros(
+        [trained_agents, len(GENERALIZATION_WORLDS), len(GENERALIZATION_WORLDS)], dtype=np.float32)
 
     if not os.path.exists(args['outputStats'].split('/')[0]):
         os.makedirs(args['outputStats'].split('/')[0])
@@ -634,12 +644,24 @@ def checkDistanceBetweenEnvironments(pacman, pacmanName, pacmanArgs, ghosts, lay
             os.makedirs(record.split('/')[0] + "/record/")
 
     for i in range(trained_agents):
+        
         transitionMatrixTreeList = []
         for n in range(len(GENERALIZATION_WORLDS)):
             newworld_pacman, newworld_ghosts = defineAgents(
                 GENERALIZATION_WORLDS[n], pacmanName, 1)
             transitionMatrixTreeList.append(defineTransitionMatrix(
                 newworld_pacman, newworld_ghosts, layout, file_to_be_loaded=file_to_be_loaded, applyperturb=GENERALIZATION_WORLDS[n]["perturb"]))
+
+        for n in range(len(GENERALIZATION_WORLDS)):  
+            for m in range(len(GENERALIZATION_WORLDS)):  
+                stats_transition_function[i][n][m] = transitionMatrixTreeList[n].compute_wasserstein_distance(transitionMatrixTreeList[m])
+        
+        
+        for k in range(len(GENERALIZATION_WORLDS)):
+            token = "".join(
+                [f'_{ghost["name"]}_' + f'{ghost["args"]}' for ghost in GENERALIZATION_WORLDS[k]["ghosts"]])
+            np.savetxt(args['outputStats'] + '_transition_function' + token + f'_{GENERALIZATION_WORLDS[k]["perturb"]["noise"]}_end_'
+                       + f"{i}_training_agent.pkl", stats_transition_function[i][k],  delimiter=',')
 
         for j in range(epochs // n_testing_steps):
             print(j)
@@ -654,18 +676,18 @@ def checkDistanceBetweenEnvironments(pacman, pacmanName, pacmanArgs, ghosts, lay
                 
             for n in range(len(GENERALIZATION_WORLDS)):  
                 for m in range(len(GENERALIZATION_WORLDS)):  
-                    stats[i][n][m][j] = transitionMatrixTreeList[n].compute_wasserstein_distance(transitionMatrixTreeList[m].currentAgents[0])
+                    stats_Qlearning[i][n][m][j] = transitionMatrixTreeList[n].compute_wasserstein_distance_qtables(transitionMatrixTreeList[m].currentAgents[0])
     
         print('trained agent ', i)
-        print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
+        print('Scores:       ', ', '.join([str(score) for score in stats_Qlearning[i]]))
 
         for k in range(len(GENERALIZATION_WORLDS)):
             token = "".join(
                 [f'_{ghost["name"]}_' + f'{ghost["args"]}' for ghost in GENERALIZATION_WORLDS[k]["ghosts"]])
             np.savetxt(args['outputStats'] + token + f'_{GENERALIZATION_WORLDS[k]["perturb"]["noise"]}_end_'
-                       + f"{i}_training_agent.pkl", stats[i][k],  delimiter=',')
+                       + f"{i}_training_agent.pkl", stats_Qlearning[i][k],  delimiter=',')
 
-    return np.mean(stats, 0)
+    return np.mean(stats_Qlearning, 0), np.mean(stats_transition_function, 0)
 
 def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applyperturb=None, record=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
     import __main__

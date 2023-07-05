@@ -11,7 +11,7 @@
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v2"
+layout="v4"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
 training_agents=500
@@ -21,7 +21,7 @@ n_testing_steps=10
 epochs=1000
 agent="BoltzmannAgent"
 max_record=1000
-min_record=990
+min_record=1000
 record_range='{"max":'$max_record',"min":'$min_record'}'
 run_untill=1000
 
@@ -35,7 +35,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 echo $testingenv_ghostarg
 
 ensebleenv_mean=0
-ensebleenv_std=0.2
+ensebleenv_std=0
 ensebleenv_ghost_name="RandomGhost" 
 ensebleenv_ghost_args='{"index":1,"prob":{}}'
 ensebleenv_ghostarg='[{"name":"'$ensebleenv_ghost_name'","args":'$ensebleenv_ghost_args'}]'

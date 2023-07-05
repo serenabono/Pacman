@@ -11,21 +11,21 @@
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v3"
+layout="v4"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
 training_agents=500
 n_training_steps=10
 n_testing_steps=10
 max_record=1000
-min_record=990
+min_record=1000
 record_range='{"max":'$max_record',"min":'$min_record'}'
 run_untill=1000
 epochs=1000
 agent="BoltzmannAgent"
 
 testingenv_mean=0
-testingenv_std=0.1
+testingenv_std=0
 testingenv_ghost_name="MoveMostlyWestGhost" 
 testingenv_ghost_args='{"index":1,"prob":0.5}'
 testingenv_ghostarg='[{"name":"'$testingenv_ghost_name'","args":'$testingenv_ghost_args'}]'
