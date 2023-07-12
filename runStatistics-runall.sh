@@ -26,7 +26,7 @@ record_range='{"max":'$max_record',"min":'$min_record'}'
 run_untill=1000
 
 testingenv_mean=0
-testingenv_std=0
+testingenv_std=0.1
 testingenv_ghost_name="RandomGhost" 
 testingenv_ghost_args='{"index":1,"prob":{}}'
 testingenv_ghostarg='[{"name":"'$testingenv_ghost_name'","args":'$testingenv_ghost_args'}]'

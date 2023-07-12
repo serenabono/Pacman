@@ -693,6 +693,9 @@ def runGenralizationLearnabilityandEnsemble(pacman, pacmanName, pacmanArgs, ghos
     import __main__
     __main__.__dict__['_display'] = display
 
+    pacmanType = loadAgent(pacmanName, 1)
+    pacman["test2agents"] = pacmanType(pacmanArgs)
+
     rules = ClassicGameRules(timeout)
     statsList = {}
     outputfolders = {}
@@ -707,9 +710,13 @@ def runGenralizationLearnabilityandEnsemble(pacman, pacmanName, pacmanArgs, ghos
         [trained_agents, epochs // n_testing_steps], dtype=np.float32)
     outputfolders["ensemble"] = folder.replace("allmodes", "ensemble") + '/' + filename
 
+    statsList["test2agents"] = np.zeros(
+        [trained_agents, epochs // n_testing_steps], dtype=np.float32)
+    outputfolders["test2agents"] = folder.replace("allmodes", "ensemble") + '/' + filename
+
     statsList["generalization"] = np.zeros(
         [trained_agents, epochs // n_testing_steps], dtype=np.float32)
-    outputfolders["generalization"] = "_".join(folder.split("_")[:6]).replace("allmodes", "generalization") + '/' + filename
+    outputfolders["generalization"] = "_".join(folder.split("_")[:6]).replace("allmodes", "ensemble") +"_"+ "_".join(folder.split("_")[3:6]) + '/' + filename
 
     for outputfolder in outputfolders.values():
         if not os.path.exists(outputfolder.split('/')[0]):
@@ -724,6 +731,10 @@ def runGenralizationLearnabilityandEnsemble(pacman, pacmanName, pacmanArgs, ghos
             pacman["test"], ghosts["test"], layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["test"])
         transitionMatrixTreeList["test"] = transitionMatrixTree  
 
+        transitionMatrixTree = defineTransitionMatrix(
+            pacman["test2agents"], ghosts["test"], layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["test"])
+        transitionMatrixTreeList["test2agents"] = transitionMatrixTree 
+
         # ensemble environment agent
         transitionMatrixTree = defineTransitionMatrix(
             pacman["ensemble"], ghosts["ensemble"], layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["ensemble"])
@@ -731,7 +742,8 @@ def runGenralizationLearnabilityandEnsemble(pacman, pacmanName, pacmanArgs, ghos
     
         for j in range(epochs // n_testing_steps):
             print(j)
-
+            train_epoch(transitionMatrixTreeList["test2agents"], n_training_steps,
+                            rules, pacman["test2agents"], ghosts["test"], layout, display)
             train_epoch(transitionMatrixTreeList["test"], n_training_steps,
                             rules, pacman["test"], ghosts["test"], layout, display)
             train_epoch(transitionMatrixTreeList["ensemble"], n_training_steps,
@@ -750,6 +762,11 @@ def runGenralizationLearnabilityandEnsemble(pacman, pacmanName, pacmanArgs, ghos
             score = np.mean(test_epoch(
                 transitionMatrixTreeList["test"], n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display, ensemble_agent=pacman["ensemble"]))
             statsList["ensemble"][i][j] = score
+
+            # test learnability2agents
+            score = np.mean(test_epoch(
+                transitionMatrixTreeList["test"], n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display, ensemble_agent=pacman["test2agents"]))
+            statsList["test2agents"][i][j] = score
         
         print('trained agent ', i)
 
@@ -764,6 +781,7 @@ def runGenralizationLearnabilityandEnsemble(pacman, pacmanName, pacmanArgs, ghos
         pacman["ensemble"] = perturbedenv_pacmanType(pacmanArgs)
         pacmanType = loadAgent(pacmanName, 1)
         pacman["test"] = pacmanType(pacmanArgs)
+        pacman["test2agents"] = pacmanType(pacmanArgs)
 
     return np.mean(stats, 0)
 
