@@ -5,7 +5,7 @@ import numpy as np
 
 outfiles = {}
 
-for folder in glob.glob('./ensemble_*'):
+for folder in glob.glob('./ensemble_v4*'):
     try:
         os.chdir(f"{folder}")
         print(folder)
