@@ -230,25 +230,15 @@ def readCommand(argv):
 
 
 GENERALIZATION_WORLDS = [
-                { "pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                 "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}, ]
-                # {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.01}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.02}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.03}, "perm": {}}},]
-                #  {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.05}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.07}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.09}, "perm": {}}}, 
-                # {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                # "index": 1, "prob": {}}}],"perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}},
-                # {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.2}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.7}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                # "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.9}, "perm": {}}} ]
+                { "pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}},  {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}]
 
+# GENERALIZATION_WORLDS = [
+#                 { "pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+#                  "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}]
 
 SWAP_LIST = [0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9]
 
@@ -712,11 +702,11 @@ def runGenralizationLearnabilityandEnsemble(pacman, pacmanName, pacmanArgs, ghos
 
     statsList["test2agents"] = np.zeros(
         [trained_agents, epochs // n_testing_steps], dtype=np.float32)
-    outputfolders["test2agents"] = folder.replace("allmodes", "ensemble") + '/' + filename
+    outputfolders["test2agents"] = "_".join(folder.split("_")[:6]).replace("allmodes", "learnability2agents") + "_" +  "_".join(folder.split("_")[3:6]) + '/' + filename
 
     statsList["generalization"] = np.zeros(
         [trained_agents, epochs // n_testing_steps], dtype=np.float32)
-    outputfolders["generalization"] = "_".join(folder.split("_")[:6]).replace("allmodes", "ensemble") +"_"+ "_".join(folder.split("_")[3:6]) + '/' + filename
+    outputfolders["generalization"] = "_".join(folder.split("_")[:3]).replace("allmodes", "generalization")+ "_" +  "_".join(folder.split("_")[6:]) + '/' + filename
 
     for outputfolder in outputfolders.values():
         if not os.path.exists(outputfolder.split('/')[0]):
