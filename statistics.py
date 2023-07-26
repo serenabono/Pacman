@@ -186,7 +186,7 @@ def readCommand(argv):
 
     if "ensemble" in agentOpts:
         pacman, ghosts = defineAgents(
-            agentOpts["test"], options.pacman, noKeyboard)
+            agentOpts["ensemble"], options.pacman, noKeyboard)
         args['pacman']["ensemble"] = pacman
         args["ghosts"]["ensemble"] = []
         args["ghosts"]["ensemble"] = ghosts
