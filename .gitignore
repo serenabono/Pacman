@@ -132,11 +132,11 @@ dmypy.json
 ql-smallClassic-**
 saves_smallClassic/**
 slurm_outputs_scripts/**
-generalization_**
-learnability_**
-learnability/**
+generalization**
+learnability**
+ensemble**
 newTrainingMethod_**
-ensemble_**
 curriculum_**
 distance_**
 learnability2agents**
+prev_pacman**

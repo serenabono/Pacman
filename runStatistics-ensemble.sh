@@ -5,7 +5,7 @@
 #SBATCH --job-name=ensemble
 
 #SBATCH -p short
-#SBATCH --mem=5G
+#SBATCH --mem=10G
 #SBATCH -o slurm_outputs_scripts/hostname_%j.out
 #SBATCH -e slurm_outputs_scripts/hostname_%j.err
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
@@ -13,7 +13,7 @@
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
-training_agents=500
+training_agents=100
 n_training_steps=10
 n_testing_steps=10
 max_record=1000
@@ -25,7 +25,7 @@ agent="BoltzmannAgent"
 
 layout="v4"
 testingenv_mean=0
-testingenv_std=0
+testingenv_std=0.1
 testingenv_ghost_name=("DirectionalGhost" "RandomGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":{}}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'

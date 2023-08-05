@@ -5,7 +5,7 @@
 #SBATCH --job-name=learnability
 
 #SBATCH -p short
-#SBATCH --mem=5G
+#SBATCH --mem=10G
 #SBATCH -o slurm_outputs_scripts/hostname_%j.out
 #SBATCH -e slurm_outputs_scripts/hostname_%j.err
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
@@ -14,7 +14,7 @@ DATE=$(date '+%d:%m:%Y-%H:%M:%S')
 layout="v4"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
-training_agents=500
+training_agents=150
 n_training_steps=10
 n_testing_steps=10
 max_record=1000
@@ -26,8 +26,8 @@ agent="BoltzmannAgent"
 
 trainingenv_mean=0
 trainingenv_std=0
-trainingenv_ghost_name=("RandomGhostTeleportingNearWalls" "RandomGhost") 
-trainingenv_ghost_args=('{"index":1,"prob":{}}' '{"index":2,"prob":{}}')
+trainingenv_ghost_name=("DirectionalGhost" "RandomGhost") 
+trainingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":{}}')
 trainingenv_ghostarg='[{"name":"'${trainingenv_ghost_name[0]}'","args":'${trainingenv_ghost_args[0]}'}]'
 trainingenv_noise_args='{"mean":'$trainingenv_mean',"std":'$trainingenv_std'}'
 trainingenv_perturb='{"noise":'$trainingenv_noise_args',"perm":{}}'
