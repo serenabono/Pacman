@@ -1,53 +1,53 @@
 #!/bin/bash
 
 #SBATCH -c 1
-#SBATCH --time=4:00:00
+#SBATCH --time=5:00:00
 #SBATCH --job-name=ensemble
 
 #SBATCH -p short
-#SBATCH --mem=10G
+#SBATCH --mem=5G
 #SBATCH -o slurm_outputs_scripts/hostname_%j.out
 #SBATCH -e slurm_outputs_scripts/hostname_%j.err
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v4"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
-training_agents=400
+training_agents=500
 n_training_steps=10
 n_testing_steps=10
-
-epochs=1000
-agent="BoltzmannAgent"
 max_record=1000
 min_record=1000
 record_range='{"max":'$max_record',"min":'$min_record'}'
 run_untill=1000
+epochs=1000
+agent="BoltzmannAgent"
 
+layout="v4"
 testingenv_mean=0
 testingenv_std=0
-testingenv_ghost_name="RandomGhost" 
-testingenv_ghost_args='{"index":1,"prob":{}}'
-testingenv_ghostarg='[{"name":"'$testingenv_ghost_name'","args":'$testingenv_ghost_args'}]'
+testingenv_ghost_name=("DirectionalGhost" "RandomGhost") 
+testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":{}}')
+testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
 testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 echo $testingenv_ghostarg
 
+ensebleenv_layout="v4"
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name="MoveMostlyWestGhost" 
-ensebleenv_ghost_args='{"index":1,"prob":0.9}'
-ensebleenv_ghostarg='[{"name":"'$ensebleenv_ghost_name'","args":'$ensebleenv_ghost_args'}]'
-ensebleingenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
-ensebleenv_noise_args='{"noise":'$ensebleingenv_noise_args',"perm":{}}'
-echo $ensembleingenv_ghostarg
+ensebleenv_ghost_name=("DirectionalGhost" "RandomGhost") 
+ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":{}}')
+ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
+ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
+ensebleenv_perturb='{"noise":'$ensebleenv_noise_args',"perm":{}}'
+echo $ensebleenv_perturb
 
-agentprop='{"test":{"pacman":{},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'},"ensemble":{"pacman":{},"ghosts":'$ensebleenv_ghostarg',"perturb":'$ensebleenv_noise_args'}}'
 
-run_untill=1000
+agentprop='{"test":{"layout":"'$layout'","pacman":{},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'},"ensemble":{"layout":"'$ensebleenv_layout'","pacman":{},"ghosts":'$ensebleenv_ghostarg',"perturb":'$ensebleenv_perturb'}}'
+echo $agentprop
 
-folder="ensemble_${layout}_${agent}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}_${ensebleenv_ghost_name}_${ensebleenv_ghost_args}_${ensebleingenv_noise_args}"
-outputname=''''$folder'/saved_agent_'$layout'_'$agent'_'$semanticDistribution'_'$noiseType'-'$training_agents'-'$ensebleingenv_noise_args'-test-'$RANDOM'-'$DATE''''
+folder="ensemble_${agent}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}_${ensebleenv_layout}_${ensebleenv_ghost_name}_${ensebleenv_ghost_args}_${ensebleenv_noise_args}"
+outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
-python statistics.py -q -m e -p $agent -a $agentprop -l $layout -s '''{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"record_range":'$record_range',"run_untill":'$run_untill',"timeout":30}''' -o  $outputname
+python statistics.py -m e -p $agent -a $agentprop -s '{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"timeout":30}' -o $outputname
