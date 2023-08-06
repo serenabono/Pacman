@@ -5,7 +5,7 @@
 #SBATCH --job-name=learnability2agents
 
 #SBATCH -p short
-#SBATCH --mem=15G
+#SBATCH --mem=10G
 #SBATCH -o slurm_outputs_scripts/hostname_%j.out
 #SBATCH -e slurm_outputs_scripts/hostname_%j.err
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
