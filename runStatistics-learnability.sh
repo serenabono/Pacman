@@ -5,7 +5,7 @@
 #SBATCH --job-name=learnability
 
 #SBATCH -p short
-#SBATCH --mem=10G
+#SBATCH --mem=15G
 #SBATCH -o slurm_outputs_scripts/hostname_%j.out
 #SBATCH -e slurm_outputs_scripts/hostname_%j.err
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
@@ -26,17 +26,17 @@ agent="BoltzmannAgent"
 
 trainingenv_mean=0
 trainingenv_std=0
-trainingenv_ghost_name=("DirectionalGhost" "RandomGhost") 
-trainingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":{}}')
+trainingenv_ghost_name=("RandomGhost" "RandomGhost") 
+trainingenv_ghost_args=('{"index":1,"prob":{}}' '{"index":2,"prob":{}}')
 trainingenv_ghostarg='[{"name":"'${trainingenv_ghost_name[0]}'","args":'${trainingenv_ghost_args[0]}'}]'
 trainingenv_noise_args='{"mean":'$trainingenv_mean',"std":'$trainingenv_std'}'
 trainingenv_perturb='{"noise":'$trainingenv_noise_args',"perm":{}}'
 echo $trainingenv_ghostarg
 
-agentprop='{"test":{"layout":"'$layout'","pacman":{},"ghosts":'$trainingenv_ghostarg',"perturb":'$trainingenv_perturb'}}'
+agentprop='{"test":{"pacman":{},"ghosts":'$trainingenv_ghostarg',"perturb":'$trainingenv_perturb'}}'
 echo $agentprop
 
 folder="learnability_${agent}_${layout}_${trainingenv_ghost_name}_${trainingenv_ghost_args}_${trainingenv_noise_args}"
 outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$trainingenv_ghost_name'_'$trainingenv_ghost_args'_'$trainingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
-python statistics.py -m l -p $agent -a $agentprop -s '{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"timeout":30}' -o $outputname
+python statistics.py -m l -p $agent -q -l $layout -a $agentprop -s '{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"timeout":30}' -o $outputname
