@@ -32,7 +32,10 @@ for folder in glob.glob('./generalization_*'):
         os.makedirs('generalization/')
     os.chdir("generalization/")
     for pattern in outfiles:
-        values = np.sum(np.asarray(outfiles[pattern]),0)/len(np.asarray(outfiles[pattern]))
+        data=np.asarray(outfiles[pattern])[:500]
+        values = np.sum(data,0)/len(data)
+        std = np.std(data, axis=0) / np.sqrt(len(data))
         modifyied_pattern = pattern.replace("'","\"").replace(" ", "").replace("-train","").replace("_end", "")
-        np.savetxt(f"{folder[:-1]}{modifyied_pattern}.pkl" ,values,  delimiter=',')
+        np.savetxt(f"{folder}{modifyied_pattern}.pkl" ,values,  delimiter=',')
+        np.savetxt(f"{folder}{modifyied_pattern}_errorbar.pkl" ,std,  delimiter=',')
     os.chdir("../")

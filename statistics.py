@@ -230,11 +230,11 @@ def readCommand(argv):
 
 
 GENERALIZATION_WORLDS = [
-                { "pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}},  {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-                "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}]
+                { "pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}},  {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}]
 
 # GENERALIZATION_WORLDS = [
 #                 { "pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
@@ -679,103 +679,6 @@ def checkDistanceBetweenEnvironments(pacman, pacmanName, pacmanArgs, ghosts, lay
 
     return np.mean(stats_Qlearning, 0), np.mean(stats_transition_function, 0)
 
-def runGenralizationLearnabilityandEnsemble(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applyperturb=None, record=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
-    import __main__
-    __main__.__dict__['_display'] = display
-
-    pacmanType = loadAgent(pacmanName, 1)
-    pacman["test2agents"] = pacmanType(pacmanArgs)
-
-    rules = ClassicGameRules(timeout)
-    statsList = {}
-    outputfolders = {}
-
-    folder = args['outputStats'].split('/')[0]
-    filename = args['outputStats'].split('/')[1]
-    statsList["learnability"] = np.zeros(
-        [trained_agents, epochs // n_testing_steps], dtype=np.float32)
-    outputfolders["learnability"] = "_".join(folder.split("_")[:6]).replace("allmodes", "learnability") + '/' + filename
-
-    statsList["ensemble"] = np.zeros(
-        [trained_agents, epochs // n_testing_steps], dtype=np.float32)
-    outputfolders["ensemble"] = folder.replace("allmodes", "ensemble") + '/' + filename
-
-    statsList["test2agents"] = np.zeros(
-        [trained_agents, epochs // n_testing_steps], dtype=np.float32)
-    outputfolders["test2agents"] = "_".join(folder.split("_")[:6]).replace("allmodes", "learnability2agents") + "_" +  "_".join(folder.split("_")[3:6]) + '/' + filename
-
-    statsList["generalization"] = np.zeros(
-        [trained_agents, epochs // n_testing_steps], dtype=np.float32)
-    outputfolders["generalization"] = "_".join(folder.split("_")[:3]).replace("allmodes", "generalization")+ "_" +  "_".join(folder.split("_")[6:]) + '/' + filename
-
-    for outputfolder in outputfolders.values():
-        if not os.path.exists(outputfolder.split('/')[0]):
-            print("creating folder", outputfolder.split('/')[0])
-            os.makedirs(outputfolder.split('/')[0])
-
-    for i in range(trained_agents):
-        transitionMatrixTreeList = {}
-
-        # normal environment agent
-        transitionMatrixTree = defineTransitionMatrix(
-            pacman["test"], ghosts["test"], layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["test"])
-        transitionMatrixTreeList["test"] = transitionMatrixTree  
-
-        transitionMatrixTree = defineTransitionMatrix(
-            pacman["test2agents"], ghosts["test"], layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["test"])
-        transitionMatrixTreeList["test2agents"] = transitionMatrixTree 
-
-        # ensemble environment agent
-        transitionMatrixTree = defineTransitionMatrix(
-            pacman["ensemble"], ghosts["ensemble"], layout, file_to_be_loaded=file_to_be_loaded, applyperturb=applyperturb["ensemble"])
-        transitionMatrixTreeList["ensemble"] = transitionMatrixTree
-    
-        for j in range(epochs // n_testing_steps):
-            print(j)
-            train_epoch(transitionMatrixTreeList["test2agents"], n_training_steps,
-                            rules, pacman["test2agents"], ghosts["test"], layout, display)
-            train_epoch(transitionMatrixTreeList["test"], n_training_steps,
-                            rules, pacman["test"], ghosts["test"], layout, display)
-            train_epoch(transitionMatrixTreeList["ensemble"], n_training_steps,
-                            rules, pacman["ensemble"], ghosts["ensemble"], layout, display)
-            # test learnability
-            score = np.mean(test_epoch(
-                transitionMatrixTreeList["test"], n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display))
-            statsList["learnability"][i][j] = score
-            
-            # test generalization
-            score = np.mean(test_epoch(
-                transitionMatrixTreeList["ensemble"], n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display))
-            statsList["generalization"][i][j] = score
-            
-            # test ensemble
-            score = np.mean(test_epoch(
-                transitionMatrixTreeList["test"], n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display, ensemble_agent=pacman["ensemble"]))
-            statsList["ensemble"][i][j] = score
-
-            # test learnability2agents
-            score = np.mean(test_epoch(
-                transitionMatrixTreeList["test"], n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display, ensemble_agent=pacman["test2agents"]))
-            statsList["test2agents"][i][j] = score
-        
-        print('trained agent ', i)
-
-        for key, stats in zip(statsList.keys(), statsList.values()):
-            print(key)
-            print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
-            np.savetxt(outputfolders[key] +
-                    f"{i}_training_agent.pkl", stats[i],  delimiter=',')
-        
-        # reinitializing agents
-        perturbedenv_pacmanType = loadAgent(pacmanName, 1)
-        pacman["ensemble"] = perturbedenv_pacmanType(pacmanArgs)
-        pacmanType = loadAgent(pacmanName, 1)
-        pacman["test"] = pacmanType(pacmanArgs)
-        pacman["test2agents"] = pacmanType(pacmanArgs)
-
-    return np.mean(stats, 0)
-
-
 
 def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None, applyperturb=None, record=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
     import __main__
@@ -948,8 +851,4 @@ if __name__ == '__main__':
                                args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], record=args['recording'], **args['statOpts'])
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
     
-    elif args['mode'] == 'a':
-        output = runGenralizationLearnabilityandEnsemble(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
-                               args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], record=args['recording'], **args['statOpts'])
-
     pass

@@ -23,11 +23,11 @@ run_untill=1000
 epochs=1000
 agent="BoltzmannAgent"
 
-layout="v2"
+layout="v4"
 testingenv_mean=0
-testingenv_std=0.1
+testingenv_std=0.5
 testingenv_ghost_name=("DirectionalGhost" "RandomGhost") 
-testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":{}}')
+testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":{}}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
 testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
@@ -36,7 +36,7 @@ echo $testingenv_ghostarg
 ensebleenv_mean=0
 ensebleenv_std=0
 ensebleenv_ghost_name=("DirectionalGhost" "RandomGhost") 
-ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":{}}')
+ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":{}}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
 ensebleenv_perturb='{"noise":'$ensebleenv_noise_args',"perm":{}}'
