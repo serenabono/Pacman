@@ -150,6 +150,11 @@ class GameState:
 
         # Copy current state
         state = GameState(self)
+        # Book keeping
+        state.data._agentMoved = agentIndex
+        state.data.score += state.data.scoreChange
+        state.data.action = action
+        state.data.food = nextstate.data.food
 
         # Let agent's logic deal with its action's effects on the board
         if agentIndex == 0:  # Pacman is moving
@@ -166,12 +171,6 @@ class GameState:
 
         # Resolve multi-agent effects
         GhostRules.checkDeath(state, agentIndex)
-
-        # Book keeping
-        state.data._agentMoved = agentIndex
-        state.data.score += state.data.scoreChange
-        state.data.action = action
-        state.data.food = nextstate.data.food
         GameState.explored.add(self)
         GameState.explored.add(state)
         return state
@@ -778,7 +777,7 @@ def runGames(layout, pacman, ghosts, display, numGames, record, gameToReplay, sa
     # define transition function
     import time
     start_time = time.time()
-    tree = TransitionMatrixDicTree(pacman, ghosts, layout)
+    tree = TransitionMatrixDicTree(pacman, ghosts, layout, noise={"mean":0,"std":0.1})
     tree.computeProbabilities()
     end_time = time.time()
 
