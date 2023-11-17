@@ -151,16 +151,15 @@ class GameState:
         # Copy current state
         state = GameState(self)
         # Book keeping
-        state.data._agentMoved = agentIndex
-        state.data.score += state.data.scoreChange
-        state.data.action = action
-        state.data.food = nextstate.data.food
+        
 
         # Let agent's logic deal with its action's effects on the board
         if agentIndex == 0:  # Pacman is moving
             state.data._eaten = [False for i in range(state.getNumAgents())]
             PacmanRules.movetoAnyState(state, nxtstatepos)
+            state.data.food = nextstate.data.food
         else:                # A ghost is moving
+            state.data.food = nextstate.data.food
             GhostRules.movetoAnyState(state, nxtstatepos, agentIndex)
 
         # Time passes
@@ -170,6 +169,10 @@ class GameState:
             GhostRules.decrementTimer(state.data.agentStates[agentIndex])
 
         # Resolve multi-agent effects
+        state.data.food = nextstate.data.food
+        state.data._agentMoved = agentIndex
+        state.data.action = action
+        state.data.score += state.data.scoreChange
         GhostRules.checkDeath(state, agentIndex)
         GameState.explored.add(self)
         GameState.explored.add(state)
