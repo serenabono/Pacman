@@ -488,6 +488,7 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
 
     return np.mean(stats, 0)
 
+import json
 
 def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None,  applyperturb=None, record=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
     import __main__
@@ -534,10 +535,10 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
         np.savetxt(args['outputStats'] +
                    f"{i}_training_agent.pkl", stats[i],  delimiter=',')
         
-        # filename = args['outputStats'] + f"{i}_training_agent.txt"
-        # with open(filename, 'w') as file:
-        #     file.write(str(pacman["test"].agent.q_values.values()))
-
+        with open(args['outputStats'] +
+                   f"{i}_training_agent.json", 'w') as f:
+            json.dump(pacman["test"].agent.q_values, f)
+   
         if pacman["test"].__class__.__name__ == "KeyboardAgent":
             pacmanType = loadAgent(pacmanName, 0)
         else:

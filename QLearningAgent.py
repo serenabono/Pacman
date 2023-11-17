@@ -170,12 +170,10 @@ class QLearningAgent:
             q_value_to_prob_map[action] /= summation
 
         # find max action
-        max_action_temp = None
         max_val = float("-inf")
         for action in self.current_legal_actions:
             if q_value_to_prob_map[action] >= max_val:
                 max_val = q_value_to_prob_map[action]
-                max_action_temp = action
 
         # find max actions and other actions
         max_actions_arr = []
