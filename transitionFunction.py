@@ -154,8 +154,7 @@ class TransitionMatrixDicTree():
             if current_element["state"].isWin() or current_element["state"].isLose():
                 self.transitionMatrixDic[currentelementhash] = {}
                 continue
-            print("from state")
-            print(current_element["state"])
+
             for action in legal_actions:
                 successor_element = {}
 
@@ -170,9 +169,6 @@ class TransitionMatrixDicTree():
 
                 successorelelmenthash = self.getHashfromState(
                     successor_element["state"])
-                
-                print("to state")
-                print(successor_element["state"])
                 
                 if current_element["id"] == 0:
                     successor_element["prob"] = 1
@@ -212,8 +208,6 @@ class TransitionMatrixDicTree():
                     sum(self.transitionMatrixDic[fromstate][throughaction].values()), 1)
         
         print("numstates: ", len(self.transitionMatrixDic))
-
-        print("TERMINAL STATES")
 
     def createMatrixrecursively(self, agentid, lastpacmanstate, throughactions, currentelementhash, prob):
         if currentelementhash not in self.helperDic[agentid]:

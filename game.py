@@ -819,25 +819,6 @@ class Game:
                 boinc.set_fraction_done(self.getProgress())
 
         if (self.state.isWin() or self.state.isLose()):
-            print(agentIndex)
-            try:
-                # sanity check!
-                assert(str(self.transitionFunctionTree.keyDict[nextstatehash]) == str(self.state))
-            except:
-                print("--")
-                print(self.transitionFunctionTree.keyDict[nextstatehash])
-                print("state", self.state)
-                print("_food", self.state.data.food)
-                print("_foodEaten", self.state.data._foodEaten)
-                print("_foodRestored", self.state.data._foodRestored)
-                print("_foodAdded", self.state.data._foodAdded)
-                print("_capsuleEaten", self.state.data._capsuleEaten)
-                print("_agentMoved", self.state.data._agentMoved)
-                print("_lose", self.state.data._lose)
-                print("_win", self.state.data._win)
-                print("scoreChange", self.state.data.scoreChange)
-                exit(1)
-
             self.agents[0].getAction(
                 self.state, [], game_number, total_games, isInitial)
             if record:
