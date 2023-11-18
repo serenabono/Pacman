@@ -15,24 +15,21 @@
 from game import Agent
 from game import Actions
 from game import Directions
-from pacman import GhostRules
+import random
 from util import manhattanDistance
 import util
 
 class GhostAgent( Agent ):
-    def __init__( self, index ):
+    def __init__( self, index, prob=0.5):
         self.prob = prob
         self.index = index
 
-    def getAction( self, state, actlist, ensemble_agent = None):
-        dist = {}
-        for a in actlist.keys():
-            dist[a] = sum(actlist[a].values())
-        dist = util.Counter(dist)
+    def getAction( self, state ):
+        dist = self.getDistribution(state)
         if len(dist) == 0:
             return Directions.STOP
         else:
-            return actlist[util.chooseFromDistribution( dist )]
+            return util.chooseFromDistribution( dist )
 
     def getDistribution(self, state):
         "Returns a Counter encoding a distribution over actions from the provided state."
@@ -45,30 +42,19 @@ class RandomGhost( GhostAgent ):
     "A ghost that chooses a legal action uniformly at random."
     def getDistribution( self, state ):
         dist = util.Counter()
-        for a in GhostRules.getLegalActions(state, self.index ): dist[a] = 1.0
+        for a in state.getLegalActions( self.index ): dist[a] = 1.0
         dist.normalize()
         return dist
 
-class MoveMostlyWestGhost( GhostAgent ):
-    "A ghost that chooses a legal action uniformly at random."
+class RandomGhostTeleportingNearWalls( GhostAgent ):
     def __init__( self, index, prob=0.5):
         self.prob = prob
         self.index = index
-
+    "A ghost that chooses a legal action uniformly at random."
     def getDistribution( self, state ):
         dist = util.Counter()
-        legal_actions = GhostRules.getLegalActions(state, self.index) 
-        if Directions.WEST not in legal_actions:
-            for a in GhostRules.getLegalActions(state, self.index ): dist[a] = 1.0
-            dist.normalize()
-        elif len(legal_actions) == 1:
-            dist[Directions.WEST] = 1
-        else:
-            dist[Directions.WEST] = self.prob
-            other_prob = (1 -self.prob)/ (len(legal_actions)-1)
-            for a in GhostRules.getLegalActions(state, self.index ): 
-                if a!= Directions.WEST:
-                    dist[a] = other_prob
+        for a in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]: dist[a] = 1.0
+        dist.normalize()
         return dist
 
 class DirectionalGhost( GhostAgent ):
@@ -81,7 +67,7 @@ class DirectionalGhost( GhostAgent ):
     def getDistribution( self, state ):
         # Read variables from state
         ghostState = state.getGhostState( self.index )
-        legalActions = GhostRules.getLegalActions(state, self.index )
+        legalActions = state.getLegalActions( self.index )
         pos = state.getGhostPosition( self.index )
         isScared = ghostState.scaredTimer > 0
 
@@ -107,4 +93,50 @@ class DirectionalGhost( GhostAgent ):
         for a in bestActions: dist[a] = bestProb / len(bestActions)
         for a in legalActions: dist[a] += ( 1-bestProb ) / len(legalActions)
         dist.normalize()
+        return dist
+
+
+class MoveMostlyWestGhost( GhostAgent ):
+    "A ghost that chooses a legal action uniformly at random."
+    def __init__( self, index, prob=0.9):
+        self.prob = prob
+        self.index = index
+
+    def getDistribution( self, state ):
+        dist = util.Counter()
+        legal_actions = state.getLegalActions(self.index) 
+        if Directions.WEST not in legal_actions:
+            for a in state.getLegalActions(self.index ): dist[a] = 1.0
+            dist.normalize()
+        elif len(legal_actions) == 1:
+            dist[Directions.WEST] = 1
+        else:
+            dist[Directions.WEST] = self.prob
+            other_prob = (1 -self.prob)/ (len(legal_actions)-1)
+            for a in state.getLegalActions(self.index ): 
+                if a!= Directions.WEST:
+                    dist[a] = other_prob
+        return dist
+
+
+class EastWestGhost( GhostAgent ):
+    "A ghost that chooses a legal action uniformly at random."
+    def __init__( self, index, prob=0.5):
+        self.prob = prob
+        self.index = index
+
+    def getDistribution( self, state ):
+        dist = util.Counter()
+        legal_actions = state.getLegalActions(self.index) 
+        if Directions.WEST not in legal_actions and Directions.EAST not in legal_actions:
+            for a in state.getLegalActions(self.index ): dist[a] = 1.0
+            dist.normalize()
+        elif Directions.WEST in legal_actions and Directions.EAST not in legal_actions:
+            dist[Directions.WEST] = 1
+        elif Directions.WEST not in legal_actions and Directions.EAST in legal_actions:
+            dist[Directions.EAST] = 1
+        else:
+            dist[Directions.WEST] = self.prob
+            dist[Directions.EAST] = 1 - self.prob
+            
         return dist
