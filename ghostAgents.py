@@ -109,27 +109,15 @@ class DirectionalGhost( GhostAgent ):
         dist.normalize()
         return dist
 
-
-class MoveMostlyWestGhost( GhostAgent ):
-    "A ghost that chooses a legal action uniformly at random."
-    def __init__( self, index, prob=0.9):
+class RandomGhostTeleportingNearWalls( GhostAgent ):
+    def __init__( self, index, prob=0.5):
         self.prob = prob
         self.index = index
-
+    "A ghost that chooses a legal action uniformly at random."
     def getDistribution( self, state ):
         dist = util.Counter()
-        legal_actions = state.getLegalActions(self.index) 
-        if Directions.WEST not in legal_actions:
-            for a in state.getLegalActions(self.index ): dist[a] = 1.0
-            dist.normalize()
-        elif len(legal_actions) == 1:
-            dist[Directions.WEST] = 1
-        else:
-            dist[Directions.WEST] = self.prob
-            other_prob = (1 -self.prob)/ (len(legal_actions)-1)
-            for a in state.getLegalActions(self.index ): 
-                if a!= Directions.WEST:
-                    dist[a] = other_prob
+        for a in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]: dist[a] = 1.0
+        dist.normalize()
         return dist
 
 
