@@ -529,6 +529,11 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
             score = np.mean(test_epoch(
                 transitionMatrixTree, n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display, record=recordpath))
             stats[i][j] = score
+
+            with open(args['outputStats'] +
+                   f"{i}_training_agent_{j}_epoch.json", 'w') as f:
+                json.dump(pacman["test"].agent.q_values, f)
+        
         print('trained agent ', i)
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
 
@@ -572,7 +577,6 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
             os.makedirs(record.split('/')[0] + "/record/")
 
     for i in range(trained_agents):
-
         transitionMatrixTreeList = {}
         # normal environment agent
         transitionMatrixTree = defineTransitionMatrix(
