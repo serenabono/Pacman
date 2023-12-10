@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH -c 1
-#SBATCH --time=5:00:00
+#SBATCH --time=0:10:00
 #SBATCH --job-name=learnability
 
 #SBATCH -p short
@@ -11,7 +11,7 @@
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v4"
+layout="v3"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
 training_agents=1
@@ -25,8 +25,8 @@ epochs=1000
 agent="BoltzmannAgent"
 
 trainingenv_mean=0
-trainingenv_std=0
-trainingenv_ghost_name=("RandomGhostTeleportingNearWalls" "RandomGhost") 
+trainingenv_std=0.1
+trainingenv_ghost_name=("RandomGhost" "RandomGhost") 
 trainingenv_ghost_args=('{"index":1,"prob":{}}' '{"index":2,"prob":{}}')
 trainingenv_ghostarg='[{"name":"'${trainingenv_ghost_name[0]}'","args":'${trainingenv_ghost_args[0]}'}]'
 trainingenv_noise_args='{"mean":'$trainingenv_mean',"std":'$trainingenv_std'}'
