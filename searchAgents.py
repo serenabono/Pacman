@@ -111,6 +111,73 @@ class RandomAgent(Agent):
 
         return action
 
+class SarsaAgent(Agent):
+
+    def __init__(self, args):
+        self.agent = QLearningAgent(args, exploration_strategy="BOLTZMANN", T=1.5, epsilon=0.99, 
+            on_policy=True, initialization_value=0, gamma=0.9, alpha=0.05, is_train=True, load_existing_agent=False)
+
+
+    def getReward(self, state, prevState):
+        if self.prevState == None:
+            prevStateScore = 0
+        else:
+            prevStateScore = prevState.getScore()
+        return state.getScore() - prevStateScore
+
+    def getAction(self, state, legalactions, game_number, total_games, isInitial, ensemble_agent=None):
+        "The agent receives a GameState (defined in pacman.py)."
+
+        ### DOMAIN SPECIFIC STUFF, DON'T NEED TO UNDERSTAND FOR HOW TO USE THE CODEBASE
+        state_type = "mid_episode"
+        if isInitial:
+            state_type = "initial"
+            self.prevState = None
+
+        elif state.isWin() or state.isLose():
+            state_type = "terminal"
+
+
+        reward = self.getReward(state, self.prevState)
+
+        self.prevState = state
+
+        ##get state representation
+        state_rep = str(state)
+        actions_rep = legalactions
+
+        try:
+            # Remove Directions.STOP
+            actions_rep.remove(4)
+        except:
+            pass
+        
+        # CODEBASE SPECIFIC STUFF. VERY IMPORTANT TO MAKE THE CALLS IN THE SAME ORDER
+        if ensemble_agent:
+            ensemble_agent.agent.set_current_state(state_rep)
+            ensemble_agent.agent.set_current_legal_actions(actions_rep)
+            ensemble_agent.agent.set_current_state_type(state_type)
+            ensemble_agent.agent.initialize_q_values_if_absent()
+        self.agent.set_current_state(state_rep)
+        self.agent.set_current_legal_actions(actions_rep)
+        self.agent.set_current_state_type(state_type)
+        self.agent.initialize_q_values_if_absent()
+        
+        action = self.agent.get_action(ensemble_agent=ensemble_agent)
+        self.agent.update(reward)
+
+
+        # EPSILON ANNEALING EXAMPLE, YOU CAN ANNEAL EPSILON IN ANY WAY YOU'D LIKE. DIRECT ACCESS TO EPSILON IS
+        # GIVEN TO ALLOW FOR DESIGNER'S DISCRETION OF ANNEALING TECHNIQUES
+
+        # pass it through a decaying function, of the iteration number
+        if self.agent.current_state_type == "terminal" and self.agent.EXPLORATION_STRATEGY == "E_GREEDY":
+                # r = np.max((total_games - game_number)/total_games,0)
+                # self.agent.EPSILON = (self.agent.EPSILON-0.1)*r + 0.1
+                self.agent.EPSILON = 0.025 # function of the game number
+                
+        return action
+
 
 class BoltzmannAgent(Agent):
 
@@ -173,12 +240,10 @@ class BoltzmannAgent(Agent):
 
         # pass it through a decaying function, of the iteration number
         if self.agent.current_state_type == "terminal" and self.agent.EXPLORATION_STRATEGY == "E_GREEDY":
-                r = np.max((total_games - game_number)/total_games,0)
-                self.agent.EPSILON = (self.agent.EPSILON-0.1)*r + 0.1
-                # self.agent.EPSILON -= 0.025 # function of the game number
-        
-        #print(self.agent.DISCOUNT_FACTOR)
-        
+                # r = np.max((total_games - game_number)/total_games,0)
+                # self.agent.EPSILON = (self.agent.EPSILON-0.1)*r + 0.1
+                self.agent.EPSILON = 0.025 # function of the game number
+                
         return action
 
 #######################################################

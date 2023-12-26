@@ -1,28 +1,30 @@
 #!/bin/bash
 
 #SBATCH -c 1
-#SBATCH --time=0:10:00
+#SBATCH --time=00:20:00
 #SBATCH --job-name=learnability
 
 #SBATCH -p short
-#SBATCH --mem=10G
+#SBATCH --mem=5G
 #SBATCH -o slurm_outputs_scripts/hostname_%j.out
 #SBATCH -e slurm_outputs_scripts/hostname_%j.err
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v3"
+layout="v2"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
 training_agents=1
 n_training_steps=10
 n_testing_steps=10
-max_record=1000
-min_record=1000
+max_record=2000
+min_record=2000
 record_range='{"max":'$max_record',"min":'$min_record'}'
-run_untill=1000
-epochs=1000
-agent="BoltzmannAgent"
+run_untill=2000
+epochs=2000
+agent="SarsaAgent"
+exploration="BOLTZMANN"
+exploration_name="Boltzmann"
 
 trainingenv_mean=0
 trainingenv_std=0.1
@@ -33,10 +35,10 @@ trainingenv_noise_args='{"mean":'$trainingenv_mean',"std":'$trainingenv_std'}'
 trainingenv_perturb='{"noise":'$trainingenv_noise_args',"perm":{}}'
 echo $trainingenv_ghostarg
 
-agentprop='{"test":{"pacman":{},"ghosts":'$trainingenv_ghostarg',"perturb":'$trainingenv_perturb'}}'
+agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$trainingenv_ghostarg',"perturb":'$trainingenv_perturb'}}'
 echo $agentprop
 
-folder="_trial_learnability_${agent}_${layout}_${trainingenv_ghost_name}_${trainingenv_ghost_args}_${trainingenv_noise_args}"
+folder="_trial_learnability_${agent}_${exploration_name}_${layout}_${trainingenv_ghost_name}_${trainingenv_ghost_args}_${trainingenv_noise_args}"
 outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$trainingenv_ghost_name'_'$trainingenv_ghost_args'_'$trainingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
 python statistics.py -m l -p $agent -q -l $layout -a $agentprop -s '{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"timeout":30}' -o $outputname
