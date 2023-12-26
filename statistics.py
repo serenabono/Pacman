@@ -602,6 +602,9 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
             score = np.mean(test_epoch(
                 transitionMatrixTreeList["test"], n_testing_steps, rules, env_pacman, env_ghosts, layout, display, ensemble_agent=perturbedenv_pacman, record=recordpath))
             stats[i][j] = score
+            with open(args['outputStats'] +
+                   f"{i}_training_agent_{j}_epoch.json", 'w') as f:
+                json.dump(pacman["test"].agent.q_values, f)
         
         print('trained agent ', i)
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
