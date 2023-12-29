@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH -c 1
-#SBATCH --time=5:00:00
+#SBATCH --time=10:00:00
 #SBATCH --job-name=learnability2agents
 
 #SBATCH -p short
@@ -13,7 +13,7 @@
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
-training_agents=200
+training_agents=500
 n_training_steps=10
 n_testing_steps=10
 max_record=1000
@@ -21,9 +21,11 @@ min_record=1000
 record_range='{"max":'$max_record',"min":'$min_record'}'
 run_untill=1000
 epochs=1000
-agent="BoltzmannAgent"
+agent="SarsaAgent"
+exploration="BOLTZMANN"
+exploration_name="Boltzmann"
 
-layout="v4"
+layout="v2"
 testingenv_mean=0
 testingenv_std=0.5
 testingenv_ghost_name=("RandomGhost" "RandomGhost") 
@@ -33,10 +35,10 @@ testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
 testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 echo $testingenv_ghostarg
 
-agentprop='{"test":{"pacman":{},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'},"ensemble":{"layout":"'$layout'","pacman":{},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'}}'
+agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'},"ensemble":{"layout":"'$layout'","pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'}}'
 echo $agentprop
 
-folder="learnability2agents_${agent}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}"
+folder="learnability2agents_${agent}_${exploration_name}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}"
 outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
 python statistics.py -m e -p $agent -q -l $layout -a $agentprop -s '{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"timeout":30}' -o $outputname

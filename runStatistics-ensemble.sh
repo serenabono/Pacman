@@ -21,7 +21,9 @@ min_record=1000
 record_range='{"max":'$max_record',"min":'$min_record'}'
 run_untill=1000
 epochs=1000
-agent="BoltzmannAgent"
+agent="SarsaAgent"
+exploration="BOLTZMANN"
+exploration_name="Boltzmann"
 
 layout="v2"
 testingenv_mean=0
@@ -43,10 +45,10 @@ ensebleenv_perturb='{"noise":'$ensebleenv_noise_args',"perm":{}}'
 echo $ensebleenv_perturb
 
 
-agentprop='{"test":{"pacman":{},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'},"ensemble":{"layout":"'$layout'","pacman":{},"ghosts":'$ensebleenv_ghostarg',"perturb":'$ensebleenv_perturb'}}'
+agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'},"ensemble":{"layout":"'$layout'","pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$ensebleenv_ghostarg',"perturb":'$ensebleenv_perturb'}}'
 echo $agentprop
 
-folder="_trial_ensemble_${agent}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}_${layout}_${ensebleenv_ghost_name}_${ensebleenv_ghost_args}_${ensebleenv_noise_args}"
+folder="_trial_ensemble_${agent}_${exploration_name}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}_${layout}_${ensebleenv_ghost_name}_${ensebleenv_ghost_args}_${ensebleenv_noise_args}"
 outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
 python statistics.py -m e -p $agent -l $layout -q -a $agentprop -s '{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"timeout":30}' -o $outputname
