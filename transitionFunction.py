@@ -169,7 +169,7 @@ class TransitionMatrixDicTree():
 
                 successorelelmenthash = self.getHashfromState(
                     successor_element["state"])
-
+                
                 if current_element["id"] == 0:
                     successor_element["prob"] = 1
                     pacmanaction = self.actions[action]
@@ -404,7 +404,6 @@ class TransitionMatrixDicTree():
         )
         newstate = state.movetoAnyState(
             self.keyDict[actiontostate], pacaction, agentId, posingrid)
-        
         return newstate
 
 

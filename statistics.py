@@ -229,16 +229,16 @@ def readCommand(argv):
 #     {"pacman":{},"ghosts":[{"name":"RandomGhost","args":{"index":1,"prob":{}}}],"perturb":{"noise":{"mean":0,"std":0.2},"perm":{}}}]
 
 
-GENERALIZATION_WORLDS = [
-                { "pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
-                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}},  {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
-                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
-                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
-                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}]
+#GENERALIZATION_WORLDS = [
+#                { "pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+#                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}},  {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+#                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+#                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+#                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}]
 
-# GENERALIZATION_WORLDS = [
-#                 { "pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
-#                  "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}]
+GENERALIZATION_WORLDS = [
+                 { "pacman": {}, "ghosts": [{"name": "RandomGhostTeleportingNearWalls", "args": {
+                  "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}]
 
 SWAP_LIST = [0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9]
 
@@ -248,7 +248,6 @@ def recordRange(index, range):
         return True
     else:
         return False
-
 
 def saveRecordings(tree, game, layout, filepath):
     import time
@@ -488,6 +487,7 @@ def runStatistics(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_
 
     return np.mean(stats, 0)
 
+import json
 
 def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, file_to_be_loaded=None,  applyperturb=None, record=None, epochs=1000, trained_agents=500, n_training_steps=10, n_testing_steps=10, record_range=None, run_untill=None, timeout=30):
     import __main__
@@ -528,16 +528,21 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
             score = np.mean(test_epoch(
                 transitionMatrixTree, n_testing_steps, rules, pacman["test"], ghosts["test"], layout, display, record=recordpath))
             stats[i][j] = score
+
+            #with open(args['outputStats'] +
+            #       f"{i}_training_agent_{j}_epoch.json", 'w') as f:
+            #    json.dump(pacman["test"].agent.q_values, f)
+        
         print('trained agent ', i)
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
 
         np.savetxt(args['outputStats'] +
                    f"{i}_training_agent.pkl", stats[i],  delimiter=',')
         
-        # filename = args['outputStats'] + f"{i}_training_agent.txt"
-        # with open(filename, 'w') as file:
-        #     file.write(str(pacman["test"].agent.q_values.values()))
-
+        with open(args['outputStats'] +
+                   f"{i}_training_agent.json", 'w') as f:
+            json.dump(pacman["test"].agent.q_values, f)
+   
         if pacman["test"].__class__.__name__ == "KeyboardAgent":
             pacmanType = loadAgent(pacmanName, 0)
         else:
@@ -571,7 +576,6 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
             os.makedirs(record.split('/')[0] + "/record/")
 
     for i in range(trained_agents):
-
         transitionMatrixTreeList = {}
         # normal environment agent
         transitionMatrixTree = defineTransitionMatrix(
@@ -597,6 +601,9 @@ def runEnsembleAgents(pacman, pacmanName, pacmanArgs, ghosts, layout, display, f
             score = np.mean(test_epoch(
                 transitionMatrixTreeList["test"], n_testing_steps, rules, env_pacman, env_ghosts, layout, display, ensemble_agent=perturbedenv_pacman, record=recordpath))
             stats[i][j] = score
+            #with open(args['outputStats'] +
+            #       f"{i}_training_agent_{j}_epoch.json", 'w') as f:
+            #    json.dump(pacman["test"].agent.q_values, f)
         
         print('trained agent ', i)
         print('Scores:       ', ', '.join([str(score) for score in stats[i]]))
