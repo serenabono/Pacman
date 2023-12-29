@@ -11,34 +11,25 @@
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v2"
-semanticDistribution="DistributedNoise"
-noiseType="GaussianNoise"
-training_agents=1
-n_training_steps=10
-n_testing_steps=10
-max_record=2000
-min_record=2000
-record_range='{"max":'$max_record',"min":'$min_record'}'
-run_untill=2000
-epochs=2000
-agent="SarsaAgent"
-exploration="BOLTZMANN"
-exploration_name="Boltzmann"
 
-trainingenv_mean=0
-trainingenv_std=0.1
-trainingenv_ghost_name=("RandomGhost" "RandomGhost") 
-trainingenv_ghost_args=('{"index":1,"prob":{}}' '{"index":2,"prob":{}}')
-trainingenv_ghostarg='[{"name":"'${trainingenv_ghost_name[0]}'","args":'${trainingenv_ghost_args[0]}'}]'
-trainingenv_noise_args='{"mean":'$trainingenv_mean',"std":'$trainingenv_std'}'
-trainingenv_perturb='{"noise":'$trainingenv_noise_args',"perm":{}}'
-echo $trainingenv_ghostarg
+agent=$1
+layout=$2
+agentprop=$3
+epochs=$4
+training_agents=$5
+n_training_steps=$6
+n_testing_steps=$7
+outputname=$8
 
-agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$trainingenv_ghostarg',"perturb":'$trainingenv_perturb'}}'
-echo $agentprop
+echo agent $1
+echo layout $2
+echo agentprop $3
+echo epochs $4
+echo training_agents $5
+echo n_training_steps $6
+echo n_testing_steps $7
+echo outputname $8
 
-folder="_trial_learnability_${agent}_${exploration_name}_${layout}_${trainingenv_ghost_name}_${trainingenv_ghost_args}_${trainingenv_noise_args}"
-outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$trainingenv_ghost_name'_'$trainingenv_ghost_args'_'$trainingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
+echo  statistics.py -m l -p $agent -q -l $layout -a $agentprop -s '{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"timeout":30}' -o $outputname
 
 python statistics.py -m l -p $agent -q -l $layout -a $agentprop -s '{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"timeout":30}' -o $outputname
