@@ -197,11 +197,11 @@ outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_
 
 sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
-# SarsaAgent Boltzmann RandomGhostTeleportingNearWalls ---
+# BoltzmannAgent Egreedy RandomGhostTeleportingNearWalls ---
 
-agent="SarsaAgent"
-exploration="BOLTZMANN"
-exploration_name="Boltzmann"
+agent="BoltzmannAgent"
+exploration="E_GREEDY"
+exploration_name="Egreedy"
 
 layout="v2"
 
