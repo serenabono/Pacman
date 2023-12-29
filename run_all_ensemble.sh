@@ -1335,7 +1335,7 @@ outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_
 
 sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
-# SarsaAgent Boltzmann  DirectionalGhost "prob":0.6 ---
+# SarsaAgent Boltzmann DirectionalGhost "prob":0.6 ---
 
 agent="SarsaAgent"
 exploration="BOLTZMANN"
@@ -1345,7 +1345,7 @@ layout="v2"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=("DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1354,7 +1354,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=("DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1372,7 +1372,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1381,7 +1381,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1401,7 +1401,7 @@ layout="v3"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1410,7 +1410,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1428,7 +1428,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1437,7 +1437,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1457,7 +1457,7 @@ layout="v4"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1466,7 +1466,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1484,7 +1484,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1493,7 +1493,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1509,7 +1509,7 @@ outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_
 
 sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
-# BoltzmannAgent Egreedy  DirectionalGhost "prob":0.6 ---
+# BoltzmannAgent Egreedy DirectionalGhost "prob":0.6 ---
 
 agent="BoltzmannAgent"
 exploration="E_GREEDY"
@@ -1519,7 +1519,7 @@ layout="v2"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1528,7 +1528,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1546,7 +1546,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1555,7 +1555,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1575,7 +1575,7 @@ layout="v3"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1584,7 +1584,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1602,7 +1602,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1611,7 +1611,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1631,7 +1631,7 @@ layout="v4"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1640,7 +1640,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1658,7 +1658,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1667,7 +1667,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1683,7 +1683,7 @@ outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_
 
 sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
-# SarsaAgent Egreedy  DirectionalGhost "prob":0.6 ---
+# SarsaAgent Egreedy DirectionalGhost "prob":0.6 ---
 
 agent="SarsaAgent"
 exploration="E_GREEDY"
@@ -1693,7 +1693,7 @@ layout="v2"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1702,7 +1702,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1720,7 +1720,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1729,7 +1729,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1749,7 +1749,7 @@ layout="v3"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1758,7 +1758,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1776,7 +1776,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1785,7 +1785,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1805,7 +1805,7 @@ layout="v4"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1814,7 +1814,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1832,7 +1832,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1841,7 +1841,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.6}' '{"index":2,"prob":0.6}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1857,7 +1857,7 @@ outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_
 
 sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
-# SarsaAgent Boltzmann  DirectionalGhost "prob":0.3 ---
+# SarsaAgent Boltzmann DirectionalGhost "prob":0.3 ---
 
 agent="SarsaAgent"
 exploration="BOLTZMANN"
@@ -1867,7 +1867,7 @@ layout="v2"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=("DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1876,7 +1876,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=("DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1894,7 +1894,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1903,7 +1903,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1923,7 +1923,7 @@ layout="v3"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1932,7 +1932,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1950,7 +1950,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1959,7 +1959,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -1979,7 +1979,7 @@ layout="v4"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -1988,7 +1988,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -2006,7 +2006,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -2015,7 +2015,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -2031,7 +2031,7 @@ outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_
 
 sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
-# SarsaAgent Egreedy  DirectionalGhost "prob":0.3 ---
+# SarsaAgent Egreedy DirectionalGhost "prob":0.3 ---
 
 agent="SarsaAgent"
 exploration="E_GREEDY"
@@ -2041,7 +2041,7 @@ layout="v2"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=("DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -2050,7 +2050,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=("DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -2068,7 +2068,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -2077,7 +2077,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -2097,7 +2097,7 @@ layout="v3"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -2106,7 +2106,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -2124,7 +2124,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -2133,7 +2133,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -2153,7 +2153,7 @@ layout="v4"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -2162,7 +2162,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -2180,7 +2180,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -2189,7 +2189,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -2205,7 +2205,7 @@ outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_
 
 sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
-# BoltzmannAgent Egreedy  DirectionalGhost "prob":0.3 ---
+# BoltzmannAgent Egreedy DirectionalGhost "prob":0.3 ---
 
 agent="BoltzmannAgent"
 exploration="E_GREEDY"
@@ -2215,7 +2215,7 @@ layout="v2"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=("DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -2224,7 +2224,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=("DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -2242,7 +2242,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -2251,7 +2251,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -2271,7 +2271,7 @@ layout="v3"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -2280,7 +2280,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -2298,7 +2298,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -2307,7 +2307,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -2327,7 +2327,7 @@ layout="v4"
 
 testingenv_mean=0
 testingenv_std=0.1
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -2336,7 +2336,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
@@ -2354,7 +2354,7 @@ sbatch runStatistics-ensemble.sh $agent $layout $agentprop $epochs $training_age
 
 testingenv_mean=0
 testingenv_std=0.5
-testingenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+testingenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 testingenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
 testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
@@ -2363,7 +2363,7 @@ testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
 
 ensebleenv_mean=0
 ensebleenv_std=0
-ensebleenv_ghost_name=(" DirectionalGhost" " DirectionalGhost") 
+ensebleenv_ghost_name=("DirectionalGhost" "DirectionalGhost") 
 ensebleenv_ghost_args=('{"index":1,"prob":0.3}' '{"index":2,"prob":0.3}')
 ensebleenv_ghostarg='[{"name":"'${ensebleenv_ghost_name[0]}'","args":'${ensebleenv_ghost_args[0]}'}]'
 ensebleenv_noise_args='{"mean":'$ensebleenv_mean',"std":'$ensebleenv_std'}'
