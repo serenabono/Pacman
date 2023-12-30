@@ -28,7 +28,7 @@ agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":
 folder="_trial_learnability_${agent}_${exploration_name}_${layout}_${trainingenv_ghost_name}_${trainingenv_ghost_args}_${trainingenv_noise_args}"
 outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$trainingenv_ghost_name'_'$trainingenv_ghost_args'_'$trainingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
-sbatch runStatistics-learnability.sh $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
+sbatch runStatistics-learnability.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
 
 trainingenv_mean=0
@@ -42,7 +42,7 @@ agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":
 folder="_trial_learnability_${agent}_${exploration_name}_${layout}_${trainingenv_ghost_name}_${trainingenv_ghost_args}_${trainingenv_noise_args}"
 outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$trainingenv_ghost_name'_'$trainingenv_ghost_args'_'$trainingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
-sbatch runStatistics-learnability.sh $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
+sbatch runStatistics-learnability.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
 trainingenv_mean=0
 trainingenv_std=0.5
@@ -68,7 +68,7 @@ agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":
 folder="_trial_learnability_${agent}_${exploration_name}_${layout}_${trainingenv_ghost_name}_${trainingenv_ghost_args}_${trainingenv_noise_args}"
 outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$trainingenv_ghost_name'_'$trainingenv_ghost_args'_'$trainingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
-sbatch runStatistics-learnability.sh $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
+sbatch runStatistics-learnability.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
 
 trainingenv_mean=0
@@ -82,7 +82,7 @@ agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":
 folder="_trial_learnability_${agent}_${exploration_name}_${layout}_${trainingenv_ghost_name}_${trainingenv_ghost_args}_${trainingenv_noise_args}"
 outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$trainingenv_ghost_name'_'$trainingenv_ghost_args'_'$trainingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
-sbatch runStatistics-learnability.sh $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
+sbatch runStatistics-learnability.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
 trainingenv_mean=0
 trainingenv_std=0.5
@@ -108,7 +108,7 @@ agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":
 folder="_trial_learnability_${agent}_${exploration_name}_${layout}_${trainingenv_ghost_name}_${trainingenv_ghost_args}_${trainingenv_noise_args}"
 outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$trainingenv_ghost_name'_'$trainingenv_ghost_args'_'$trainingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
-sbatch runStatistics-learnability.sh $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
+sbatch runStatistics-learnability.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
 
 trainingenv_mean=0
@@ -122,7 +122,7 @@ agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":
 folder="_trial_learnability_${agent}_${exploration_name}_${layout}_${trainingenv_ghost_name}_${trainingenv_ghost_args}_${trainingenv_noise_args}"
 outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$trainingenv_ghost_name'_'$trainingenv_ghost_args'_'$trainingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
-sbatch runStatistics-learnability.sh $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
+sbatch runStatistics-learnability.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
 trainingenv_mean=0
 trainingenv_std=0.5

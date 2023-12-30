@@ -411,35 +411,6 @@ outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_
 
 sbatch runStatistics-learnability2agents.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
 
-testingenv_mean=0
-testingenv_std=0.1
-testingenv_ghost_name=("DirectionalGhost" "RandomGhost") 
-testingenv_ghost_args=('{"index":1,"prob":{}}' '{"index":2,"prob":{}}')
-testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
-testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
-testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
-
-agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'},"ensemble":{"layout":"'$layout'","pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'}}'
-folder="learnability2agents_${agent}_${exploration_name}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}"
-outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
-
-sbatch runStatistics-learnability2agents.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
-
-testingenv_mean=0
-testingenv_std=0.5
-testingenv_ghost_name=("DirectionalGhost" "RandomGhost") 
-testingenv_ghost_args=('{"index":1,"prob":{}}' '{"index":2,"prob":{}}')
-testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
-testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
-testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
-
-agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'},"ensemble":{"layout":"'$layout'","pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'}}'
-folder="learnability2agents_${agent}_${exploration_name}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}"
-outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
-
-sbatch runStatistics-learnability2agents.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
-
-
 agent="SarsaAgent"
 exploration="E_GREEDY"
 exploration_name="Egreedy"
@@ -839,35 +810,6 @@ folder="learnability2agents_${agent}_${exploration_name}_${layout}_${testingenv_
 outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
 sbatch runStatistics-learnability2agents.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
-
-testingenv_mean=0
-testingenv_std=0.1
-testingenv_ghost_name=("DirectionalGhost" "RandomGhost") 
-testingenv_ghost_args=('{"index":1,"prob":{}}' '{"index":2,"prob":{}}')
-testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
-testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
-testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
-
-agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'},"ensemble":{"layout":"'$layout'","pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'}}'
-folder="learnability2agents_${agent}_${exploration_name}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}"
-outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
-
-sbatch runStatistics-learnability2agents.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
-
-testingenv_mean=0
-testingenv_std=0.5
-testingenv_ghost_name=("DirectionalGhost" "RandomGhost") 
-testingenv_ghost_args=('{"index":1,"prob":{}}' '{"index":2,"prob":{}}')
-testingenv_ghostarg='[{"name":"'${testingenv_ghost_name[0]}'","args":'${testingenv_ghost_args[0]}'}]'
-testingenv_noise_args='{"mean":'$testingenv_mean',"std":'$testingenv_std'}'
-testingenv_perturb='{"noise":'$testingenv_noise_args',"perm":{}}'
-
-agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'},"ensemble":{"layout":"'$layout'","pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$testingenv_ghostarg',"perturb":'$testingenv_perturb'}}'
-folder="learnability2agents_${agent}_${exploration_name}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}_${layout}_${testingenv_ghost_name}_${testingenv_ghost_args}_${testingenv_noise_args}"
-outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$testingenv_ghost_name'_'$testingenv_ghost_args'_'$testingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
-
-sbatch runStatistics-learnability2agents.sh $agent $layout $agentprop $epochs $training_agents $n_training_steps $n_testing_steps $outputname
-
 
 agent="SarsaAgent"
 exploration="BOLTZMANN"

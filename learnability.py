@@ -5,7 +5,7 @@ import numpy as np
 
 outfiles = {}
 
-for folder in glob.glob('./learnability_*'):
+for folder in glob.glob('./ensemble_*'):
     try:
         os.chdir(f"{folder}")
         print(folder)
@@ -30,7 +30,7 @@ for folder in glob.glob('./learnability_*'):
         print(filename)
         continue
 
-    os.chdir("learnability/")
+    os.chdir("ensemble/")
     for folder in outfiles:
         np.savetxt(f"{folder}.pkl" ,outfiles[folder]["values"],  delimiter=',')
         np.savetxt(f"{folder}_errorbar.pkl" ,outfiles[folder]["std"],  delimiter=',')
