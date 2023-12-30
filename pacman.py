@@ -171,10 +171,6 @@ class GameState:
         state.data._agentMoved = agentIndex
         state.data.score += state.data.scoreChange
         GhostRules.checkDeath(state, agentIndex)
-
-        # Book keeping
-        state.data._agentMoved = agentIndex
-        state.data.score += state.data.scoreChange
         state.data.action = action
         GameState.explored.add(self)
         GameState.explored.add(state)
