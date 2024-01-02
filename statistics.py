@@ -229,16 +229,16 @@ def readCommand(argv):
 #     {"pacman":{},"ghosts":[{"name":"RandomGhost","args":{"index":1,"prob":{}}}],"perturb":{"noise":{"mean":0,"std":0.2},"perm":{}}}]
 
 
-#GENERALIZATION_WORLDS = [
-#                { "pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
-#                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}},  {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
-#                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
-#                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
-#                "index": 1, "prob": 0.6}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}]
-
 GENERALIZATION_WORLDS = [
-                 { "pacman": {}, "ghosts": [{"name": "RandomGhostTeleportingNearWalls", "args": {
-                  "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}]
+                { "pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}},  {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}]
+
+#GENERALIZATION_WORLDS = [
+#                 { "pacman": {}, "ghosts": [{"name": "RandomGhostTeleportingNearWalls", "args": {
+#                  "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}]
 
 SWAP_LIST = [0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9]
 

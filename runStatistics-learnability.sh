@@ -2,7 +2,7 @@
 
 #SBATCH -c 1
 #SBATCH --time=10:00:00
-#SBATCH --job-name=learnability
+#SBATCH --job-name=newexp-learnability
 
 #SBATCH -p short
 #SBATCH --mem=10G

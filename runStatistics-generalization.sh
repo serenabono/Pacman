@@ -23,13 +23,13 @@ record_range='{"max":'$max_record',"min":'$min_record'}'
 run_untill=1000
 epochs=1000
 agent="SarsaAgent"
-exploration="BOLTZMANN"
-exploration_name="Boltzmann"
+exploration="E_GREEDY"
+exploration_name="Egreedy"
 
 trainingenv_mean=0
 trainingenv_std=0
-trainingenv_ghost_name="RandomGhost" 
-trainingenv_ghost_args='{"index":1,"prob":{}}'
+trainingenv_ghost_name="DirectionalGhost" 
+trainingenv_ghost_args='{"index":1,"prob":0.3}'
 trainingenv_ghostarg='[{"name":"'$trainingenv_ghost_name'","args":'$trainingenv_ghost_args'}]'
 trainingenv_noise_args='{"mean":'$trainingenv_mean',"std":'$trainingenv_std'}'
 trainingenv_perturb='{"noise":'$trainingenv_noise_args',"perm":{}}'

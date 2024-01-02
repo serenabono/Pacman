@@ -14,10 +14,10 @@ for folder in glob.glob('./generalization_*'):
         continue
     values = []
     outfiles = {}
+    repeat_grid = folder.split("_")[3]
     for filename in glob.glob("./*"):
         values = []
-        pattern = re.findall(r'-train.*?_end', filename)[0]
-    
+        pattern = f"_{repeat_grid}" + re.findall(r'-train.*?_end', filename)[0]    
         with open(filename, newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter='\n', quotechar='|')
             for row in reader:
