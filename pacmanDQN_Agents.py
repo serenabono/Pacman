@@ -85,22 +85,13 @@ class PacmanDQN(game.Agent):
     def save_agent_to_disk(self, filename):
         pickle.dump(self, open(filename, "wb"))
 
-    def set_current_state(self, state_rep):
-        self.current_state = state_rep
-
-    def set_current_legal_actions(self, actions):
-        self.current_legal_actions = actions
-
-    def set_current_state_type(self, state_type):
-        self.current_state_type = state_type
-        
     def getMove(self, state):
         # Exploit / Explore
         if np.random.rand() > self.params['eps']:
             # Exploit action
             self.Q_pred = self.qnet.sess.run(
                 self.qnet.y,
-                feed_dict = {self.qnet.x: np.reshape(self.current_state_rep,
+                feed_dict = {self.qnet.x: np.reshape(self.current_state,
                                                      (1, self.params['width'], self.params['height'], 6)), 
                              self.qnet.q_t: np.zeros(1),
                              self.qnet.actions: np.zeros((1, 4)),
@@ -111,45 +102,23 @@ class PacmanDQN(game.Agent):
             a_winner = np.argwhere(self.Q_pred == np.amax(self.Q_pred))
 
             if len(a_winner) > 1:
-                move = self.get_direction(
-                    a_winner[np.random.randint(0, len(a_winner))][0])
+                move = a_winner[np.random.randint(0, len(a_winner))][0]
             else:
-                move = self.get_direction(
-                    a_winner[0][0])
+                move = a_winner[0][0]
         else:
             # Random:
-            move = self.get_direction(np.random.randint(0, 4))
+            move = np.random.randint(0, 4)
 
         # Save last_action
-        self.last_action = self.get_value(move)
+        self.last_action = move
 
         return move
 
-    def get_value(self, direction):
-        if direction == Directions.NORTH:
-            return 0.
-        elif direction == Directions.EAST:
-            return 1.
-        elif direction == Directions.SOUTH:
-            return 2.
-        else:
-            return 3.
-
-    def get_direction(self, value):
-        if value == 0.:
-            return Directions.NORTH
-        elif value == 1.:
-            return Directions.EAST
-        elif value == 2.:
-            return Directions.SOUTH
-        else:
-            return Directions.WEST
-            
     def observation_step(self, state):
         if self.last_action is not None:
             # Process current experience state
-            self.last_state = np.copy(self.current_state_rep)
-            self.current_state_rep = self.getStateMatrices(state)
+            self.last_state = np.copy(self.current_state)
+            self.current_state = self.getStateMatrices(state)
 
             # Process current experience reward
             self.current_score = state.getScore()
@@ -172,7 +141,7 @@ class PacmanDQN(game.Agent):
             self.ep_rew += self.last_reward
 
             # Store last experience into memory 
-            experience = (self.last_state, float(self.last_reward), self.last_action, self.current_state_rep, self.terminal)
+            experience = (self.last_state, float(self.last_reward), self.last_action, self.current_state, self.terminal)
             self.replay_mem.append(experience)
             if len(self.replay_mem) > self.params['mem_size']:
                 self.replay_mem.popleft()
@@ -366,9 +335,7 @@ class PacmanDQN(game.Agent):
 
         # Reset state
         self.last_state = None
-        self.current_state_rep = self.getStateMatrices(state)
-        self.current_state = str(state)
-        self.current_state_type = "initial"
+        self.current_state = self.getStateMatrices(state)
 
         # Reset actions
         self.last_action = None
@@ -385,20 +352,6 @@ class PacmanDQN(game.Agent):
 
     def getAction(self, state, legalactions, game_number, total_games, isInitial, ensemble_agent=None):
         "The agent receives a GameState (defined in pacman.py)."
-
-        ### DOMAIN SPECIFIC STUFF, DON'T NEED TO UNDERSTAND FOR HOW TO USE THE CODEBASE
-        state_type = "mid_episode"
-        if isInitial:
-            state_type = "initial"
-            self.prevState = None
-
-        elif state.isWin() or state.isLose():
-            state_type = "terminal"
-
-        self.prevState = state
-
-        ##get state representation
-        state_rep = str(state)
         actions_rep = set(legalactions)
 
         try:
@@ -407,14 +360,10 @@ class PacmanDQN(game.Agent):
         except:
             pass
         
-        self.set_current_state(state_rep)
-        self.set_current_legal_actions(actions_rep)
-        self.set_current_state_type(state_type)
-        
         move = self.getMove(state)
 
-        # Stop moving when not legal
+        # Random moving when not legal
         if move not in actions_rep and actions_rep != set():
             move = np.random.choice(list(actions_rep))
-
+            
         return move
