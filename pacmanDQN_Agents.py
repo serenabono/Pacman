@@ -386,13 +386,6 @@ class PacmanDQN(game.Agent):
         # Next
         self.frame = 0
         self.numeps += 1
-    
-    def getReward(self, state, prevState):
-        if self.prevState == None:
-            prevStateScore = 0
-        else:
-            prevStateScore = prevState.getScore()
-        return state.getScore() - prevStateScore
 
     def getAction(self, state, legalactions, game_number, total_games, isInitial, ensemble_agent=None):
         "The agent receives a GameState (defined in pacman.py)."
@@ -405,9 +398,6 @@ class PacmanDQN(game.Agent):
 
         elif state.isWin() or state.isLose():
             state_type = "terminal"
-
-
-        reward = self.getReward(state, self.prevState)
 
         self.prevState = state
 
