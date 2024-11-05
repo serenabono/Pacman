@@ -82,10 +82,6 @@ class PacmanDQN(game.Agent):
         self.replay_mem = deque()
         self.last_scores = deque()
 
-    
-    def set_trainable(self, trainable):
-        self.train = trainable
-
     def save_agent_to_disk(self, filename):
         pickle.dump(self, open(filename, "wb"))
 
