@@ -60,6 +60,7 @@ import noise
 import json
 import pickle as pkl
 from pathlib import Path
+import layout
 
 def default(str):
     return str + ' [Default: %default]'
@@ -69,7 +70,7 @@ def defineAgents(agentOpts, pacmanName, noKeyboard):
 
     pacmanType = loadAgent(pacmanName, noKeyboard)
     pacman = pacmanType(agentOpts["pacman"])
-
+    
     ghost_list = []
     for ghost in agentOpts["ghosts"]:
         ghostType = loadAgent(ghost["name"], 1)
@@ -156,9 +157,6 @@ def readCommand(argv):
 
     # Choose a Pacman agent
     noKeyboard = options.quietGraphics
-
-    print(options.agentArgs)
-
     try:
         agentOpts = json.loads(options.agentArgs)
     except:
@@ -174,9 +172,10 @@ def readCommand(argv):
     args["ghosts"] = {}
     args['pacman'] = {}
     args["perturbOpts"] = {}
-
     # Instantiate Pacman with agentArgs
     if "test" in agentOpts:
+        agentOpts["test"]["pacman"]['width'] =  args['layout'].width
+        agentOpts["test"]["pacman"]['height'] = args['layout'].height
         pacman, ghosts = defineAgents(
             agentOpts["test"], options.pacman, noKeyboard)
         args['pacman']["test"] = pacman
@@ -185,13 +184,15 @@ def readCommand(argv):
         args["perturbOpts"]["test"] = agentOpts["test"]["perturb"]
 
     if "ensemble" in agentOpts:
+        agentOpts["test"]["pacman"]['width'] =  args['layout'].width
+        agentOpts["test"]["pacman"]['height'] = args['layout'].height
         pacman, ghosts = defineAgents(
             agentOpts["ensemble"], options.pacman, noKeyboard)
         args['pacman']["ensemble"] = pacman
         args["ghosts"]["ensemble"] = []
         args["ghosts"]["ensemble"] = ghosts
         args["perturbOpts"]["ensemble"] = agentOpts["ensemble"]["perturb"]
-
+    
     # Don't display training games
     if 'numTrain' in agentOpts:
         options.numQuiet = int(agentOpts['numTrain'])
@@ -229,16 +230,16 @@ def readCommand(argv):
 #     {"pacman":{},"ghosts":[{"name":"RandomGhost","args":{"index":1,"prob":{}}}],"perturb":{"noise":{"mean":0,"std":0.2},"perm":{}}}]
 
 
-GENERALIZATION_WORLDS = [
-                { "pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
-                "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}},  {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
-                "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
-                "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
-                "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}]
+# GENERALIZATION_WORLDS = [
+#                 { "pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+#                 "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}},  {"pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+#                 "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0.1}, "perm": {}}}] #{"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                # "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0.3}, "perm": {}}}, {"pacman": {}, "ghosts": [{"name": "DirectionalGhost", "args": {
+                # "index": 1, "prob": 0.3}}], "perturb": {"noise": {"mean": 0, "std": 0.5}, "perm": {}}}]
 
-#GENERALIZATION_WORLDS = [
-#                 { "pacman": {}, "ghosts": [{"name": "RandomGhostTeleportingNearWalls", "args": {
-#                  "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}]
+GENERALIZATION_WORLDS = [
+                { "pacman": {}, "ghosts": [{"name": "RandomGhost", "args": {
+                 "index": 1, "prob": {}}}], "perturb": {"noise": {"mean": 0, "std": 0}, "perm": {}}}]
 
 SWAP_LIST = [0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9]
 
@@ -539,13 +540,14 @@ def runLearnability(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fil
         np.savetxt(args['outputStats'] +
                    f"{i}_training_agent.pkl", stats[i],  delimiter=',')
         
-        with open(args['outputStats'] +
-                   f"{i}_training_agent.json", 'w') as f:
-            json.dump(pacman["test"].agent.q_values, f)
+        # with open(args['outputStats'] +
+        #            f"{i}_training_agent.json", 'w') as f:
+        #     json.dump(pacman["test"].agent.q_values, f)
    
         if pacman["test"].__class__.__name__ == "KeyboardAgent":
             pacmanType = loadAgent(pacmanName, 0)
         else:
+            print(pacmanArgs)
             pacmanType = loadAgent(pacmanName, 1)
             pacman["test"] = pacmanType(pacmanArgs)
 
@@ -713,6 +715,8 @@ def runGenralization(pacman, pacmanName, pacmanArgs, ghosts, layout, display, fi
         if applyperturb:
             print("adding noise...")
             for n in range(len(GENERALIZATION_WORLDS)):
+                GENERALIZATION_WORLDS[n]["pacman"]["width"] = pacmanArgs["width"]
+                GENERALIZATION_WORLDS[n]["pacman"]["height"] = pacmanArgs["height"]
                 newworld_pacman, newworld_ghosts = defineAgents(
                     GENERALIZATION_WORLDS[n], pacmanName, 1)
                 transitionMatrixTreeList.append(defineTransitionMatrix(
@@ -832,29 +836,29 @@ if __name__ == '__main__':
     """
     args = readCommand(sys.argv[1:])  # Get game components based on input
     if args['mode'] == 'l':
-        output = runLearnability(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
+        output = runLearnability(args['pacman'], args['pacmanAgentName'], args['agentOpts']['test']['pacman'],
                                  args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], record=args['recording'], **args['statOpts'])
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
     elif args['mode'] == 's':
-        output = runStatistics(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
+        output = runStatistics(args['pacman'], args['pacmanAgentName'],  args['agentOpts']['test']['pacman'],
                                args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], record=args['recording'], **args['statOpts'])
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
     elif args['mode'] == 'e':
-        output = runEnsembleAgents(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
+        output = runEnsembleAgents(args['pacman'], args['pacmanAgentName'],  args['agentOpts']['test']['pacman'],
                                    args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], record=args['recording'], **args['statOpts'])
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
     elif args['mode'] == 'g':
-        output = runGenralization(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
+        output = runGenralization(args['pacman'], args['pacmanAgentName'],  args['agentOpts']['test']['pacman'],
                                   args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], record=args['recording'], **args['statOpts'])
         for n in range(len(GENERALIZATION_WORLDS)):
             np.savetxt(args['outputStats'] +
                        f"_{GENERALIZATION_WORLDS[n]}"+".pkl", output[n],  delimiter=',')
     elif args['mode'] == 'c':
-        output = runCurriculum(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
+        output = runCurriculum(args['pacman'], args['pacmanAgentName'], args['agentOpts']['test']['pacman'],
                                args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], record=args['recording'], **args['statOpts'])
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
     elif args['mode'] == 'd':
-        output = checkDistanceBetweenEnvironments(args['pacman'], args['pacmanAgentName'], args['agentOpts'],
+        output = checkDistanceBetweenEnvironments(args['pacman'], args['pacmanAgentName'], args['agentOpts']['test']['pacman'],
                                args['ghosts'], args['layout'], args['display'], file_to_be_loaded=args['pretrainedAgentName'], applyperturb=args['perturbOpts'], record=args['recording'], **args['statOpts'])
         np.savetxt(args['outputStats']+".pkl", output,  delimiter=',')
     

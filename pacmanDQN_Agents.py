@@ -6,12 +6,12 @@
 # The Pacman AI projects were developed at UC Berkeley found at
 # http://ai.berkeley.edu/project_overview.html
 
-
 import numpy as np
 import random
 import util
 import time
 import sys
+import wandb  # Add Weights and Biases
 
 # Pacman game
 from pacman import Directions
@@ -37,9 +37,7 @@ params = {
     'mem_size': 100000,     # Replay memory size
 
     'discount': 0.95,       # Discount rate (gamma value)
-    'lr': .0002,            # Learning reate
-    # 'rms_decay': 0.99,      # RMS Prop decay (switched to adam)
-    # 'rms_eps': 1e-6,        # RMS Prop epsilon (switched to adam)
+    'lr': .0002,            # Learning rate
 
     # Epsilon value (epsilon-greedy)
     'eps': 1.0,             # Epsilon start value
@@ -47,21 +45,20 @@ params = {
     'eps_step': 10000       # Epsilon steps between start and end (linear)
 }                     
 
-
-
 class PacmanDQN(game.Agent):
-
     def __init__(self, args):
+        # Initialize wandb
+        #wandb.init(project="Pacman-DQN", config=params)
         print("Initialise DQN Agent")
+        
         # Load parameters from user-given arguments
         self.params = params
         self.params['width'] = args['width']
         self.params['height'] = args['height']
-        self.params['num_training'] = args['numTraining']
 
         # Start Tensorflow session
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.1)
-        self.sess = tf.Session(config = tf.ConfigProto(gpu_options = gpu_options))
+        self.sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
         self.qnet = DQN(self.params)
 
         # time started
@@ -81,9 +78,13 @@ class PacmanDQN(game.Agent):
 
         self.replay_mem = deque()
         self.last_scores = deque()
+        self.istrain=False
 
     def save_agent_to_disk(self, filename):
         pickle.dump(self, open(filename, "wb"))
+
+    def set_trainable(self, trainable):
+        self.istrain = trainable
 
     def getMove(self, state):
         # Exploit / Explore
@@ -91,12 +92,12 @@ class PacmanDQN(game.Agent):
             # Exploit action
             self.Q_pred = self.qnet.sess.run(
                 self.qnet.y,
-                feed_dict = {self.qnet.x: np.reshape(self.current_state,
-                                                     (1, self.params['width'], self.params['height'], 6)), 
-                             self.qnet.q_t: np.zeros(1),
-                             self.qnet.actions: np.zeros((1, 4)),
-                             self.qnet.terminals: np.zeros(1),
-                             self.qnet.rewards: np.zeros(1)})[0]
+                feed_dict={self.qnet.x: np.reshape(self.current_state,
+                                                   (1, self.params['width'], self.params['height'], 6)), 
+                           self.qnet.q_t: np.zeros(1),
+                           self.qnet.actions: np.zeros((1, 4)),
+                           self.qnet.terminals: np.zeros(1),
+                           self.qnet.rewards: np.zeros(1)})[0]
 
             self.Q_global.append(max(self.Q_pred))
             a_winner = np.argwhere(self.Q_pred == np.amax(self.Q_pred))
@@ -126,18 +127,17 @@ class PacmanDQN(game.Agent):
             self.last_score = self.current_score
 
             if reward > 20:
-                self.last_reward = 50.    # Eat ghost   (Yum! Yum!)
+                self.last_reward = 50.    # Eat ghost
             elif reward > 0:
-                self.last_reward = 10.    # Eat food    (Yum!)
+                self.last_reward = 10.    # Eat food
             elif reward < -10:
-                self.last_reward = -500.  # Get eaten   (Ouch!) -500
+                self.last_reward = -500.  # Get eaten
                 self.won = False
             elif reward < 0:
-                self.last_reward = -1.    # Punish time (Pff..)
+                self.last_reward = -1.    # Punish time
 
-            
-            if(self.terminal and self.won):
-                self.last_reward = 100.
+            if self.terminal and self.won:
+                self.last_reward = 500.
             self.ep_rew += self.last_reward
 
             # Store last experience into memory 
@@ -146,8 +146,11 @@ class PacmanDQN(game.Agent):
             if len(self.replay_mem) > self.params['mem_size']:
                 self.replay_mem.popleft()
 
+            # Log metrics with wandb
+            #wandb.log({"reward": self.ep_rew, "Q_max": max(self.Q_global, default=float('nan')), "epsilon": self.params['eps']})
+
             # Save model
-            if(params['save_file']):
+            if params['save_file']:
                 if self.local_cnt > self.params['train_start'] and self.local_cnt % self.params['save_interval'] == 0:
                     self.qnet.save_ckpt('saves/model-' + params['save_file'] + "_" + str(self.cnt) + '_' + str(self.numeps))
                     print('Model saved')
@@ -159,14 +162,12 @@ class PacmanDQN(game.Agent):
         self.local_cnt += 1
         self.frame += 1
         self.params['eps'] = max(self.params['eps_final'],
-                                 1.00 - float(self.cnt)/ float(self.params['eps_step']))
-
+                                 1.00 - float(self.cnt) / float(self.params['eps_step']))
 
     def observationFunction(self, state):
         # Do observation
         self.terminal = False
         self.observation_step(state)
-
         return state
 
     def final(self, state):
@@ -178,24 +179,27 @@ class PacmanDQN(game.Agent):
         self.observation_step(state)
 
         # Print stats
-        log_file = open('./logs/'+str(self.general_record_time)+'-l-'+str(self.params['width'])+'-m-'+str(self.params['height'])+'-x-'+str(self.params['num_training'])+'.log','a')
+        log_file = open('./logs/' + str(self.general_record_time) + '-l-' + str(self.params['width']) + '-m-' + str(self.params['height']) +'.log', 'a')
         log_file.write("# %4d | steps: %5d | steps_t: %5d | t: %4f | r: %12f | e: %10f " %
-                         (self.numeps,self.local_cnt, self.cnt, time.time()-self.s, self.ep_rew, self.params['eps']))
-        log_file.write("| Q: %10f | won: %r \n" % ((max(self.Q_global, default=float('nan')), self.won)))
-        sys.stdout.write("# %4d | steps: %5d | steps_t: %5d | t: %4f | r: %12f | e: %10f " %
-                         (self.numeps,self.local_cnt, self.cnt, time.time()-self.s, self.ep_rew, self.params['eps']))
-        sys.stdout.write("| Q: %10f | won: %r \n" % ((max(self.Q_global, default=float('nan')), self.won)))
-        sys.stdout.flush()
+                         (self.numeps, self.local_cnt, self.cnt, time.time()-self.s, self.ep_rew, self.params['eps']))
+        log_file.write("| Q: %10f | won: %r \n" % (max(self.Q_global, default=float('nan')), self.won))
+        #sys.stdout.write("# %4d | steps: %5d | steps_t: %5d | t: %4f | r: %12f | e: %10f " %
+                         #(self.numeps, self.local_cnt, self.cnt, time.time()-self.s, self.ep_rew, self.params['eps']))
+        #sys.stdout.write("| Q: %10f | won: %r \n" % (max(self.Q_global, default=float('nan')), self.won))
+        #sys.stdout.flush()
+
+        # Log final episode metrics
+        #wandb.log({"episode_reward": self.ep_rew, "steps": self.local_cnt, "Q_max": max(self.Q_global, default=float('nan')), "won": self.won})
 
     def train(self):
         # Train
-        if (self.local_cnt > self.params['train_start']):
+        if self.local_cnt > self.params['train_start'] and self.istrain:
             batch = random.sample(self.replay_mem, self.params['batch_size'])
-            batch_s = [] # States (s)
-            batch_r = [] # Rewards (r)
-            batch_a = [] # Actions (a)
-            batch_n = [] # Next states (s')
-            batch_t = [] # Terminal state (t)
+            batch_s = []  # States (s)
+            batch_r = []  # Rewards (r)
+            batch_a = []  # Actions (a)
+            batch_n = []  # Next states (s')
+            batch_t = []  # Terminal state (t)
 
             for i in batch:
                 batch_s.append(i[0])
@@ -203,6 +207,7 @@ class PacmanDQN(game.Agent):
                 batch_a.append(i[2])
                 batch_n.append(i[3])
                 batch_t.append(i[4])
+
             batch_s = np.array(batch_s)
             batch_r = np.array(batch_r)
             batch_a = self.get_onehot(np.array(batch_a))
@@ -210,12 +215,13 @@ class PacmanDQN(game.Agent):
             batch_t = np.array(batch_t)
 
             self.cnt, self.cost_disp = self.qnet.train(batch_s, batch_a, batch_t, batch_n, batch_r)
-
+            # Log training metrics
+            #wandb.log({"training_cost": self.cost_disp, "global_step": self.cnt})
 
     def get_onehot(self, actions):
         """ Create list of vectors with 1 values at index of action in list """
         actions_onehot = np.zeros((self.params['batch_size'], 4))
-        for i in range(len(actions)):                                           
+        for i in range(len(actions)):
             actions_onehot[i][int(actions[i])] = 1      
         return actions_onehot   
 
@@ -308,9 +314,6 @@ class PacmanDQN(game.Agent):
 
             return matrix
 
-        # Create observation matrix as a combination of
-        # wall, pacman, ghost, food and capsule matrices
-        # width, height = state.data.layout.width, state.data.layout.height 
         width, height = self.params['width'], self.params['height']
         observation = np.zeros((6, height, width))
 

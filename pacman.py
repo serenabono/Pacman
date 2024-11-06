@@ -676,6 +676,7 @@ def readCommand(argv):
 
     agentOpts['width'] = layout.getLayout(options.layout).width
     agentOpts['height'] = layout.getLayout(options.layout).height
+    print(agentOpts['width'], agentOpts['height'])
 
     if options.numTraining > 0:
         args['numTraining'] = options.numTraining
@@ -779,7 +780,7 @@ def runGames(layout, pacman, ghosts, display, numGames, record, gameToReplay, sa
     # define transition function
     import time
     start_time = time.time()
-    tree = TransitionMatrixDicTree(pacman, ghosts, layout, noise={"mean":0,"std":0.1})
+    tree = TransitionMatrixDicTree(pacman, ghosts, layout, noise={"mean":0,"std":0})
     tree.computeProbabilities()
     end_time = time.time()
 

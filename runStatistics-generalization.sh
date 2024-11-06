@@ -11,25 +11,25 @@
 #SBATCH --mail-user=serena.bono@childrens.harvard.edu
 
 DATE=$(date '+%d:%m:%Y-%H:%M:%S')
-layout="v4"
+layout="v2"
 semanticDistribution="DistributedNoise"
 noiseType="GaussianNoise"
 training_agents=300
-n_training_steps=10
-n_training_steps=10
-max_record=1000
-min_record=1000
+n_training_steps=100
+n_testing_steps=100
+max_record=10000
+min_record=10000
 record_range='{"max":'$max_record',"min":'$min_record'}'
-run_untill=1000
-epochs=1000
-agent="SarsaAgent"
+run_untill=10000
+epochs=10000
+agent="PacmanDQN"
 exploration="E_GREEDY"
 exploration_name="Egreedy"
 
 trainingenv_mean=0
 trainingenv_std=0
-trainingenv_ghost_name="DirectionalGhost" 
-trainingenv_ghost_args='{"index":1,"prob":0.3}'
+trainingenv_ghost_name="RandomGhostTeleportingNearWalls" 
+trainingenv_ghost_args='{"index":1,"prob":{}}'
 trainingenv_ghostarg='[{"name":"'$trainingenv_ghost_name'","args":'$trainingenv_ghost_args'}]'
 trainingenv_noise_args='{"mean":'$trainingenv_mean',"std":'$trainingenv_std'}'
 trainingenv_perturb='{"noise":'$trainingenv_noise_args',"perm":{}}'
