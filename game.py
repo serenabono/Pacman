@@ -803,7 +803,6 @@ class Game:
             self.moveHistory.append((pacaction, nextstatehash, agentIndex))
 
             self.rules.process(self.state, self)
-            print(self.state)
             self.update()
 
             # Track progress
