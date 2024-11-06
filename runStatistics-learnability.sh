@@ -36,7 +36,7 @@ trainingenv_ghostarg='[{"name":"'${trainingenv_ghost_name}'","args":'${traininge
 trainingenv_noise_args='{"mean":'$trainingenv_mean',"std":'$trainingenv_std'}'
 trainingenv_perturb='{"noise":'$trainingenv_noise_args',"perm":{}}'
 agentprop='{"test":{"pacman":{"exploration_strategy":"'$exploration'"},"ghosts":'$trainingenv_ghostarg',"perturb":'$trainingenv_perturb'}}'
-folder="trial_learnability_${agent}_${exploration_name}_${layout}_${trainingenv_ghost_name}_${trainingenv_ghost_args}_${trainingenv_noise_args}"
+folder="learnability_${agent}_${exploration_name}_${layout}_${trainingenv_ghost_name}_${trainingenv_ghost_args}_${trainingenv_noise_args}"
 outputname=''''$folder'/saved_agent_'$agent'_'$layout'_'$trainingenv_ghost_name'_'$trainingenv_ghost_args'_'$trainingenv_noise_args'_'$training_agents'-'$RANDOM'-'$DATE'-train'''
 
 python statistics.py -m l -p $agent -q -l $layout -a $agentprop -s '{"epochs":'$epochs',"trained_agents":'$training_agents',"n_training_steps":'$n_training_steps',"n_testing_steps":'$n_testing_steps',"timeout":30}' -o $outputname

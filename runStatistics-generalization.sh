@@ -28,7 +28,7 @@ exploration_name="Egreedy"
 
 trainingenv_mean=0
 trainingenv_std=0
-trainingenv_ghost_name="RandomGhostTeleportingNearWalls" 
+trainingenv_ghost_name="RandomGhost" 
 trainingenv_ghost_args='{"index":1,"prob":{}}'
 trainingenv_ghostarg='[{"name":"'$trainingenv_ghost_name'","args":'$trainingenv_ghost_args'}]'
 trainingenv_noise_args='{"mean":'$trainingenv_mean',"std":'$trainingenv_std'}'

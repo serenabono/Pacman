@@ -813,6 +813,10 @@ def runGames(layout, pacman, ghosts, display, numGames, record, gameToReplay, sa
                              gameDisplay, beQuiet, catchExceptions)
         tree.state = game.state
         game.transitionFunctionTree = tree.copy()
+        if 'Boltzmann' in pacman.__class__.__name__:
+            pacman.agent.set_trainable(trainable=True)
+        elif 'PacmanDQN' in pacman.__class__.__name__:
+            pacman.set_trainable(trainable=True)
         game.run(i, numGames)
 
         if not beQuiet:
