@@ -80,9 +80,6 @@ class TransitionMatrixDicTree():
             self.MEAN = noise["mean"]
             self.initializeGeneratorFromCode()
 
-        print("Computational overload: [", self.nStates, " x ",
-              self.nPossibleAcitons, " x ", self.nStates, "]")
-
     def copy(self):
         tree = self
         tree.state = self.state
@@ -194,6 +191,7 @@ class TransitionMatrixDicTree():
                 self.startingIndex, currentelementhash, [], currentelementhash, prob=1)
 
         self.factorLegal = len(self.transitionMatrixDic.keys())
+        print(f"#states: {self.factorLegal}")
 
         if self.swaps:
             self.computeCompleteMatrixSwaps()
