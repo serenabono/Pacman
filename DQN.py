@@ -2,9 +2,8 @@
 # DQN implementation by Tejas Kulkarni found at
 # https://github.com/mrkulk/deepQN_tensorflow
 
-# import numpy as np
-# import tensorflow.compat.v1 as tf
-# tf.disable_v2_behavior()
+import numpy as np
+import tensorflow as tf
 
 class DQN:
     def __init__(self, params):
